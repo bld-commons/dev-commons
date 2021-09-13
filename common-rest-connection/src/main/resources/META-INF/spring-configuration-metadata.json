@@ -1,0 +1,17 @@
+{"groups": [
+    {
+        "name": "com.dxc.common.feign-client.packages",
+        "type": "org.springframework.boot.autoconfigure.web.ServerProperties",
+        "sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+    }
+    
+],"properties": [
+    {
+        "name": "com.dxc.common.feign-client.packages",
+        "type": "java.lang.String",
+        "sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+    }
+    
+    
+]
+}
