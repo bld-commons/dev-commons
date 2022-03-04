@@ -5,7 +5,7 @@ import com.bld.commons.connection.model.BasicRequest;
 /**
  * The Interface ClientConnection.
  */
-public interface ClientConnection {
+public interface RestClientConnection {
 
 	public final static String CONTENT_TYPE="Content-Type";
 	

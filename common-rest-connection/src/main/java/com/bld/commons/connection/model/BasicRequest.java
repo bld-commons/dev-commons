@@ -20,7 +20,9 @@ public class BasicRequest<T> {
 
 	private Object[] uriParams;
 	
-
+	private Integer timeout;
+	
+	
 	public BasicRequest(MediaType mediaType) {
 		super();
 		this.httpHeaders = new HttpHeaders();
@@ -85,4 +87,16 @@ public class BasicRequest<T> {
 		this.uriParams = uriParams;
 	}
 
+
+	public Integer getTimeout() {
+		return timeout;
+	}
+
+
+	public void setTimeout(Integer timeout) {
+		this.timeout = timeout;
+	}
+
+	
+	
 }

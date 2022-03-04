@@ -9,12 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.bld.commons.connection.client.ClientConnection;
+import com.bld.commons.connection.client.RestClientConnection;
 import com.bld.commons.connection.constant.CommonRestConnectionCostant;
 import com.bld.commons.connection.model.BasicRequest;
 import com.bld.commons.connection.utils.RestConnectionMapper;
@@ -23,7 +24,7 @@ import com.bld.commons.connection.utils.RestConnectionMapper;
  * The Class ClientConnectionImpl.
  */
 @Component
-public class ClientConnectionImpl implements ClientConnection {
+public class RestClientConnectionImpl implements RestClientConnection {
 
 	
 
@@ -32,7 +33,7 @@ public class ClientConnectionImpl implements ClientConnection {
 	private RestTemplate restTemplate;
 
 	/** The log. */
-	private final static Log logger = LogFactory.getLog(ClientConnectionImpl.class);
+	private final static Log logger = LogFactory.getLog(RestClientConnectionImpl.class);
 
 	
 	
@@ -78,7 +79,7 @@ public class ClientConnectionImpl implements ClientConnection {
 			break;
 
 		}
-
+		this.setTimeout(basicRequest);
 		ResponseEntity<T> response = this.restTemplate.exchange(url, basicRequest.getMethod(), request, responseClass, basicRequest.getUriParams());
 		obj=response.getBody();
 		
@@ -117,6 +118,23 @@ public class ClientConnectionImpl implements ClientConnection {
 		String url=builder.toUriString();
 		return new RestBuilder(url, request);
 	}
+	
+	
+	
+	private <K> void setTimeout(BasicRequest<K> basicRequest) {
+	    //Explicitly setting ClientHttpRequestFactory instance to     
+	    //SimpleClientHttpRequestFactory instance to leverage 
+	    //set*Timeout methods
+	    restTemplate.setRequestFactory(new SimpleClientHttpRequestFactory());
+	    if(basicRequest.getTimeout()!=null) {
+	    	SimpleClientHttpRequestFactory rf = (SimpleClientHttpRequestFactory) restTemplate
+		            .getRequestFactory();
+		    rf.setReadTimeout(basicRequest.getTimeout());
+		    rf.setConnectTimeout(basicRequest.getTimeout());
+	    }
+	    
+	}
+
 	
 	
 	private class RestBuilder{
