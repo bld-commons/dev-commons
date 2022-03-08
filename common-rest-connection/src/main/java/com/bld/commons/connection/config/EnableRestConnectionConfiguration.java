@@ -1,3 +1,8 @@
+/**
+ * @author Francesco Baldi
+ * @mail francesco.baldi1987@gmail.com
+ * @class com.bld.commons.connection.config.EnableRestConnectionConfiguration.java
+ */
 package com.bld.commons.connection.config;
 
 import java.net.InetSocketAddress;
@@ -15,6 +20,9 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 
+/**
+ * The Class EnableRestConnectionConfiguration.
+ */
 @Configuration
 @ComponentScan(basePackages = {"com.bld.commons.connection"})
 public class EnableRestConnectionConfiguration {
@@ -24,9 +32,14 @@ public class EnableRestConnectionConfiguration {
 	private Integer portProxy;
 
 	/** The proxy. */
-	@Value("${connection.proxy.proxy.ip:}")
+	@Value("${com.dxc.connection.proxy.ip:}")
 	private String proxy;
 	
+	/**
+	 * Rest template.
+	 *
+	 * @return the rest template
+	 */
 	@Bean
 	@LoadBalanced
 	public RestTemplate restTemplate() {

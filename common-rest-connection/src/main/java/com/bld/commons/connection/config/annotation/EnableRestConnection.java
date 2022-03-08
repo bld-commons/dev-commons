@@ -1,3 +1,8 @@
+/**
+ * @author Francesco Baldi
+ * @mail francesco.baldi1987@gmail.com
+ * @class com.bld.commons.connection.config.annotation.EnableRestConnection.java
+ */
 package com.bld.commons.connection.config.annotation;
 
 import static java.lang.annotation.ElementType.TYPE;
@@ -12,6 +17,9 @@ import org.springframework.context.annotation.Import;
 
 import com.bld.commons.connection.config.EnableRestConnectionConfiguration;
 
+/**
+ * The Interface EnableRestConnection.
+ */
 @Configuration
 @Documented
 @Retention(RUNTIME)

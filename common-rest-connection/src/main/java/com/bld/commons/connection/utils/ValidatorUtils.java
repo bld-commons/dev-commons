@@ -1,3 +1,8 @@
+/**
+ * @author Francesco Baldi
+ * @mail francesco.baldi1987@gmail.com
+ * @class com.bld.commons.connection.utils.ValidatorUtils.java
+ */
 package com.bld.commons.connection.utils;
 
 import java.util.Set;
