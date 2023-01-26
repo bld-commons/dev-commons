@@ -13,16 +13,41 @@ import javax.validation.Payload;
 
 import com.bld.commons.utils.validator.AllowedNumberValidator;
 
+/**
+ * The Interface AllowedString.
+ */
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD, PARAMETER })
 @Constraint(validatedBy=AllowedNumberValidator.class)
 public @interface AllowedString {
 
+	/**
+	 * Value.
+	 *
+	 * @return the string[]
+	 */
 	public String[] value();
 	
 	
+    /**
+     * Message.
+     *
+     * @return the string
+     */
     public String message() default "Invalid number";
+    
+    /**
+     * Groups.
+     *
+     * @return the class[]
+     */
     public Class<?>[] groups() default {};
+    
+    /**
+     * Payload.
+     *
+     * @return the class<? extends payload>[]
+     */
     public Class<? extends Payload>[] payload() default {};
     
     

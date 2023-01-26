@@ -1,19 +1,34 @@
 package com.bld.commons.utils.validator;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import com.bld.commons.utils.validator.annotations.AllowedNumber;
 
-public class AllowedNumberValidator implements ConstraintValidator<AllowedNumber, Number> {
+/**
+ * The Class AllowedNumberValidator.
+ */
+public class AllowedNumberValidator  extends AllowedValueValidator<AllowedNumber,Number>{
 
+	/** The valid number values. */
 	private AllowedNumber validNumberValues;
 
+	/**
+	 * Initialize.
+	 *
+	 * @param validNumberValues the valid number values
+	 */
 	@Override
 	public void initialize(AllowedNumber validNumberValues) {
 		this.validNumberValues = validNumberValues;
 	}
 
+	/**
+	 * Checks if is valid.
+	 *
+	 * @param value the value
+	 * @param context the context
+	 * @return true, if is valid
+	 */
 	@Override
 	public boolean isValid(Number value, ConstraintValidatorContext context) {
 		boolean valid = false;
@@ -28,12 +43,18 @@ public class AllowedNumberValidator implements ConstraintValidator<AllowedNumber
 		} else
 			valid = true;
 
-		if (!valid) {
-			String messageError = "The value is not valid";
-			context.disableDefaultConstraintViolation();
-			context.buildConstraintViolationWithTemplate(messageError).addConstraintViolation();
-		}
+		super.setContext(valid, context);
 		return valid;
+	}
+
+	/**
+	 * Gets the message.
+	 *
+	 * @return the message
+	 */
+	@Override
+	protected String getMessage() {
+		return "The value is not valid";
 	}
 
 }
