@@ -11,14 +11,14 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import com.bld.commons.utils.validator.AllowedNumberValidator;
+import com.bld.commons.utils.validator.AllowedStringValidator;
 
 /**
  * The Interface AllowedString.
  */
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD, PARAMETER })
-@Constraint(validatedBy=AllowedNumberValidator.class)
+@Constraint(validatedBy=AllowedStringValidator.class)
 public @interface AllowedString {
 
 	/**

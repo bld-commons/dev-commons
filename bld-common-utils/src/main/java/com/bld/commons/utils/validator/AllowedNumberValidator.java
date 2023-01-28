@@ -11,7 +11,7 @@ public class AllowedNumberValidator  extends AllowedValueValidator<AllowedNumber
 
 	/** The valid number values. */
 	private AllowedNumber validNumberValues;
-
+	
 	/**
 	 * Initialize.
 	 *
@@ -57,7 +57,7 @@ public class AllowedNumberValidator  extends AllowedValueValidator<AllowedNumber
 		String[] values = new String[this.validNumberValues.value().length];
 		for (int i = 0; i < values.length; i++)
 		    values[i] = String.valueOf(this.validNumberValues.value()[i]);
-		return this.validNumberValues.message()+", the values allowed are: "+String.join(",", values);
+		return this.validNumberValues.message()+". The values allowed are: "+String.join(",", values);
 	}
 
 }
