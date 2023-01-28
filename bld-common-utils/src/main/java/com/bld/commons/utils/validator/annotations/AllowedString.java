@@ -34,7 +34,7 @@ public @interface AllowedString {
      *
      * @return the string
      */
-    public String message() default "Invalid number";
+    public String message() default "The value is not valid";
     
     /**
      * Groups.

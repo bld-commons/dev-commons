@@ -10,7 +10,7 @@ import com.bld.commons.utils.types.UpperLowerType;
 /**
  * The Class MaxConsecutiveSpaceProps.
  */
-public class MaxConsecutiveSpaceProps {
+public class CleanExcessSpacesProps {
 	
 	/** The consecutive. */
 	private int consecutive;
@@ -44,7 +44,7 @@ public class MaxConsecutiveSpaceProps {
 	 * @param upperLowerType the upper lower type
 	 * @param removeTab the remove tab
 	 */
-	public MaxConsecutiveSpaceProps(int consecutive, boolean trim, boolean removeEndline, boolean removeAllSpaceType, UpperLowerType upperLowerType, boolean removeTab) {
+	public CleanExcessSpacesProps(int consecutive, boolean trim, boolean removeEndline, boolean removeAllSpaceType, UpperLowerType upperLowerType, boolean removeTab) {
 		super();
 		this.consecutive = consecutive;
 		this.trim = trim;

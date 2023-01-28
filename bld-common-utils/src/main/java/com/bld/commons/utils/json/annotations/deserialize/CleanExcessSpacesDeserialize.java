@@ -9,8 +9,8 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.bld.commons.utils.json.annotations.MaxConsecutiveSpace;
-import com.bld.commons.utils.json.annotations.deserialize.data.MaxConsecutiveSpaceProps;
+import com.bld.commons.utils.json.annotations.CleanExcessSpaces;
+import com.bld.commons.utils.json.annotations.deserialize.data.CleanExcessSpacesProps;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -26,15 +26,15 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
  */
 @SuppressWarnings("serial")
 @JacksonStdImpl
-public class MaxConsecutiveSpaceDeserializer extends StdScalarDeserializer<String> implements ContextualDeserializer{
+public class CleanExcessSpacesDeserialize extends StdScalarDeserializer<String> implements ContextualDeserializer{
 
 	/** The max consecutive space props. */
-	private MaxConsecutiveSpaceProps maxConsecutiveSpaceProps;
+	private CleanExcessSpacesProps cleanExcessSpacesProps;
 	
 	/**
 	 * Instantiates a new max consecutive space deserializer.
 	 */
-	public MaxConsecutiveSpaceDeserializer() {
+	public CleanExcessSpacesDeserialize() {
 		super(String.class);
 	}
 
@@ -45,9 +45,9 @@ public class MaxConsecutiveSpaceDeserializer extends StdScalarDeserializer<Strin
 	 * @param src the src
 	 * @param maxConsecutiveSpaceProps the max consecutive space props
 	 */
-	protected MaxConsecutiveSpaceDeserializer(Class<String> src,MaxConsecutiveSpaceProps maxConsecutiveSpaceProps) {
+	protected CleanExcessSpacesDeserialize(Class<String> src,CleanExcessSpacesProps maxConsecutiveSpaceProps) {
 		super(src);
-		this.maxConsecutiveSpaceProps=maxConsecutiveSpaceProps;
+		this.cleanExcessSpacesProps=maxConsecutiveSpaceProps;
 	}
 
 	/**
@@ -60,9 +60,9 @@ public class MaxConsecutiveSpaceDeserializer extends StdScalarDeserializer<Strin
 	 */
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-		MaxConsecutiveSpace maxConsecutiveSpace = property.getAnnotation(MaxConsecutiveSpace.class);
-		MaxConsecutiveSpaceProps maxConsecutiveSpaceProps = new MaxConsecutiveSpaceProps(maxConsecutiveSpace.consecutive(), maxConsecutiveSpace.trim(),maxConsecutiveSpace.removeEndline(),maxConsecutiveSpace.removeAllSpaceType(),maxConsecutiveSpace.upperLowerType(),maxConsecutiveSpace.removeTab());
-		return new MaxConsecutiveSpaceDeserializer(String.class, maxConsecutiveSpaceProps);
+		CleanExcessSpaces cleanExcessSpaces = property.getAnnotation(CleanExcessSpaces.class);
+		CleanExcessSpacesProps cleanExcessSpacesProps = new CleanExcessSpacesProps(cleanExcessSpaces.consecutive(), cleanExcessSpaces.trim(),cleanExcessSpaces.removeEndline(),cleanExcessSpaces.removeAllSpaceType(),cleanExcessSpaces.upperLowerType(),cleanExcessSpaces.removeTab());
+		return new CleanExcessSpacesDeserialize(String.class, cleanExcessSpacesProps);
 	}
 
 	/**
@@ -78,22 +78,22 @@ public class MaxConsecutiveSpaceDeserializer extends StdScalarDeserializer<Strin
 	public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		String text=p.getText();
 		if(StringUtils.isNotEmpty(text)) {
-			if(maxConsecutiveSpaceProps.isRemoveAllSpaceType()) 
+			if(cleanExcessSpacesProps.isRemoveAllSpaceType()) 
 				text=text.replaceAll("\\s+", "");
 			else {
-				if(maxConsecutiveSpaceProps.isRemoveEndline())
+				if(cleanExcessSpacesProps.isRemoveEndline())
 					text=text.replace("\n", "");
-				if(maxConsecutiveSpaceProps.isRemoveTab())
+				if(cleanExcessSpacesProps.isRemoveTab())
 					text=text.replace("\t", "");
-				if(maxConsecutiveSpaceProps.isTrim())
+				if(cleanExcessSpacesProps.isTrim())
 					text=text.trim();
 				String space="";
-				for(int i=0;i<maxConsecutiveSpaceProps.getConsecutive();i++)
+				for(int i=0;i<cleanExcessSpacesProps.getConsecutive();i++)
 					space+=" ";
 				text=removeSpace(space+" ", space, text);
 			}
 			
-			switch(this.maxConsecutiveSpaceProps.getUpperLowerType()) {
+			switch(this.cleanExcessSpacesProps.getUpperLowerType()) {
 			case LOWER:
 				text=text.toLowerCase();
 				break;

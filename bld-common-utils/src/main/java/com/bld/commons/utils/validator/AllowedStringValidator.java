@@ -54,7 +54,7 @@ public class AllowedStringValidator extends AllowedValueValidator<AllowedString,
 	 */
 	@Override
 	protected String getMessage() {
-		return "The value is not valid";
+		return this.allowedString.message()+", the values allowed are: "+String.join(",", this.allowedString.value());
 	}
 
 }

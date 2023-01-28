@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.bld.commons.utils.json.annotations.deserialize.MaxConsecutiveSpaceDeserializer;
+import com.bld.commons.utils.json.annotations.deserialize.CleanExcessSpacesDeserialize;
 import com.bld.commons.utils.types.UpperLowerType;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD, PARAMETER })
 @JacksonAnnotationsInside
-@JsonDeserialize(using = MaxConsecutiveSpaceDeserializer.class)
+@JsonDeserialize(using = CleanExcessSpacesDeserialize.class)
 @JsonInclude(Include.NON_NULL)
-public @interface MaxConsecutiveSpace {
+public @interface CleanExcessSpaces {
 
 	/**
 	 * Removes the all space type.

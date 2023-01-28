@@ -33,7 +33,7 @@ public class AllowedNumberValidator  extends AllowedValueValidator<AllowedNumber
 	public boolean isValid(Number value, ConstraintValidatorContext context) {
 		boolean valid = false;
 		if (value != null) {
-			for (Double checkValue : validNumberValues.value()) {
+			for (Double checkValue : this.validNumberValues.value()) {
 				if (checkValue.doubleValue() == value.doubleValue()) {
 					valid = true;
 					break;
@@ -54,7 +54,10 @@ public class AllowedNumberValidator  extends AllowedValueValidator<AllowedNumber
 	 */
 	@Override
 	protected String getMessage() {
-		return "The value is not valid";
+		String[] values = new String[this.validNumberValues.value().length];
+		for (int i = 0; i < values.length; i++)
+		    values[i] = String.valueOf(this.validNumberValues.value()[i]);
+		return this.validNumberValues.message()+", the values allowed are: "+String.join(",", values);
 	}
 
 }
