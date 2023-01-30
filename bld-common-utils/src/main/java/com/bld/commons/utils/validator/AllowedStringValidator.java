@@ -54,7 +54,10 @@ public class AllowedStringValidator extends AllowedValueValidator<AllowedString,
 	 */
 	@Override
 	protected String getMessage() {
-		return this.allowedString.message()+". The values allowed are: "+String.join(",", this.allowedString.value());
+		String message=this.allowedString.message();
+		if(DEFAULT_MESSAGE.equals(message))
+			message+=" The values allowed are: "+String.join(",", this.allowedString.value());
+		return message;
 	}
 
 }

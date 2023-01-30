@@ -13,6 +13,8 @@ import javax.validation.ConstraintValidatorContext;
  */
 public abstract class AllowedValueValidator<A extends Annotation,T> implements ConstraintValidator<A, T>{
 
+	public final static String DEFAULT_MESSAGE="The value is not valid.";
+	
 	/**
 	 * Gets the message.
 	 *

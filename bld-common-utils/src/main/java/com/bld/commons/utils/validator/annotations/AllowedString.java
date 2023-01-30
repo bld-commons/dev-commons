@@ -12,6 +12,7 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 import com.bld.commons.utils.validator.AllowedStringValidator;
+import com.bld.commons.utils.validator.AllowedValueValidator;
 
 /**
  * The Interface AllowedString.
@@ -34,7 +35,7 @@ public @interface AllowedString {
      *
      * @return the string
      */
-    public String message() default "The value is not valid";
+    public String message() default AllowedValueValidator.DEFAULT_MESSAGE;
     
     /**
      * Groups.
