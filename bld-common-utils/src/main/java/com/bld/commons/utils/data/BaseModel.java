@@ -47,10 +47,10 @@ public class BaseModel<ID> implements Serializable{
 	/**
 	 * Sets the id.
 	 *
-	 * @param idModel the new id
+	 * @param id the new id
 	 */
-	public void setId(ID idModel) {
-		this.id = idModel;
+	public void setId(ID id) {
+		this.id = id;
 	}
 
 	/**

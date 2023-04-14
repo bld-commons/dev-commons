@@ -7,6 +7,9 @@ package com.bld.commons.utils.data;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 /**
  * The Class CollectionResponse.
  *
@@ -30,15 +33,14 @@ public class CollectionResponse<T> extends ObjectResponse<Collection<T>> {
 	public CollectionResponse() {
 		super();
 	}
-		
-		/**
-		 * Instantiates a new collection response.
-		 *
-		 * @param data the data
-		 */
-		public CollectionResponse(Collection<T> data) {
+
+	/**
+	 * Instantiates a new collection response.
+	 *
+	 * @param data the data
+	 */
+	public CollectionResponse(Collection<T> data) {
 		super(data);
-	
 	}
 
 	/**
@@ -94,6 +96,19 @@ public class CollectionResponse<T> extends ObjectResponse<Collection<T>> {
 	public void setPageNumber(Integer pageNumber) {
 		this.pageNumber = pageNumber;
 	}
+	
 
+	/**
+	 * Gets the next page number.
+	 *
+	 * @return the next page number
+	 */
+	@JsonProperty(value = "nextPageNumber", access = Access.READ_ONLY)
+	public Integer getNextPageNumber() {
+		Integer nextPageNumber = this.pageNumber;
+		if (nextPageNumber != null)
+			nextPageNumber++;
+		return nextPageNumber;
+	}
 
 }

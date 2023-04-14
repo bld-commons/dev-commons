@@ -377,6 +377,37 @@ public class DateUtils {
 		return date;
 	}
 	
+	public static Integer getYear(Calendar date) {
+		Integer year=null;
+		if(date!=null)
+			year=date.get(Calendar.YEAR);
+		return year;
+	}
 	
+	public static Integer getMonth(Calendar date) {
+		Integer month=null;
+		if(date!=null)
+			month=date.get(Calendar.MONTH);
+		return month;
+	}
+	
+	public static Integer getDayOfMonth(Calendar date) {
+		Integer day=null;
+		if(date!=null)
+			day=date.get(Calendar.DATE);
+		return day;
+	}
+	
+	public static Integer getYear(Date date) {
+		return getYear(dateToCalendar(date));
+	}
+	
+	public static Integer getMonth(Date date) {
+		return getMonth(dateToCalendar(date));
+	}
+	
+	public static Integer getDayOfMonth(Date date) {
+		return getDayOfMonth(dateToCalendar(date));
+	}
 	
 }

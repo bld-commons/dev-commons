@@ -27,7 +27,7 @@ public class ClobSerializer extends StdScalarSerializer<Clob> {
 				String singleLine = null;
 				StringBuilder strBuilder = new StringBuilder();
 				while ((singleLine = stringReader.readLine()) != null) 
-					strBuilder.append(singleLine+"\n");
+					strBuilder.append(singleLine).append("\n");
 				json = strBuilder.toString();
 				json=json.replaceAll("\u001B\\[[\\d;]*[^\\d;]","");
 			} catch (SQLException e) {
