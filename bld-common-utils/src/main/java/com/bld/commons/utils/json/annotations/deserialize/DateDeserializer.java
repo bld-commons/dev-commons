@@ -142,13 +142,15 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 			this.dateFilterDeserializer = new DateFilterDeserializer(dateFilter.timeZone(), dateFilter.format(), dateFilter.addYear(), dateFilter.addMonth(), dateFilter.addWeek(), dateFilter.addDay(), dateFilter.addHour(),
 					dateFilter.addMinute(), dateFilter.addSecond());
 		if (DateUtils.ENV_TIME_ZONE.equals(this.dateFilterDeserializer.getTimeZone())) {
-			if (this.env.getProperty(DateUtils.PROPS_TIME_ZONE) == null)
+			if (this.env== null || this.env.getProperty(DateUtils.PROPS_TIME_ZONE) == null)
 				this.setSimpleDateFormat(TimeZone.getDefault(), this.dateFilterDeserializer.getFormat());
 			else
 				this.setSimpleDateFormat(TimeZone.getTimeZone(this.env.getProperty(DateUtils.PROPS_TIME_ZONE)), this.dateFilterDeserializer.getFormat());
-		} else {
+		} else if(this.dateFilterDeserializer.getTimeZone().trim().startsWith("${")){
 			String timeZone = this.dateFilterDeserializer.getTimeZone().replace("${", "").replace("}", "");
 			this.setSimpleDateFormat(TimeZone.getTimeZone(this.env.getProperty(timeZone, timeZone)), this.dateFilterDeserializer.getFormat());
+		}else {
+			this.setSimpleDateFormat(TimeZone.getTimeZone(this.dateFilterDeserializer.getTimeZone().trim()), this.dateFilterDeserializer.getFormat());
 		}
 
 		if (property.getType() != null && property.getType().getRawClass() != null)

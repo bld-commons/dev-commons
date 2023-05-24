@@ -38,7 +38,10 @@ public class StaticApplicationContext  implements ApplicationContextAware{
 	 * @return the bean
 	 */
 	public static <T> T getBean(Class<T>classBean) {
-		return applicationContext.getBean(classBean);
+		T bean=null;
+		if(applicationContext!=null)
+			bean=applicationContext.getBean(classBean);
+		return bean;
 	}
 	
 	/**
@@ -51,7 +54,10 @@ public class StaticApplicationContext  implements ApplicationContextAware{
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getBean(String className,Class<T>classBean) {
-		return (T)applicationContext.getBean(className);
+		T bean=null;
+		if(applicationContext!=null)
+			bean=(T)applicationContext.getBean(className);
+		return bean;
 	}
 	
 }
