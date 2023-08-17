@@ -9,7 +9,7 @@
 		<version>1.0.3</version>
 	</parent>
 	<artifactId>common-rest-connection</artifactId>
-	<name>common-rest-connection</name>
+	<version>1.0.4</version>
 
 
 

@@ -203,6 +203,11 @@ public abstract class BasicRequest<T> {
 	public void setBearerAuth(String token) {
 		this.httpHeaders.setBearerAuth(token);
 	}
+		
+	public void setBasicAuth(String usermame,String password) {
+		this.httpHeaders.setBasicAuth(usermame, password);
+	}
+	
 	
 
 }
