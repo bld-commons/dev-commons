@@ -1,3 +1,7 @@
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.jks.config.CryptoJksConfiguration.java
+ */
 package com.bld.crypto.jks.config;
 
 import java.io.InputStream;
@@ -15,15 +19,26 @@ import org.springframework.context.annotation.Configuration;
 import com.bld.crypto.jks.config.data.CipherJks;
 import com.bld.crypto.jks.config.properties.JksProperties;
 
+
+/**
+ * The Class EnableCryptoJksConfiguration.
+ */
 @Configuration
 @ConditionalOnProperty("com.bld.crypto.jks.file")
 @ComponentScan(basePackages = {"com.bld.crypto.jks","com.bld.crypto.bean"})
-public class EnableCryptoJksConfiguration {
+public class CryptoJksConfiguration {
 
 	
+	/** The jks properties. */
 	@Autowired
 	private JksProperties jksProperties;
 	
+	/**
+	 * Cipher jks.
+	 *
+	 * @return the cipher jks
+	 * @throws Exception the exception
+	 */
 	@Bean
 	public CipherJks cipherJks() throws Exception {
 		KeyStore store = KeyStore.getInstance(this.jksProperties.getInstanceJks());

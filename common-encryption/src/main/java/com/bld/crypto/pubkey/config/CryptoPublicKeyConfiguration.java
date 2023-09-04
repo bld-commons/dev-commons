@@ -1,3 +1,7 @@
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.pubkey.config.CryptoPublicKeyConfiguration.java
+ */
 package com.bld.crypto.pubkey.config;
 
 import java.io.InputStreamReader;
@@ -21,18 +25,29 @@ import com.bld.crypto.pubkey.config.data.CipherPublicKeys;
 import com.bld.crypto.pubkey.config.data.PublicKeyProperties;
 import com.bld.crypto.type.InstanceType;
 
+
+/**
+ * The Class EnableCryptoPublicKeyConfiguration.
+ */
 @Configuration
 @Conditional(PubKeyConditional.class)
 //@ConditionalOnProperty(name = "com.bld.crypto.public-key.keys")
 @ComponentScan(basePackages = { "com.bld.crypto.pubkey","com.bld.crypto.bean" })
-public class EnableCryptoPublicKeyConfiguration {
+public class CryptoPublicKeyConfiguration {
 
+	/** The public key props. */
 	@Autowired
 	private PublicKeyProperties publicKeyProps;
 
 
+	/**
+	 * Pipher public keys.
+	 *
+	 * @return the cipher public keys
+	 * @throws Exception the exception
+	 */
 	@Bean
-	public CipherPublicKeys pipherPublicKeys() throws Exception {
+	public CipherPublicKeys cipherPublicKeys() throws Exception {
 		CipherPublicKeys cipherPublicKeys=new CipherPublicKeys();
 		for(Entry<String, Resource> key:publicKeyProps.getKeys().entrySet()) {
 			KeyFactory factory = KeyFactory.getInstance(InstanceType.RSA.name());

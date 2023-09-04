@@ -1,3 +1,7 @@
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.deserializer.DecryptCertificateDeserializer.java
+ */
 package com.bld.crypto.deserializer;
 
 import java.io.IOException;
@@ -24,28 +28,56 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
+
+/**
+ * The Class DecryptCertificateDeserializer.
+ *
+ * @param <T> the generic type
+ */
 @SuppressWarnings({ "serial", "unchecked" })
 public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeserializer<T>{
 
+	/** The Constant logger. */
 	private final static Logger logger = LoggerFactory.getLogger(DecryptCertificateDeserializer.class);
 	
+	/** The obj mapper. */
 	@Autowired
 	protected ObjectMapper objMapper;
 	
+	/** The class field. */
 	protected Class<T> classField;
 
+	/** The class list type. */
 	protected Class<?> classListType;
 	
+	/**
+	 * Instantiates a new decrypt certificate deserializer.
+	 *
+	 * @param t the t
+	 */
 	protected DecryptCertificateDeserializer(Class<?> t) {
 		super(t);
 	}
 	
+	/**
+	 * Instantiates a new decrypt certificate deserializer.
+	 *
+	 * @param javaType the java type
+	 * @param objMapper the obj mapper
+	 */
 	protected DecryptCertificateDeserializer(JavaType javaType,ObjectMapper objMapper) {
 		super(javaType);
 		this.classField = (Class<T>) javaType.getRawClass();
 		this.objMapper=objMapper;
 	}
 	
+	/**
+	 * Instantiates a new decrypt certificate deserializer.
+	 *
+	 * @param javaType the java type
+	 * @param classListType the class list type
+	 * @param objMapper the obj mapper
+	 */
 	protected DecryptCertificateDeserializer(JavaType javaType,Class<?> classListType,ObjectMapper objMapper) {
 		this(javaType,objMapper);
 		this.classListType=classListType;
@@ -102,6 +134,16 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 		return value;
 	}
 
+	/**
+	 * Gets the value.
+	 *
+	 * @param <F> the generic type
+	 * @param word the word
+	 * @param classField the class field
+	 * @return the value
+	 * @throws JsonMappingException the json mapping exception
+	 * @throws JsonProcessingException the json processing exception
+	 */
 	private <F> F getValue(String word, Class<F> classField) throws JsonMappingException, JsonProcessingException {
 		F value = null;
 		if (StringUtils.isNoneBlank(word)) {
@@ -127,13 +169,32 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 		return value;
 	}
 
+	/**
+	 * Checks if is assignable from.
+	 *
+	 * @param classField the class field
+	 * @return true, if is assignable from
+	 */
 	private boolean isAssignableFrom(Class<?> classField) {
 		return classField.isAssignableFrom(super._valueClass);
 	}
 
+	/**
+	 * Decrypt.
+	 *
+	 * @param word the word
+	 * @return the string
+	 */
 	protected abstract String decrypt(String word);
 
 
+	/**
+	 * List crypto.
+	 *
+	 * @param p the p
+	 * @return the list
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	private List<String> listCrypto(JsonParser p) throws IOException {
 		JsonToken nextValue = p.nextValue();
 		List<String> list = new ArrayList<>();

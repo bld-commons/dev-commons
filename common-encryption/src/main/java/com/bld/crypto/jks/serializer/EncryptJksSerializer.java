@@ -1,9 +1,13 @@
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.jks.serializer.EncryptJksSerializer.java
+ */
 package com.bld.crypto.jks.serializer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.jks.CryptoJksUtils;
-import com.bld.crypto.jks.annotations.CryptoJks;
+import com.bld.crypto.jks.annotation.CryptoJks;
 import com.bld.crypto.serializer.EncryptCertificateSerializer;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -13,6 +17,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
+
+/**
+ * The Class EncryptJksSerializer.
+ *
+ * @param <T> the generic type
+ */
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class EncryptJksSerializer<T> extends EncryptCertificateSerializer<T> implements ContextualSerializer {
@@ -20,26 +30,52 @@ public class EncryptJksSerializer<T> extends EncryptCertificateSerializer<T> imp
 	/** The upper lower. */
 	private CryptoJks crypto;
 
+	/** The crypto jks utils. */
 	@Autowired
 	private CryptoJksUtils cryptoJksUtils;
 	
 
 
+	/**
+	 * Instantiates a new encrypt jks serializer.
+	 */
 	public EncryptJksSerializer() {
 		this(null, null);
 	}
 
+	/**
+	 * Instantiates a new encrypt jks serializer.
+	 *
+	 * @param t the t
+	 * @param crypto the crypto
+	 */
 	private EncryptJksSerializer(Class<T> t, CryptoJks crypto) {
 		super(t);
 		this.crypto = crypto;
 	}
 	
+	/**
+	 * Instantiates a new encrypt jks serializer.
+	 *
+	 * @param t the t
+	 * @param crypto the crypto
+	 * @param cryptoJksUtils the crypto jks utils
+	 * @param objMapper the obj mapper
+	 */
 	private EncryptJksSerializer(Class<T> t, CryptoJks crypto,CryptoJksUtils cryptoJksUtils,ObjectMapper objMapper) {
 		super(t,objMapper);
 		this.crypto = crypto;
 		this.cryptoJksUtils=cryptoJksUtils;
 	}
 
+	/**
+	 * Creates the contextual.
+	 *
+	 * @param prov the prov
+	 * @param property the property
+	 * @return the json serializer
+	 * @throws JsonMappingException the json mapping exception
+	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
 		this.crypto = property.getAnnotation(CryptoJks.class);
@@ -49,6 +85,12 @@ public class EncryptJksSerializer<T> extends EncryptCertificateSerializer<T> imp
 			return this;
 	}
 
+	/**
+	 * Encrypt value.
+	 *
+	 * @param word the word
+	 * @return the string
+	 */
 	@Override
 	protected String encryptValue(String word) {
 		word = this.crypto.url() ? this.cryptoJksUtils.encryptUri(word, this.crypto.encrypt()) : this.cryptoJksUtils.encryptValue(word, this.crypto.encrypt());

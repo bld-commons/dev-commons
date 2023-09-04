@@ -1,7 +1,6 @@
-/**
- * @author Francesco Baldi
- * @mail francesco.baldi1987@gmail.com
- * @class com.bld.commons.connection.config.annotation.EnableRestConnection.java
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.config.annotation.EnableCrypto.java
  */
 package com.bld.crypto.config.annotation;
 
@@ -15,9 +14,10 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.bld.crypto.config.EnableCryptoConfiguration;
-import com.bld.crypto.jks.config.EnableCryptoJksConfiguration;
-import com.bld.crypto.pubkey.config.EnableCryptoPublicKeyConfiguration;
+import com.bld.crypto.aes.config.AesConfiguration;
+import com.bld.crypto.config.CryptoConfiguration;
+import com.bld.crypto.jks.config.CryptoJksConfiguration;
+import com.bld.crypto.pubkey.config.CryptoPublicKeyConfiguration;
 
 /**
  * The Interface EnableRestConnection.
@@ -26,7 +26,7 @@ import com.bld.crypto.pubkey.config.EnableCryptoPublicKeyConfiguration;
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
-@Import({EnableCryptoConfiguration.class,EnableCryptoJksConfiguration.class,EnableCryptoPublicKeyConfiguration.class})
+@Import({CryptoConfiguration.class,CryptoJksConfiguration.class,CryptoPublicKeyConfiguration.class,AesConfiguration.class})
 public @interface EnableCrypto {
 
 }

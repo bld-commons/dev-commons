@@ -1,3 +1,8 @@
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.bean.CryptoKeyUtils.java
+ */
+
 package com.bld.crypto.bean;
 
 import java.nio.charset.StandardCharsets;
@@ -20,19 +25,42 @@ import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.type.InstanceType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
+/**
+ * The Class CryptoKeyUtils.
+ */
 public abstract class CryptoKeyUtils {
 	
+	/** The Constant _252F. */
 	protected static final String _252F = "_252F25_";
 
+	/** The Constant _2F. */
 	protected static final String _2F = "%2F";
 
+	/**
+	 * Instance type.
+	 *
+	 * @return the instance type
+	 */
 	protected abstract InstanceType instanceType();
 	
+	/** The Constant logger. */
 	private final static Logger logger=LoggerFactory.getLogger(CryptoKeyUtils.class);
 	
+	/** The obj mapper. */
 	@Autowired
 	protected ObjectMapper objMapper;
 	
+	/**
+	 * Gets the cipher.
+	 *
+	 * @param mode the mode
+	 * @param key the key
+	 * @return the cipher
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
+	 * @throws NoSuchPaddingException the no such padding exception
+	 * @throws InvalidKeyException the invalid key exception
+	 */
 	protected Cipher getCipher(int mode,Key key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
 		Cipher cipher = Cipher.getInstance(this.instanceType().name());
 		cipher.init(mode, key);
@@ -40,6 +68,13 @@ public abstract class CryptoKeyUtils {
 	}
 	
 	
+	/**
+	 * Encrypt value.
+	 *
+	 * @param value the value
+	 * @param key the key
+	 * @return the string
+	 */
 	public String encryptValue(final String value,final Key key) {
 		String valueEncrypted = null;
 		if (StringUtils.isNotBlank(value)) {
@@ -57,6 +92,13 @@ public abstract class CryptoKeyUtils {
 	}
 	
 	
+	/**
+	 * Decrypt value.
+	 *
+	 * @param value the value
+	 * @param key the key
+	 * @return the string
+	 */
 	public String decryptValue(final String value,final Key key) {
 		String valueDecripted = null;
 		if (StringUtils.isNotBlank(value)) {
@@ -73,17 +115,44 @@ public abstract class CryptoKeyUtils {
 		return valueDecripted;
 	}
 	
+	/**
+	 * Encrypt value.
+	 *
+	 * @param value the value
+	 * @param key the key
+	 * @return the string
+	 */
 	protected abstract String encryptValue(String value,final String key);
 
+	/**
+	 * Decrypt value.
+	 *
+	 * @param value the value
+	 * @param key the key
+	 * @return the string
+	 */
 	protected abstract String decryptValue(String value,final String key);
 	
 	
+	/**
+	 * Encrypt uri.
+	 *
+	 * @param value the value
+	 * @param key the key
+	 * @return the string
+	 */
 	protected String encryptUri(String value,final String key) {
 		String valueEncrypted = encryptValue(value,key);
 		return encodeValue(valueEncrypted);
 	}
 
 
+	/**
+	 * Encode value.
+	 *
+	 * @param valueEncrypted the value encrypted
+	 * @return the string
+	 */
 	protected String encodeValue(String valueEncrypted) {
 		if (StringUtils.isNotEmpty(valueEncrypted))
 			return UriUtils.encode(valueEncrypted, StandardCharsets.UTF_8).replace(_2F, _252F).replace(_2F.toLowerCase(), _252F.toLowerCase());
@@ -91,6 +160,13 @@ public abstract class CryptoKeyUtils {
 			return null;
 	}
 	
+	/**
+	 * Decrypt uri.
+	 *
+	 * @param value the value
+	 * @param key the key
+	 * @return the string
+	 */
 	protected String decryptUri(String value,final String key) {
 		if (StringUtils.isBlank(value))
 			return null;

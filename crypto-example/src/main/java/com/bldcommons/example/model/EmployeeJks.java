@@ -2,7 +2,7 @@ package com.bldcommons.example.model;
 
 import java.util.List;
 
-import com.bld.crypto.jks.annotations.CryptoJks;
+import com.bld.crypto.jks.annotation.CryptoJks;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

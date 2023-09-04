@@ -4,7 +4,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.bld.commons.utils.validator.annotations.AllowedNumber;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class AllowedNumberValidator.
  */

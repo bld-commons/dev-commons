@@ -1,3 +1,7 @@
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.serializer.EncryptCertificateSerializer.java
+ */
 package com.bld.crypto.serializer;
 
 import java.io.IOException;
@@ -13,21 +17,47 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
+
+/**
+ * The Class EncryptCertificateSerializer.
+ *
+ * @param <T> the generic type
+ */
 @SuppressWarnings({ "serial", "unchecked" })
 public abstract class EncryptCertificateSerializer<T> extends StdScalarSerializer<T> {
 
+	/** The obj mapper. */
 	@Autowired
 	protected ObjectMapper objMapper;
 
+	/**
+	 * Instantiates a new encrypt certificate serializer.
+	 *
+	 * @param t the t
+	 */
 	protected EncryptCertificateSerializer(Class<T> t) {
 		super(t);
 	}
 
+	/**
+	 * Instantiates a new encrypt certificate serializer.
+	 *
+	 * @param t the t
+	 * @param objMapper the obj mapper
+	 */
 	protected EncryptCertificateSerializer(Class<T> t, ObjectMapper objMapper) {
 		super(t);
 		this.objMapper = objMapper;
 	}
 
+	/**
+	 * Serialize.
+	 *
+	 * @param value the value
+	 * @param gen the gen
+	 * @param provider the provider
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Override
 	public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 		String word = "";
@@ -47,13 +77,32 @@ public abstract class EncryptCertificateSerializer<T> extends StdScalarSerialize
 
 	}
 
+	/**
+	 * Encrypt.
+	 *
+	 * @param value the value
+	 * @return the string
+	 */
 	private String encrypt(T value) {
 		String word = value.toString();
 		return encryptValue(word);
 	}
 
+	/**
+	 * Encrypt value.
+	 *
+	 * @param word the word
+	 * @return the string
+	 */
 	protected abstract String encryptValue(String word);
 
+	/**
+	 * Write array.
+	 *
+	 * @param list the list
+	 * @param gen the gen
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	private void writeArray(List<T> list, JsonGenerator gen) throws IOException {
 		String[] array = new String[list.size()];
 		int i = 0;

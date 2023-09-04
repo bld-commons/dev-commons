@@ -10,4 +10,10 @@ com:
       public-key:
         keys:
           test: classpath:keystore.pub
+      aes:
+        keys:
+          test: 
+            password: Test12345!
+            salt: helloWorld@123
+            key-length: 256
         

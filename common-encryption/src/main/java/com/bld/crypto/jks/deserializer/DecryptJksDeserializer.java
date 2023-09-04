@@ -1,7 +1,6 @@
-/**
- * @author Francesco Baldi
- * @mail francesco.baldi1987@gmail.com
- * @class bld.commons.reflection.annotations.deserialize.UpperLowerDeserializer.java
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.jks.deserializer.DecryptJksDeserializer.java
  */
 package com.bld.crypto.jks.deserializer;
 
@@ -11,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
 import com.bld.crypto.jks.CryptoJksUtils;
-import com.bld.crypto.jks.annotations.CryptoJks;
+import com.bld.crypto.jks.annotation.CryptoJks;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -21,8 +20,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
+
 /**
  * The Class UpperLowerDeserializer.
+ *
+ * @param <T> the generic type
  */
 @SuppressWarnings({ "serial"})
 @JacksonStdImpl
@@ -31,6 +33,7 @@ public class DecryptJksDeserializer<T> extends DecryptCertificateDeserializer<T>
 	/** The upper lower. */
 	private CryptoJks crypto;
 
+	/** The crypto jks utils. */
 	@Autowired
 	private CryptoJksUtils cryptoJksUtils;
 
@@ -45,18 +48,36 @@ public class DecryptJksDeserializer<T> extends DecryptCertificateDeserializer<T>
 	/**
 	 * Instantiates a new upper lower deserializer.
 	 *
-	 * @param vc the vc
+	 * @param javaType the java type
+	 * @param crypto the crypto
+	 * @param cryptoJksUtils the crypto jks utils
+	 * @param objMapper the obj mapper
 	 */
 	private DecryptJksDeserializer(JavaType javaType, CryptoJks crypto,CryptoJksUtils cryptoJksUtils,ObjectMapper objMapper) {
 		super(javaType,objMapper);
 		init(crypto, cryptoJksUtils);
 	}
 
+	/**
+	 * Inits the.
+	 *
+	 * @param crypto the crypto
+	 * @param cryptoJksUtils the crypto jks utils
+	 */
 	private void init(CryptoJks crypto, CryptoJksUtils cryptoJksUtils) {
 		this.crypto = crypto;
 		this.cryptoJksUtils=cryptoJksUtils;
 	}
 
+	/**
+	 * Instantiates a new decrypt jks deserializer.
+	 *
+	 * @param javaType the java type
+	 * @param classListType the class list type
+	 * @param crypto the crypto
+	 * @param cryptoJksUtils the crypto jks utils
+	 * @param objMapper the obj mapper
+	 */
 	private DecryptJksDeserializer(JavaType javaType, Class<?> classListType, CryptoJks crypto,CryptoJksUtils cryptoJksUtils,ObjectMapper objMapper) {
 		super(javaType,classListType,objMapper);
 		init(crypto, cryptoJksUtils);
@@ -86,6 +107,12 @@ public class DecryptJksDeserializer<T> extends DecryptCertificateDeserializer<T>
 
 
 
+	/**
+	 * Decrypt.
+	 *
+	 * @param word the word
+	 * @return the string
+	 */
 	protected String decrypt(String word) {
 		if (this.crypto.url())
 			word = this.cryptoJksUtils.decryptUri(word,this.crypto.decrypt());
