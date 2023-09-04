@@ -44,11 +44,7 @@ public @interface AllowedNumber {
      */
     public Class<?>[] groups() default {};
     
-    /**
-     * Payload.
-     *
-     * @return the class<? extends payload>[]
-     */
+
     public Class<? extends Payload>[] payload() default {};
     
     

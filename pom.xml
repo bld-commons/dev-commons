@@ -40,7 +40,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.4</version>
+		<version>2.7.7</version>
 		<relativePath />
 	</parent>
 
@@ -57,6 +57,7 @@
 		<commons-lang.version>2.6</commons-lang.version>
 		<javax.servlet-version>2.5</javax.servlet-version>
 		<spring-cloud-commons.version>3.1.0</spring-cloud-commons.version>
+		<io.jsonwebtoken-version>0.11.5</io.jsonwebtoken-version>
 		<!-- PLUGIN INIZIO -->
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<java.version>1.8</java.version>
@@ -68,6 +69,8 @@
 		<class-generator.version>1.0.1</class-generator.version>
 		<maven-site-plugin.version>3.8.2</maven-site-plugin.version>
 		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
+		<org.bouncycastle-version>1.76</org.bouncycastle-version>
+		<common-annotations.version>1.0.0</common-annotations.version>
 	</properties>
 
 	<scm>
@@ -80,10 +83,37 @@
 	<modules>
 		<module>common-rest-connection</module>
 		<module>bld-common-utils</module>
+		<module>common-annotations</module>
+		<module>common-encryption</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.github.bld-commons</groupId>
+				<artifactId>common-annotations</artifactId>
+				<version>${common-annotations.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk18on</artifactId>
+				<version>${org.bouncycastle-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-api</artifactId>
+				<version>${io.jsonwebtoken-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>${io.jsonwebtoken-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>${io.jsonwebtoken-version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-commons</artifactId>

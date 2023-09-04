@@ -12,10 +12,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.springframework.core.env.Environment;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.AbstractEnvironment;
 
 import com.bld.commons.utils.DateUtils;
-import com.bld.commons.utils.StaticApplicationContext;
 import com.bld.commons.utils.json.annotations.JsonDateTimeZone;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -36,7 +37,8 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 public class DateSerializer<T> extends StdScalarSerializer<T> implements ContextualSerializer {
 
 	/** The env. */
-	private Environment env = null;
+	@Autowired
+	private AbstractEnvironment env = null;
 
 	/** The date time zone. */
 	protected JsonDateTimeZone dateTimeZone = null;
@@ -50,17 +52,21 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 */
 	public DateSerializer() {
 		this(null);
-		this.env=StaticApplicationContext.getBean(Environment.class);
 	}
+	
+	private DateSerializer(Class<T> t) {
+		super(t);
+	}
+
 
 	/**
 	 * Instantiates a new custom date serializer.
 	 *
 	 * @param t the t
 	 */
-	public DateSerializer(Class<T> t) {
+	private DateSerializer(Class<T> t,AbstractEnvironment env) {
 		super(t);
-		this.env=StaticApplicationContext.getBean(Environment.class);
+		this.env=env;
 	}
 
 	/**
@@ -70,11 +76,11 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 * @param dateTimeZone the date time zone
 	 * @param simpleDateFormat the simple date format
 	 */
-	private DateSerializer(Class<T> classDate, JsonDateTimeZone dateTimeZone, SimpleDateFormat simpleDateFormat) {
+	private DateSerializer(Class<T> classDate, JsonDateTimeZone dateTimeZone, SimpleDateFormat simpleDateFormat,AbstractEnvironment env) {
 		super(classDate);
 		this.dateTimeZone = dateTimeZone;
 		this.simpleDateFormat = simpleDateFormat;
-		this.env = StaticApplicationContext.getBean(Environment.class);
+		this.env = env;
 	}
 	
 	
@@ -132,17 +138,16 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
 		this.dateTimeZone = property.getAnnotation(JsonDateTimeZone.class);
-		if (DateUtils.ENV_TIME_ZONE.equals(this.dateTimeZone.timeZone())) {
-			if (this.env.getProperty(DateUtils.PROPS_TIME_ZONE) == null)
-				this.setSimpleDateFormat(TimeZone.getDefault(), this.dateTimeZone.format());
-			else
-				this.setSimpleDateFormat(TimeZone.getTimeZone(this.env.getProperty(DateUtils.PROPS_TIME_ZONE)), this.dateTimeZone.format());
-		} else {
-			String timeZone=this.dateTimeZone.timeZone().replace("${", "").replace("}", "");
-			this.setSimpleDateFormat(TimeZone.getTimeZone(this.env.getProperty(timeZone, timeZone)), this.dateTimeZone.format());
-		}
+		if (this.dateTimeZone.timeZone().startsWith("${") && this.dateTimeZone.timeZone().endsWith("}")) {
+			TimeZone timeZone=TimeZone.getDefault();
+			final String tz=this.env.resolvePlaceholders(this.dateTimeZone.timeZone());
+			if(StringUtils.isNotBlank(tz) && !tz.equals(this.dateTimeZone.timeZone()))
+				timeZone=TimeZone.getTimeZone(tz);
+			this.setSimpleDateFormat(timeZone, this.dateTimeZone.format());
+		} else 
+			this.setSimpleDateFormat(TimeZone.getTimeZone(this.dateTimeZone.timeZone()), this.dateTimeZone.format());
 		if (property.getType() != null && property.getType().getRawClass() != null)
-			return new DateSerializer<>(property.getType().getRawClass(), this.dateTimeZone, this.simpleDateFormat);
+			return new DateSerializer<>(property.getType().getRawClass(), this.dateTimeZone, this.simpleDateFormat,this.env);
 		else
 			return this;
 	}

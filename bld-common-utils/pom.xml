@@ -9,10 +9,10 @@
 		<version>1.0.3</version>
 	</parent>
 	<artifactId>bld-common-utils</artifactId>
-	<version>1.0.6</version>
+	<version>1.0.7-SNAPSHOT</version>
 
 	<properties>
-		
+
 	</properties>
 
 	<dependencies>
@@ -68,6 +68,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.github.bld-commons</groupId>
+			<artifactId>common-annotations</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -86,6 +90,13 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

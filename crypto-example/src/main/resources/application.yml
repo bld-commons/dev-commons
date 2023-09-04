@@ -1,0 +1,13 @@
+com:
+  bld:
+    crypto:
+      jks:
+        alg: RS512
+        file: classpath:keystore.jks
+        alias: test
+        instance-jks: PKCS12
+        password: changeit
+      public-key:
+        keys:
+          test: classpath:keystore.pub
+        

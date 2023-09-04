@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.bld.commons.utils.types.TimeUnitMeasureType;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DateUtils.
  */
@@ -377,6 +378,12 @@ public class DateUtils {
 		return date;
 	}
 	
+	/**
+	 * Gets the year.
+	 *
+	 * @param date the date
+	 * @return the year
+	 */
 	public static Integer getYear(Calendar date) {
 		Integer year=null;
 		if(date!=null)
@@ -384,6 +391,12 @@ public class DateUtils {
 		return year;
 	}
 	
+	/**
+	 * Gets the month.
+	 *
+	 * @param date the date
+	 * @return the month
+	 */
 	public static Integer getMonth(Calendar date) {
 		Integer month=null;
 		if(date!=null)
@@ -391,6 +404,12 @@ public class DateUtils {
 		return month;
 	}
 	
+	/**
+	 * Gets the day of month.
+	 *
+	 * @param date the date
+	 * @return the day of month
+	 */
 	public static Integer getDayOfMonth(Calendar date) {
 		Integer day=null;
 		if(date!=null)
@@ -398,14 +417,32 @@ public class DateUtils {
 		return day;
 	}
 	
+	/**
+	 * Gets the year.
+	 *
+	 * @param date the date
+	 * @return the year
+	 */
 	public static Integer getYear(Date date) {
 		return getYear(dateToCalendar(date));
 	}
 	
+	/**
+	 * Gets the month.
+	 *
+	 * @param date the date
+	 * @return the month
+	 */
 	public static Integer getMonth(Date date) {
 		return getMonth(dateToCalendar(date));
 	}
 	
+	/**
+	 * Gets the day of month.
+	 *
+	 * @param date the date
+	 * @return the day of month
+	 */
 	public static Integer getDayOfMonth(Date date) {
 		return getDayOfMonth(dateToCalendar(date));
 	}

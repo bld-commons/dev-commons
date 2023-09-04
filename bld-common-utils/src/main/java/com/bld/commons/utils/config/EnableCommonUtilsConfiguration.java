@@ -8,15 +8,17 @@ package com.bld.commons.utils.config;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.bld.context.annotation.config.EnableContextAnnotatation;
+
+
 
 /**
- * The Class EnableRestConnectionConfiguration.
+ * The Class EnableCommonUtilsConfiguration.
  */
 @Configuration
+@EnableContextAnnotatation
 @ComponentScan(basePackages = {"com.bld.commons.utils"})
 public class EnableCommonUtilsConfiguration {
-
-
 	
 	
 }

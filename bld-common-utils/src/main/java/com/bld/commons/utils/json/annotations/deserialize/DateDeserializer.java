@@ -13,10 +13,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.springframework.core.env.Environment;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.AbstractEnvironment;
 
 import com.bld.commons.utils.DateUtils;
-import com.bld.commons.utils.StaticApplicationContext;
 import com.bld.commons.utils.json.annotations.JsonDateFilter;
 import com.bld.commons.utils.json.annotations.JsonDateTimeZone;
 import com.bld.commons.utils.json.annotations.deserialize.data.DateFilterDeserializer;
@@ -40,7 +41,8 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 public class DateDeserializer<T> extends StdScalarDeserializer<T> implements ContextualDeserializer {
 
 	/** The env. */
-	private Environment env = null;
+	@Autowired
+	private AbstractEnvironment env;
 
 	/** The date filter deserializer. */
 	private DateFilterDeserializer dateFilterDeserializer = null;
@@ -54,7 +56,6 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 */
 	public DateDeserializer() {
 		super(Object.class);
-		this.env = StaticApplicationContext.getBean(Environment.class);
 	}
 
 	/**
@@ -64,11 +65,11 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 * @param dateDeserializer the date deserializer
 	 * @param simpleDateFormat the simple date format
 	 */
-	private DateDeserializer(Class<T> classDate, DateFilterDeserializer dateDeserializer, SimpleDateFormat simpleDateFormat) {
+	private DateDeserializer(Class<T> classDate, DateFilterDeserializer dateDeserializer, SimpleDateFormat simpleDateFormat, AbstractEnvironment env) {
 		super(classDate);
 		this.dateFilterDeserializer = dateDeserializer;
 		this.simpleDateFormat = simpleDateFormat;
-		this.env = StaticApplicationContext.getBean(Environment.class);
+		this.env = env;
 	}
 
 
@@ -141,20 +142,18 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 		else if (dateFilter != null)
 			this.dateFilterDeserializer = new DateFilterDeserializer(dateFilter.timeZone(), dateFilter.format(), dateFilter.addYear(), dateFilter.addMonth(), dateFilter.addWeek(), dateFilter.addDay(), dateFilter.addHour(),
 					dateFilter.addMinute(), dateFilter.addSecond());
-		if (DateUtils.ENV_TIME_ZONE.equals(this.dateFilterDeserializer.getTimeZone())) {
-			if (this.env== null || this.env.getProperty(DateUtils.PROPS_TIME_ZONE) == null)
-				this.setSimpleDateFormat(TimeZone.getDefault(), this.dateFilterDeserializer.getFormat());
-			else
-				this.setSimpleDateFormat(TimeZone.getTimeZone(this.env.getProperty(DateUtils.PROPS_TIME_ZONE)), this.dateFilterDeserializer.getFormat());
-		} else if(this.dateFilterDeserializer.getTimeZone().trim().startsWith("${")){
-			String timeZone = this.dateFilterDeserializer.getTimeZone().replace("${", "").replace("}", "");
-			this.setSimpleDateFormat(TimeZone.getTimeZone(this.env.getProperty(timeZone, timeZone)), this.dateFilterDeserializer.getFormat());
-		}else {
-			this.setSimpleDateFormat(TimeZone.getTimeZone(this.dateFilterDeserializer.getTimeZone().trim()), this.dateFilterDeserializer.getFormat());
-		}
-
+		
+		if (this.dateFilterDeserializer.getTimeZone().startsWith("${") && this.dateFilterDeserializer.getTimeZone().endsWith("}")) {
+			TimeZone timeZone=TimeZone.getDefault();
+			final String tz=this.env.resolvePlaceholders(this.dateFilterDeserializer.getTimeZone());
+			if(StringUtils.isNotBlank(tz) && !tz.equals(this.dateFilterDeserializer.getTimeZone()))
+				timeZone=TimeZone.getTimeZone(tz);
+			this.setSimpleDateFormat(timeZone, this.dateFilterDeserializer.getFormat());
+		} else 
+			this.setSimpleDateFormat(TimeZone.getTimeZone(this.dateFilterDeserializer.getTimeZone()), this.dateFilterDeserializer.getFormat());
+		
 		if (property.getType() != null && property.getType().getRawClass() != null)
-			return new DateDeserializer<>(property.getType().getRawClass(), this.dateFilterDeserializer, this.simpleDateFormat);
+			return new DateDeserializer<>(property.getType().getRawClass(), this.dateFilterDeserializer, this.simpleDateFormat,this.env);
 		else
 			return this;
 	}
