@@ -4,7 +4,7 @@
  */
 package com.bld.crypto.aes.config.data;
 
-import com.bld.crypto.type.AesSizeType;
+import javax.validation.constraints.NotNull;
 
 /**
  * The Class Aes.
@@ -12,17 +12,17 @@ import com.bld.crypto.type.AesSizeType;
 public class Aes {
 	
 	/** The password. */
+	@NotNull
 	private String password;
 	
-	/** The size. */
-	private AesSizeType size;
+	
 	
 	/** The salt. */
 	private String salt;
 	
 	
 	/** The key length. */
-	private int keyLength;
+	private Integer keyLength;
 
 	/**
 	 * Gets the password.
@@ -42,23 +42,6 @@ public class Aes {
 		this.password = password;
 	}
 
-	/**
-	 * Gets the size.
-	 *
-	 * @return the size
-	 */
-	public AesSizeType getSize() {
-		return size;
-	}
-
-	/**
-	 * Sets the size.
-	 *
-	 * @param size the new size
-	 */
-	public void setSize(AesSizeType size) {
-		this.size = size;
-	}
 
 	/**
 	 * Gets the salt.
@@ -85,7 +68,7 @@ public class Aes {
 	 *
 	 * @return the key length
 	 */
-	public int getKeyLength() {
+	public Integer getKeyLength() {
 		return keyLength;
 	}
 
@@ -94,7 +77,7 @@ public class Aes {
 	 *
 	 * @param keyLength the new key length
 	 */
-	public void setKeyLength(int keyLength) {
+	public void setKeyLength(Integer keyLength) {
 		this.keyLength = keyLength;
 	}
 	

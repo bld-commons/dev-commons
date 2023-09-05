@@ -8,8 +8,6 @@ import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections4.MapUtils;
-
 
 /**
  * The Class CipherPublicKeys.
@@ -17,27 +15,22 @@ import org.apache.commons.collections4.MapUtils;
 public class CipherPublicKeys {
 
 	/** The map. */
-	private Map<String,PublicKey> map;
+	private final Map<String,PublicKey> map;
 	
+
 
 	/**
 	 * Instantiates a new cipher public keys.
+	 *
+	 * @param map the map
 	 */
-	public CipherPublicKeys() {
+	public CipherPublicKeys(Map<String,PublicKey> map) {
 		super();
 		this.map=new HashMap<>();
 	}
 
 
-	/**
-	 * Adds the public key.
-	 *
-	 * @param name the name
-	 * @param publicKey the public key
-	 */
-	public void addPublicKey(String name,final PublicKey publicKey) {
-		this.map.put(name, publicKey);
-	}
+
 	
 	/**
 	 * Gets the public key.
@@ -50,14 +43,6 @@ public class CipherPublicKeys {
 	}
 	
 	
-	/**
-	 * Checks if is empty.
-	 *
-	 * @return true, if is empty
-	 */
-	public boolean isEmpty() {
-		return MapUtils.isEmpty(this.map);
-	}
 	
 	
 }

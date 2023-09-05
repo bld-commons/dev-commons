@@ -9,8 +9,11 @@ import java.io.Reader;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections4.MapUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +51,7 @@ public class CryptoPublicKeyConfiguration {
 	 */
 	@Bean
 	public CipherPublicKeys cipherPublicKeys() throws Exception {
-		CipherPublicKeys cipherPublicKeys=new CipherPublicKeys();
+		Map<String,PublicKey> map=new HashMap<>();
 		for(Entry<String, Resource> key:publicKeyProps.getKeys().entrySet()) {
 			KeyFactory factory = KeyFactory.getInstance(InstanceType.RSA.name());
 			Reader reader =  new InputStreamReader(key.getValue().getInputStream());
@@ -57,11 +60,11 @@ public class CryptoPublicKeyConfiguration {
 			byte[] content = pemObject.getContent();
 			X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(content);
 			PublicKey publicKey = factory.generatePublic(pubKeySpec);
-			cipherPublicKeys.addPublicKey(key.getKey(), publicKey);
+			map.put(key.getKey(), publicKey);
 		}
-		if(cipherPublicKeys.isEmpty())
+		if(MapUtils.isEmpty(map))
 			throw new CryptoException("The public keys is empty");
-		return cipherPublicKeys;
+		return new CipherPublicKeys(map);
 	}
 
 }

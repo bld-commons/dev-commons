@@ -6,12 +6,16 @@ package com.bld.crypto.aes.config;
 
 import java.nio.charset.StandardCharsets;
 import java.security.spec.KeySpec;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -50,16 +54,22 @@ public class AesConfiguration {
 	 */
 	@Bean
 	public CipherAesSecret cipherAesSecret() throws Exception {
-		CipherAesSecret cipherAesSecret=new CipherAesSecret();
+		Map<String,SecretKey> map=new HashMap<>();
 		for(Entry<String, Aes> key:aesProperties.getKeys().entrySet()) {
 			Aes aes=key.getValue();
-			KeySpec spec =  new PBEKeySpec(aes.getPassword().toCharArray(), aes.getSalt().getBytes(StandardCharsets.UTF_8), INTERATION_COUNT, aes.getKeyLength());
-			SecretKeyFactory f = SecretKeyFactory.getInstance(PBKDF2_WITH_HMAC_SHA1);
-			byte[] keyArray = f.generateSecret(spec).getEncoded();
-			cipherAesSecret.addSecretKey(key.getKey(),  new SecretKeySpec(keyArray, InstanceType.AES.name()));
+			byte[] keyArray =null;
+			if(aes.getSalt()!=null && aes.getKeyLength()!=null) {
+				KeySpec spec =  new PBEKeySpec(aes.getPassword().toCharArray(), aes.getSalt().getBytes(StandardCharsets.UTF_8), INTERATION_COUNT, aes.getKeyLength());
+				SecretKeyFactory f = SecretKeyFactory.getInstance(PBKDF2_WITH_HMAC_SHA1);
+				keyArray = f.generateSecret(spec).getEncoded();
+				map.put(key.getKey(),  new SecretKeySpec(keyArray, InstanceType.AES.name()));
+			}else 
+				map.put(key.getKey(),  new SecretKeySpec(aes.getPassword().getBytes(StandardCharsets.UTF_8), InstanceType.AES.name()));
+					
+			
 		}
-		if(cipherAesSecret.isEmpty())
+		if(MapUtils.isEmpty(map))
 			throw new CryptoException("The secret keys is empty");
-		return cipherAesSecret;
+		return new CipherAesSecret(map);
 	}
 }

@@ -1,7 +1,6 @@
 /*
- * @auth: Francesco Baldi
- * @email: francesco.baldi1987@gmail.com
- * @class: com.bld.crypto.exception.CryptoException.java
+ * @auth Francesco Baldi
+ * @class com.bld.crypto.exception.CryptoException.java
  */
 package com.bld.crypto.exception;
 

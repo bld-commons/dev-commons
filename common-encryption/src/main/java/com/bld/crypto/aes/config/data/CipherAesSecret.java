@@ -4,12 +4,9 @@
  */
 package com.bld.crypto.aes.config.data;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
-
-import org.apache.commons.collections4.MapUtils;
 
 /**
  * The Class CipherAesSecret.
@@ -17,31 +14,22 @@ import org.apache.commons.collections4.MapUtils;
 public class CipherAesSecret {
 
 	/** The map. */
-	private Map<String,SecretKey> map;
+	private final Map<String,SecretKey> map;
 	
 
-
+	
 	/**
 	 * Instantiates a new cipher aes secret.
-	 */
-	public CipherAesSecret() {
-		super();
-		this.map=new HashMap<>();
-	}
-
-
-
-	/**
-	 * Adds the secret key.
 	 *
-	 * @param name the name
-	 * @param secretKey the secret key
+	 * @param map the map
 	 */
-	public void addSecretKey(String name,final SecretKey secretKey) {
-		this.map.put(name, secretKey);
+	public CipherAesSecret(Map<String,SecretKey>map) {
+		super();
+		this.map=map;
 	}
-	
-	
+
+
+
 	/**
 	 * Gets the secret key.
 	 *
@@ -53,12 +41,4 @@ public class CipherAesSecret {
 	}
 	
 	
-	/**
-	 * Checks if is empty.
-	 *
-	 * @return true, if is empty
-	 */
-	public boolean isEmpty() {
-		return MapUtils.isEmpty(this.map);
-	}
 }

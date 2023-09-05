@@ -16,4 +16,6 @@ com:
             password: Test12345!
             salt: helloWorld@123
             key-length: 256
+          test1:
+            password: Ci@o12345%H&llo12345ch&!
         
