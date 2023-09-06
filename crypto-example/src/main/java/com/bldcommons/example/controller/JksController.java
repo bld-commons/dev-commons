@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bldcommons.example.client.JksClient;
+import com.bldcommons.example.model.Auth;
 import com.bldcommons.example.model.EmployeeInvertedJks;
 import com.bldcommons.example.model.EmployeeJks;
 import com.bldcommons.example.model.Registry;
@@ -22,6 +25,9 @@ import com.bldcommons.example.model.Registry;
 public class JksController {
 	
 	private final static Logger logger=LoggerFactory.getLogger(JksController.class);
+	
+	@Autowired
+	private JksClient jksClient;
 
 	@GetMapping(path="/encrypt",produces = "application/json")
 	@ResponseBody
@@ -51,5 +57,16 @@ public class JksController {
 	@PostMapping(path="/inverted/decrypt",consumes = "application/json")
 	public void invertedDecryptEmploy(@RequestBody EmployeeInvertedJks employee) {
 		logger.info(employee.toString());
+	}
+	
+	@PostMapping(path="/auth-connection")
+	public void authConnection() {
+		logger.info("start");
+		this.jksClient.testConnection(new Auth("test", "test"));
+	}
+	
+	@PostMapping(path="/test-connection")
+	public void testConnection() {
+		logger.info("Connection Success");
 	}
 }

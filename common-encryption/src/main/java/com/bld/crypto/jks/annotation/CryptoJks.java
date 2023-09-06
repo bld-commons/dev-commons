@@ -1,6 +1,6 @@
 /*
  * @auth Francesco Baldi
- * @class com.bld.crypto.jks.annotation.CryptoJks.java
+ * @class com.bld.crypto.jks.annotations.CryptoJks.java
  */
 package com.bld.crypto.jks.annotation;
 

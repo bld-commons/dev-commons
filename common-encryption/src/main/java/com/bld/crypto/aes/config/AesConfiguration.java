@@ -6,7 +6,9 @@ package com.bld.crypto.aes.config;
 
 import java.nio.charset.StandardCharsets;
 import java.security.spec.KeySpec;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -36,6 +38,8 @@ import com.bld.crypto.type.InstanceType;
 @ComponentScan(basePackages = { "com.bld.crypto.aes","com.bld.crypto.bean" })
 public class AesConfiguration {
 
+	private final static List<Integer> SIZES=Arrays.asList(16,24,32);
+	
 	/** The Constant INTERATION_COUNT. */
 	private static final int INTERATION_COUNT=65536;
 	
@@ -63,8 +67,12 @@ public class AesConfiguration {
 				SecretKeyFactory f = SecretKeyFactory.getInstance(PBKDF2_WITH_HMAC_SHA1);
 				keyArray = f.generateSecret(spec).getEncoded();
 				map.put(key.getKey(),  new SecretKeySpec(keyArray, InstanceType.AES.name()));
-			}else 
+			}else {
+				if(!SIZES.contains(aes.getPassword().length()))
+					throw new CryptoException("TThe password must be 16, 24, or 32 bytes long");
 				map.put(key.getKey(),  new SecretKeySpec(aes.getPassword().getBytes(StandardCharsets.UTF_8), InstanceType.AES.name()));
+			}
+				
 					
 			
 		}

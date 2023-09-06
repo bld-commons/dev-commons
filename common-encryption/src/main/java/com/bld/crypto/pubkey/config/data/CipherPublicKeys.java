@@ -5,7 +5,6 @@
 package com.bld.crypto.pubkey.config.data;
 
 import java.security.PublicKey;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -26,7 +25,7 @@ public class CipherPublicKeys {
 	 */
 	public CipherPublicKeys(Map<String,PublicKey> map) {
 		super();
-		this.map=new HashMap<>();
+		this.map=map;
 	}
 
 

@@ -18,4 +18,11 @@ com:
             key-length: 256
           test1:
             password: Ci@o12345%H&llo12345ch&!
+            
+            
+            
+            
+logging:
+  level:
+    feign: debug
         

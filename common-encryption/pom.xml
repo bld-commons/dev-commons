@@ -9,10 +9,15 @@
 		<version>1.0.3</version>
 	</parent>
 	<artifactId>common-encryption</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 
 
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<version>3.1.8</version>
+		</dependency>
 		<dependency>
 			<groupId>com.github.bld-commons</groupId>
 			<artifactId>common-annotations</artifactId>

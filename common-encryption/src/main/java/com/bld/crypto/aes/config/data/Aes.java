@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
  */
 public class Aes {
 	
+	
+	
 	/** The password. */
 	@NotNull
 	private String password;
@@ -80,8 +82,5 @@ public class Aes {
 	public void setKeyLength(Integer keyLength) {
 		this.keyLength = keyLength;
 	}
-	
-	
-	
 	
 }
