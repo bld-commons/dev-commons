@@ -1,8 +1,8 @@
-package com.bldcommons.example.model;
+package com.bld.commons.example.model;
 
 import java.util.Date;
 
-import com.bld.commons.utils.json.annotations.JsonDateTimeZone;
+import com.bld.commons.utils.json.annotations.DateTimeZone;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class Registry {
 	
 	private String lastName;
 	
-	@JsonDateTimeZone(format = "yyyy-MM-dd")
+	@DateTimeZone(format = "yyyy-MM-dd")
 	private Date dtBirth;
 	
 	

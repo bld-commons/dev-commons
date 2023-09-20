@@ -8,7 +8,7 @@ package com.bld.commons.utils.json.annotations.serialize;
 import java.io.IOException;
 import java.util.Base64;
 
-import com.bld.commons.utils.json.annotations.JsonFile;
+import com.bld.commons.utils.json.annotations.Base64File;
 import com.bld.commons.utils.types.MimeType;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
  * The Class ByteSerializer.
  */
 @SuppressWarnings("serial")
-public class ByteSerializer extends StdScalarSerializer<byte[]> implements ContextualSerializer {
+public class Base64FileSerializer extends StdScalarSerializer<byte[]> implements ContextualSerializer {
 
 	/** The mime type. */
 	private MimeType mimeType;
@@ -30,7 +30,7 @@ public class ByteSerializer extends StdScalarSerializer<byte[]> implements Conte
 	/**
 	 * Instantiates a new custom byte serializer.
 	 */
-	public ByteSerializer() {
+	public Base64FileSerializer() {
 		this(null);
 	}
 
@@ -39,7 +39,7 @@ public class ByteSerializer extends StdScalarSerializer<byte[]> implements Conte
 	 *
 	 * @param t the t
 	 */
-	public ByteSerializer(Class<byte[]> t) {
+	public Base64FileSerializer(Class<byte[]> t) {
 		super(t);
 	}
 
@@ -82,7 +82,7 @@ public class ByteSerializer extends StdScalarSerializer<byte[]> implements Conte
 	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-		JsonFile jsonFile = property.getAnnotation(JsonFile.class);
+		Base64File jsonFile = property.getAnnotation(Base64File.class);
 		this.mimeType = jsonFile.mimeType();
 		return this;
 	}

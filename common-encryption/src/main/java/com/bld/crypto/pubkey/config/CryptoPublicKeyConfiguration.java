@@ -22,6 +22,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.pubkey.config.data.CipherPublicKeys;
@@ -34,14 +35,12 @@ import com.bld.crypto.type.InstanceType;
  */
 @Configuration
 @Conditional(PubKeyConditional.class)
-//@ConditionalOnProperty(name = "com.bld.crypto.public-key.keys")
 @ComponentScan(basePackages = { "com.bld.crypto.pubkey","com.bld.crypto.bean" })
-public class CryptoPublicKeyConfiguration {
+public class CryptoPublicKeyConfiguration implements WebMvcConfigurer{
 
 	/** The public key props. */
 	@Autowired
 	private PublicKeyProperties publicKeyProps;
-
 
 	/**
 	 * Pipher public keys.
@@ -66,5 +65,7 @@ public class CryptoPublicKeyConfiguration {
 			throw new CryptoException("The public keys is empty");
 		return new CipherPublicKeys(map);
 	}
+
+
 
 }

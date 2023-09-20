@@ -14,8 +14,6 @@ import com.bld.crypto.jks.deserializer.DecryptJksDeserializer;
 import com.bld.crypto.jks.serializer.EncryptJksSerializer;
 import com.bld.crypto.type.CryptoType;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -28,7 +26,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JacksonAnnotationsInside
 @JsonDeserialize(using = DecryptJksDeserializer.class)
 @JsonSerialize(using = EncryptJksSerializer.class)
-@JsonInclude(Include.NON_NULL)
 public @interface CryptoJks {
 
 	/**

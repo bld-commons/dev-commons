@@ -27,8 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JacksonAnnotationsInside
 @JsonDeserialize(using = DateDeserializer.class)
 @JsonSerialize(using=DateSerializer.class)
-//@JsonInclude(Include.NON_NULL)
-public @interface JsonDateTimeZone {
+public @interface DateTimeZone {
 
 	/**
 	 * Time zone.

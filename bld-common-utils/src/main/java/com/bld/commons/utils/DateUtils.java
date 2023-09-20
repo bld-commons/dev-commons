@@ -116,6 +116,18 @@ public class DateUtils {
 	}
 
 	
+	public static Date stringToDate(String createTimestamp, String dateFormat,TimeZone timeZone) {
+		try {
+			SimpleDateFormat sdf=new SimpleDateFormat(dateFormat);
+			sdf.setTimeZone(timeZone);
+			Date date = sdf.parse(createTimestamp);
+			return date;
+		} catch (Exception e) {
+			logger.error("error while converting string to Date - input: '" + createTimestamp + "'", e);
+		}
+		return null;
+	}
+	
 
 	/**
 	 * Calendar to string.

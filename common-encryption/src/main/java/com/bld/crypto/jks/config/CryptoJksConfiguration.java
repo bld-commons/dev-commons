@@ -26,7 +26,7 @@ import com.bld.crypto.jks.config.properties.JksProperties;
 @Configuration
 @ConditionalOnProperty("com.bld.crypto.jks.file")
 @ComponentScan(basePackages = {"com.bld.crypto.jks","com.bld.crypto.bean"})
-public class CryptoJksConfiguration {
+public class CryptoJksConfiguration{
 
 	
 	/** The jks properties. */
@@ -50,6 +50,8 @@ public class CryptoJksConfiguration {
 		PublicKey publicKey = cert.getPublicKey();
 		return new CipherJks(privateKey, publicKey,this.jksProperties.getSignatureAlgorithm());
 	}
+
+
 	
 	
 }

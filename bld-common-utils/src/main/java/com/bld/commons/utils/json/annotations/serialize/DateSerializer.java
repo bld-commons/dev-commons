@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.AbstractEnvironment;
 
 import com.bld.commons.utils.DateUtils;
-import com.bld.commons.utils.json.annotations.JsonDateTimeZone;
+import com.bld.commons.utils.json.annotations.DateTimeZone;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -41,7 +41,7 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	private AbstractEnvironment env = null;
 
 	/** The date time zone. */
-	protected JsonDateTimeZone dateTimeZone = null;
+	protected DateTimeZone dateTimeZone = null;
 
 	/** The simple date format. */
 	private SimpleDateFormat simpleDateFormat = null;
@@ -76,7 +76,7 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 * @param dateTimeZone the date time zone
 	 * @param simpleDateFormat the simple date format
 	 */
-	private DateSerializer(Class<T> classDate, JsonDateTimeZone dateTimeZone, SimpleDateFormat simpleDateFormat,AbstractEnvironment env) {
+	private DateSerializer(Class<T> classDate, DateTimeZone dateTimeZone, SimpleDateFormat simpleDateFormat,AbstractEnvironment env) {
 		super(classDate);
 		this.dateTimeZone = dateTimeZone;
 		this.simpleDateFormat = simpleDateFormat;
@@ -137,7 +137,7 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-		this.dateTimeZone = property.getAnnotation(JsonDateTimeZone.class);
+		this.dateTimeZone = property.getAnnotation(DateTimeZone.class);
 		if (this.dateTimeZone.timeZone().startsWith("${") && this.dateTimeZone.timeZone().endsWith("}")) {
 			TimeZone timeZone=TimeZone.getDefault();
 			final String tz=this.env.resolvePlaceholders(this.dateTimeZone.timeZone());

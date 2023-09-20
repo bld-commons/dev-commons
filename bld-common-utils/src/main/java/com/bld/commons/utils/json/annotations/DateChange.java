@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(using = DateDeserializer.class)
 //@JsonSerialize(using=CustomDateSerializer.class)
 @JsonInclude(Include.NON_NULL)
-public @interface JsonDateFilter {
+public @interface DateChange {
 
 	/**
 	 * Time zone.

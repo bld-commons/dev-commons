@@ -8,7 +8,7 @@ package com.bld.commons.utils.json.annotations.deserialize.data;
 /**
  * The Class DateFilterDeserializer.
  */
-public class DateFilterDeserializer {
+public class DateChangeDeserializer {
 
 	/** The time zone. */
 	private String timeZone;
@@ -45,7 +45,7 @@ public class DateFilterDeserializer {
 	 * @param timeZone the time zone
 	 * @param format the format
 	 */
-	public DateFilterDeserializer(String timeZone, String format) {
+	public DateChangeDeserializer(String timeZone, String format) {
 		super();
 		this.timeZone = timeZone;
 		this.format = format;
@@ -71,7 +71,7 @@ public class DateFilterDeserializer {
 	 * @param addMinute the add minute
 	 * @param addSecond the add second
 	 */
-	public DateFilterDeserializer(String timeZone, String format,  int addYear, int addMonth, int addWeek, int addDay, int addHour, int addMinute, int addSecond) {
+	public DateChangeDeserializer(String timeZone, String format,  int addYear, int addMonth, int addWeek, int addDay, int addHour, int addMinute, int addSecond) {
 		super();
 		this.timeZone = timeZone;
 		this.format = format;

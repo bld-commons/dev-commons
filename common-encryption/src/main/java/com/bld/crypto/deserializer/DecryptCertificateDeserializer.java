@@ -45,10 +45,10 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 	protected ObjectMapper objMapper;
 	
 	/** The class field. */
-	protected Class<T> classField;
+	protected Class<T> fieldType;
 
 	/** The class list type. */
-	protected Class<?> classListType;
+	protected Class<?> listFieldType;
 	
 	/**
 	 * Instantiates a new decrypt certificate deserializer.
@@ -67,7 +67,7 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 	 */
 	protected DecryptCertificateDeserializer(JavaType javaType,ObjectMapper objMapper) {
 		super(javaType);
-		this.classField = (Class<T>) javaType.getRawClass();
+		this.fieldType = (Class<T>) javaType.getRawClass();
 		this.objMapper=objMapper;
 	}
 	
@@ -75,12 +75,12 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 	 * Instantiates a new decrypt certificate deserializer.
 	 *
 	 * @param javaType the java type
-	 * @param classListType the class list type
+	 * @param listFieldType the class list type
 	 * @param objMapper the obj mapper
 	 */
-	protected DecryptCertificateDeserializer(JavaType javaType,Class<?> classListType,ObjectMapper objMapper) {
+	protected DecryptCertificateDeserializer(JavaType javaType,Class<?> listFieldType,ObjectMapper objMapper) {
 		this(javaType,objMapper);
-		this.classListType=classListType;
+		this.listFieldType=listFieldType;
 	}
 
 	
@@ -102,12 +102,12 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 			if (this.isAssignableFrom(Collection.class)) {
 				List<Object> list=(List<Object>) objMapper.readValue(p, List.class);
 				for(int i=0;i<list.size();i++) {
-					Object item=this.getValue(this.decrypt(list.get(i).toString()), this.classListType);
+					Object item=this.getValue(this.decrypt(list.get(i).toString()), this.listFieldType);
 					list.set(i,item);
 				}
 					
 				String parser=objMapper.writeValueAsString(list);
-				Collection<Object> values=(Collection<Object>) objMapper.readValue(parser, this.classField);
+				Collection<Object> values=(Collection<Object>) objMapper.readValue(parser, this.fieldType);
 				value=(T)values;
 					
 			} else if (this.isAssignableFrom(Object[].class)) {
@@ -115,15 +115,15 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 				List<String> list = listCrypto(p);
 				Object[] objects=new Object[list.size()];
 				for(int i=0;i<list.size();i++) 
-					objects[i]=this.getValue(this.decrypt(list.get(i).toString()), this.classField.getComponentType());
+					objects[i]=this.getValue(this.decrypt(list.get(i).toString()), this.fieldType.getComponentType());
 				String parser=objMapper.writeValueAsString(objects);
-				Object[] values=(Object[]) objMapper.readValue(parser, this.classField);
+				Object[] values=(Object[]) objMapper.readValue(parser, this.fieldType);
 				value=(T)values;
 				
 			} else {
 				String word = p.getText();
 				word = decrypt(word);
-				value = getValue(word, this.classField);
+				value = getValue(word, this.fieldType);
 
 			}
 		} catch (IllegalArgumentException | SecurityException e) {

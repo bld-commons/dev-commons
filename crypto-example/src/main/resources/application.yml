@@ -22,7 +22,9 @@ com:
             
             
             
-logging:
-  level:
-    feign: debug
+#logging:
+#  level:
+#    feign: debug
+#    org:
+#      springframework: debug
         

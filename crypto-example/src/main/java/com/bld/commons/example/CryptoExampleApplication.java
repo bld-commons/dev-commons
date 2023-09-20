@@ -1,4 +1,4 @@
-package com.bldcommons.example;
+package com.bld.commons.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration;

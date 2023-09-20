@@ -1,4 +1,4 @@
-package com.bldcommons.example.controller;
+package com.bld.commons.example.controller;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bldcommons.example.model.EmployeePubKey;
-import com.bldcommons.example.model.Registry;
+import com.bld.commons.example.model.EmployeePubKey;
+import com.bld.commons.example.model.Registry;
 
 @RestController
 @RequestMapping("/pub-key")

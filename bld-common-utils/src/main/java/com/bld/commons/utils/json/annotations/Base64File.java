@@ -7,13 +7,14 @@ package com.bld.commons.utils.json.annotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.bld.commons.utils.json.annotations.deserialize.ByteDeserializer;
-import com.bld.commons.utils.json.annotations.serialize.ByteSerializer;
+import com.bld.commons.utils.json.annotations.deserialize.Base64FileDeserializer;
+import com.bld.commons.utils.json.annotations.serialize.Base64FileSerializer;
 import com.bld.commons.utils.types.MimeType;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,12 +26,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * The Interface JsonFile.
  */
 @Retention(RUNTIME)
-@Target({ FIELD, METHOD })
+@Target({ FIELD, METHOD,PARAMETER })
 @JacksonAnnotationsInside
-@JsonDeserialize(using = ByteDeserializer.class)
-@JsonSerialize(using = ByteSerializer.class)
+@JsonDeserialize(using = Base64FileDeserializer.class)
+@JsonSerialize(using = Base64FileSerializer.class)
 @JsonInclude(Include.NON_NULL)
-public @interface JsonFile {
+public @interface Base64File {
 
 	/**
 	 * Mime type.

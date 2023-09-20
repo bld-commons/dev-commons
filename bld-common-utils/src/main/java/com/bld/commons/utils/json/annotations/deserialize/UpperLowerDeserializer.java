@@ -7,7 +7,7 @@ package com.bld.commons.utils.json.annotations.deserialize;
 
 import java.io.IOException;
 
-import com.bld.commons.utils.json.annotations.JsonUpperLowerCase;
+import com.bld.commons.utils.json.annotations.UpperLowerCase;
 import com.bld.commons.utils.types.UpperLowerType;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -55,7 +55,7 @@ public class UpperLowerDeserializer extends StdScalarDeserializer<String> implem
 	 */
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-		JsonUpperLowerCase jsonUpperLower = property.getAnnotation(JsonUpperLowerCase.class);
+		UpperLowerCase jsonUpperLower = property.getAnnotation(UpperLowerCase.class);
 		this.upperLower = jsonUpperLower.value();
 		return this;
 	}

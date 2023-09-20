@@ -1,4 +1,4 @@
-package com.bldcommons.example.model;
+package com.bld.commons.example.model;
 
 import java.util.List;
 

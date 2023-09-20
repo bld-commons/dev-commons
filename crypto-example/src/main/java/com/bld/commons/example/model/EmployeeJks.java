@@ -1,8 +1,8 @@
-package com.bldcommons.example.model;
+package com.bld.commons.example.model;
 
 import java.util.List;
 
-import com.bld.crypto.pubkey.annotations.CryptoPubKey;
+import com.bld.crypto.jks.annotation.CryptoJks;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,15 +13,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class EmployeePubKey {
+public class EmployeeJks {
 
-	@CryptoPubKey("test")
+	@CryptoJks
 	private Registry registry;
 	
-	@CryptoPubKey("test")
+	@CryptoJks
 	private List<Integer> idProfiles;
 	
-	@CryptoPubKey("test")
+	@CryptoJks
 	private Integer[] idAuthorities; 
 	
 }
