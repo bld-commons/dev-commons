@@ -38,6 +38,7 @@ import com.bld.crypto.type.InstanceType;
 @ComponentScan(basePackages = { "com.bld.crypto.aes","com.bld.crypto.bean" })
 public class AesConfiguration {
 
+	/** The Constant SIZES. */
 	private final static List<Integer> SIZES=Arrays.asList(16,24,32);
 	
 	/** The Constant INTERATION_COUNT. */
