@@ -1,7 +1,6 @@
-/**
- * @author Francesco Baldi
- * @mail francesco.baldi1987@gmail.com
- * @class bld.commons.reflection.model.CollectionResponse.java
+/*
+ * @auth Francesco Baldi
+ * @class com.bld.commons.utils.data.CollectionResponse.java
  */
 package com.bld.commons.utils.data;
 
@@ -41,6 +40,23 @@ public class CollectionResponse<T> extends ObjectResponse<Collection<T>> {
 	 */
 	public CollectionResponse(Collection<T> data) {
 		super(data);
+	}
+	
+	
+
+	/**
+	 * Instantiates a new collection response.
+	 *
+	 * @param data the data
+	 * @param totalCount the total count
+	 * @param pageSize the page size
+	 * @param pageNumber the page number
+	 */
+	public CollectionResponse(Collection<T> data, Long totalCount, Integer pageSize, Integer pageNumber) {
+		super(data);
+		this.totalCount = totalCount;
+		this.pageSize = pageSize;
+		this.pageNumber = pageNumber;
 	}
 
 	/**
