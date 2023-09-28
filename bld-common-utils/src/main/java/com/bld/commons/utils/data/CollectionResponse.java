@@ -4,6 +4,7 @@
  */
 package com.bld.commons.utils.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,7 +31,7 @@ public class CollectionResponse<T> extends ObjectResponse<Collection<T>> {
 	 * Instantiates a new collection response.
 	 */
 	public CollectionResponse() {
-		super();
+		super(new ArrayList<>());
 	}
 
 	/**
