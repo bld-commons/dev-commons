@@ -40,13 +40,13 @@ public @interface CryptoJks {
 	 *
 	 * @return the crypto type
 	 */
-	public CryptoType encrypt() default CryptoType.privateKey;
+	public CryptoType encrypt() default CryptoType.publicKey;
 	
 	/**
 	 * Decrypt.
 	 *
 	 * @return the crypto type
 	 */
-	public CryptoType decrypt() default CryptoType.publicKey;
+	public CryptoType decrypt() default CryptoType.privateKey;
 	
 }

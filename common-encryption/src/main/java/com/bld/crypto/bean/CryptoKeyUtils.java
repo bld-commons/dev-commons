@@ -5,7 +5,6 @@
 
 package com.bld.crypto.bean;
 
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +18,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.util.UriUtils;
 
 import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.type.InstanceType;
@@ -103,7 +101,6 @@ public abstract class CryptoKeyUtils {
 		String valueDecripted = null;
 		if (StringUtils.isNotBlank(value)) {
 			try {
-				
 				Cipher cipher = getCipher(Cipher.DECRYPT_MODE,key);
 				byte[] decrypt = Base64.getDecoder().decode(value);
 				valueDecripted = new String(cipher.doFinal(decrypt));
@@ -155,7 +152,8 @@ public abstract class CryptoKeyUtils {
 	 */
 	protected String encodeValue(String valueEncrypted) {
 		if (StringUtils.isNotEmpty(valueEncrypted))
-			return UriUtils.encode(valueEncrypted, StandardCharsets.UTF_8).replace(_2F, _252F).replace(_2F.toLowerCase(), _252F.toLowerCase());
+			return Base64.getEncoder().encodeToString(valueEncrypted.getBytes());
+					//UriUtils.encode(valueEncrypted, StandardCharsets.UTF_8).replace(_2F, _252F).replace(_2F.toLowerCase(), _252F.toLowerCase());
 		else
 			return null;
 	}
@@ -170,7 +168,8 @@ public abstract class CryptoKeyUtils {
 	protected String decryptUri(String value,final String key) {
 		if (StringUtils.isBlank(value))
 			return null;
-		String decode=UriUtils.decode(value.replace(_252F, _2F).replace(_252F.toLowerCase(), _2F.toLowerCase()), StandardCharsets.UTF_8);
+		String decode=new String(Base64.getDecoder().decode(value));
+				//UriUtils.decode(value.replace(_252F, _2F).replace(_252F.toLowerCase(), _2F.toLowerCase()), StandardCharsets.UTF_8);
 		return decryptValue(decode,key);
 	}
 

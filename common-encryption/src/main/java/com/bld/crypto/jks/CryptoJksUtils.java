@@ -4,13 +4,12 @@
  */
 package com.bld.crypto.jks;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriUtils;
 
 import com.bld.crypto.bean.CryptoKeyUtils;
 import com.bld.crypto.jks.config.data.CipherJks;
@@ -45,7 +44,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String encryptValue(String value) {
-		return super.encryptValue(value, cipherJks.getPrivateKey());
+		return super.encryptValue(value, cipherJks.getPublicKey());
 	}
 
 	/**
@@ -55,7 +54,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String decryptValue(String value) {
-		return super.decryptValue(value, cipherJks.getPublicKey());
+		return super.decryptValue(value, cipherJks.getPrivateKey());
 	}
 	
 	/**
@@ -66,7 +65,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @throws JsonProcessingException the json processing exception
 	 */
 	public String encryptObject(Object value) throws JsonProcessingException {
-		return super.encryptValue(this.objMapper.writeValueAsString(value), cipherJks.getPrivateKey());
+		return super.encryptValue(this.objMapper.writeValueAsString(value), cipherJks.getPublicKey());
 	}
 
 	/**
@@ -115,9 +114,9 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the encrypt key
 	 */
 	private Key getEncryptKey(CryptoType cryptoType) {
-		Key key=this.cipherJks.getPrivateKey();
-		if(CryptoType.publicKey.equals(cryptoType))
-			key=this.cipherJks.getPublicKey();
+		Key key=this.cipherJks.getPublicKey();
+		if(CryptoType.privateKey.equals(cryptoType))
+			key=this.cipherJks.getPrivateKey();
 		return key;
 	}
 	
@@ -133,7 +132,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 		if (StringUtils.isBlank(value))
 			return null;
 		Key key = getDecryptKey(cryptoType);
-		String decode=UriUtils.decode(value.replace(_252F, _2F).replace(_252F.toLowerCase(), _2F.toLowerCase()), StandardCharsets.UTF_8);
+		String decode=new String(Base64.getDecoder().decode(value));
 		return decryptValue(decode,key);
 	}
 
@@ -144,9 +143,9 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the decrypt key
 	 */
 	private Key getDecryptKey(CryptoType cryptoType) {
-		Key key=this.cipherJks.getPublicKey();
-		if(CryptoType.privateKey.equals(cryptoType))
-			key=this.cipherJks.getPrivateKey();
+		Key key=this.cipherJks.getPrivateKey();
+		if(CryptoType.publicKey.equals(cryptoType))
+			key=this.cipherJks.getPublicKey();
 		return key;
 	}
 	
