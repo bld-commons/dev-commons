@@ -1,8 +1,8 @@
 package com.bld.commons.utils.validator;
 
-import javax.validation.ConstraintValidatorContext;
-
 import com.bld.commons.utils.validator.annotations.AllowedString;
+
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * The Class AllowedStringValidator.

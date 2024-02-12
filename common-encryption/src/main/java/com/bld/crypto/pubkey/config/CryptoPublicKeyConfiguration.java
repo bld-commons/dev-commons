@@ -49,7 +49,7 @@ public class CryptoPublicKeyConfiguration implements WebMvcConfigurer{
 	 * @throws Exception the exception
 	 */
 	@Bean
-	public CipherPublicKeys cipherPublicKeys() throws Exception {
+	CipherPublicKeys cipherPublicKeys() throws Exception {
 		Map<String,PublicKey> map=new HashMap<>();
 		for(Entry<String, Resource> key:publicKeyProps.getKeys().entrySet()) {
 			KeyFactory factory = KeyFactory.getInstance(InstanceType.RSA.name());

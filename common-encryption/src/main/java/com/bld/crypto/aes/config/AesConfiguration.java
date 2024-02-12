@@ -58,7 +58,7 @@ public class AesConfiguration {
 	 * @throws Exception the exception
 	 */
 	@Bean
-	public CipherAesSecret cipherAesSecret() throws Exception {
+	CipherAesSecret cipherAesSecret() throws Exception {
 		Map<String,SecretKey> map=new HashMap<>();
 		for(Entry<String, Aes> key:aesProperties.getKeys().entrySet()) {
 			Aes aes=key.getValue();

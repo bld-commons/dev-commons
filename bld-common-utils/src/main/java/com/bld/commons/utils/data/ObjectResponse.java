@@ -7,7 +7,7 @@ package com.bld.commons.utils.data;
 
 import java.io.Serializable;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 /**
  * The Class ObjectResponse.

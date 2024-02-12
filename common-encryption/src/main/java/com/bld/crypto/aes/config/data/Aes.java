@@ -4,7 +4,7 @@
  */
 package com.bld.crypto.aes.config.data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * The Class Aes.

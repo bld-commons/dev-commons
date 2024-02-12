@@ -8,11 +8,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
-
 import com.bld.commons.utils.validator.AllowedStringValidator;
 import com.bld.commons.utils.validator.AllowedValueValidator;
+
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
 /**
  * The Interface AllowedString.
@@ -44,11 +44,6 @@ public @interface AllowedString {
      */
     public Class<?>[] groups() default {};
     
-    /**
-     * Payload.
-     *
-     * @return the class<? extends payload>[]
-     */
     public Class<? extends Payload>[] payload() default {};
     
     

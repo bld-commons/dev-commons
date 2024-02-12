@@ -5,11 +5,11 @@
  */
 package com.bld.commons.connection.model;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+
+import jakarta.validation.constraints.NotNull;
 
 /**
  * The Class BasicRequest.

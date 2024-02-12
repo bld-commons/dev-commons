@@ -24,12 +24,12 @@ public class EnableContextAnnotationConfiguration {
 	public static final String CONTEXT_MAPPING_JACKSON2_HTTP_MESSAGE_CONVERTER = "contextMappingJackson2HttpMessageConverter";
 
 	@Bean(CONTEXT_HANDLER_INSTANTIATOR)
-	public HandlerInstantiator contextHandlerInstantiator(ApplicationContext context) {
+	HandlerInstantiator contextHandlerInstantiator(ApplicationContext context) {
 		return new SpringHandlerInstantiator(context.getAutowireCapableBeanFactory());
 	}
 
 	@Bean(CONTEXT_JACKSON2_OBJECT_MAPPER_BUILDER)
-	public Jackson2ObjectMapperBuilder contextJackson2ObjectMapperBuilder(@Qualifier(CONTEXT_HANDLER_INSTANTIATOR) HandlerInstantiator handlerInstantiator,ApplicationContext applicationContext,
+	Jackson2ObjectMapperBuilder contextJackson2ObjectMapperBuilder(@Qualifier(CONTEXT_HANDLER_INSTANTIATOR) HandlerInstantiator handlerInstantiator,ApplicationContext applicationContext,
 			List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
 		Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
 		builder.handlerInstantiator(handlerInstantiator);
@@ -41,7 +41,7 @@ public class EnableContextAnnotationConfiguration {
 	}
 
 	@Bean(CONTEXT_MAPPING_JACKSON2_HTTP_MESSAGE_CONVERTER)
-	public MappingJackson2HttpMessageConverter contextMappingJackson2HttpMessageConverter(@Qualifier(CONTEXT_JACKSON2_OBJECT_MAPPER_BUILDER) Jackson2ObjectMapperBuilder objectMapperBuilder) {
+	MappingJackson2HttpMessageConverter contextMappingJackson2HttpMessageConverter(@Qualifier(CONTEXT_JACKSON2_OBJECT_MAPPER_BUILDER) Jackson2ObjectMapperBuilder objectMapperBuilder) {
 		return new MappingJackson2HttpMessageConverter(objectMapperBuilder.build());
 	}
 }

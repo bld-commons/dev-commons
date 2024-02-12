@@ -40,7 +40,7 @@ public class CryptoJksConfiguration{
 	 * @throws Exception the exception
 	 */
 	@Bean
-	public CipherJks cipherJks() throws Exception {
+	CipherJks cipherJks() throws Exception {
 		KeyStore store = KeyStore.getInstance(this.jksProperties.getInstanceJks());
 		InputStream inputStream = this.jksProperties.getFile().getInputStream();
 		final char[] password = this.jksProperties.getPassword().toCharArray();

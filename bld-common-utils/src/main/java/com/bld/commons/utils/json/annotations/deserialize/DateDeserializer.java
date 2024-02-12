@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class CustomDateDeserializer.
  *
@@ -63,6 +64,7 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 * @param classDate        the class date
 	 * @param dateDeserializer the date deserializer
 	 * @param simpleDateFormat the simple date format
+	 * @param env the env
 	 */
 	private DateDeserializer(Class<T> classDate, DateChangeDeserializer dateDeserializer, SimpleDateFormat simpleDateFormat, AbstractEnvironment env) {
 		super(classDate);
@@ -71,12 +73,12 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 		this.env = env;
 	}
 
+
 	/**
 	 * Gets the date.
 	 *
 	 * @param dateString the date string
 	 * @return the date
-	 * @throws ParseException the parse exception
 	 */
 	protected Date getDate(String dateString) {
 		try {
@@ -143,6 +145,12 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 			return this;
 	}
 
+	/**
+	 * Date filter.
+	 *
+	 * @param dateTimeZone the date time zone
+	 * @param dateFilter the date filter
+	 */
 	private void dateFilter(DateTimeZone dateTimeZone, DateChange dateFilter) {
 		if (dateTimeZone != null)
 			this.dateFilterDeserializer = new DateChangeDeserializer(dateTimeZone.timeZone(), dateTimeZone.format());
