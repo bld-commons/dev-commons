@@ -66,7 +66,7 @@
 		<org.apache.maven.shared-version>3.2.1</org.apache.maven.shared-version>
 		<org.codehaus.plexus-version>3.0.5</org.codehaus.plexus-version>
 		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-		<class-generator.version>1.0.1</class-generator.version>
+		<class-generator.version>2.0.0</class-generator.version>
 		<maven-site-plugin.version>3.8.2</maven-site-plugin.version>
 		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 		<org.bouncycastle-version>1.76</org.bouncycastle-version>
