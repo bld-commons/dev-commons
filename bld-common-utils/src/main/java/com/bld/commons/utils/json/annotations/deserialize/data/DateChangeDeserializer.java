@@ -165,6 +165,20 @@ public class DateChangeDeserializer {
 		return addSecond;
 	}
 
+	/**
+	 * @param timeZone the timeZone to set
+	 */
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	/**
+	 * @param format the format to set
+	 */
+	public void setFormat(String format) {
+		this.format = format;
+	}
+
 	
 
 	

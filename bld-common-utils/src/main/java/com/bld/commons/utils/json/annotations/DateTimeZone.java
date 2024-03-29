@@ -42,6 +42,7 @@ public @interface DateTimeZone {
 	 *
 	 * @return the string
 	 */
-	public String format() default "yyyy-MM-dd'T'HH:mm:ss";
+	public String format() default "${spring.jackson.date-format}";
+	
 	
 }

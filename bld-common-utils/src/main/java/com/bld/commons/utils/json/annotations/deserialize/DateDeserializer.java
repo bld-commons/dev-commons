@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.security.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -48,9 +51,6 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	/** The date filter deserializer. */
 	private DateChangeDeserializer dateFilterDeserializer = null;
 
-	/** The simple date format. */
-	private SimpleDateFormat simpleDateFormat = null;
-
 	/**
 	 * Instantiates a new custom date deserializer.
 	 */
@@ -64,15 +64,13 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 * @param classDate        the class date
 	 * @param dateDeserializer the date deserializer
 	 * @param simpleDateFormat the simple date format
-	 * @param env the env
+	 * @param env              the env
 	 */
-	private DateDeserializer(Class<T> classDate, DateChangeDeserializer dateDeserializer, SimpleDateFormat simpleDateFormat, AbstractEnvironment env) {
+	private DateDeserializer(Class<T> classDate, DateChangeDeserializer dateDeserializer, AbstractEnvironment env) {
 		super(classDate);
 		this.dateFilterDeserializer = dateDeserializer;
-		this.simpleDateFormat = simpleDateFormat;
 		this.env = env;
 	}
-
 
 	/**
 	 * Gets the date.
@@ -81,25 +79,24 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 * @return the date
 	 */
 	protected Date getDate(String dateString) {
+		Date date = null;
 		try {
-			Date date = this.simpleDateFormat.parse(dateString);
-			return DateUtils.sumDate(date, this.dateFilterDeserializer.getAddYear(), this.dateFilterDeserializer.getAddMonth(), this.dateFilterDeserializer.getAddWeek(), this.dateFilterDeserializer.getAddDay(),
-					this.dateFilterDeserializer.getAddHour(), this.dateFilterDeserializer.getAddMinute(), this.dateFilterDeserializer.getAddSecond());
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
+			Instant instant = Instant.parse(dateString);
+			ZoneId zoneId = ZoneId.of(dateFilterDeserializer.getTimeZone());
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zoneId);
+			date = Date.from(localDateTime.atZone(zoneId).toInstant());
+		} catch (Exception e) {
+			try {
+				SimpleDateFormat simpleDateFormat=new SimpleDateFormat(this.dateFilterDeserializer.getFormat().replace("/", "-"));
+				simpleDateFormat.setTimeZone(TimeZone.getTimeZone(this.dateFilterDeserializer.getTimeZone()));
+				date=simpleDateFormat.parse(dateString);
+			} catch (ParseException e1) {
+				throw new RuntimeException(e1);
+			}
 		}
+		return DateUtils.sumDate(date, this.dateFilterDeserializer.getAddYear(), this.dateFilterDeserializer.getAddMonth(), this.dateFilterDeserializer.getAddWeek(), this.dateFilterDeserializer.getAddDay(), this.dateFilterDeserializer.getAddHour(),
+				this.dateFilterDeserializer.getAddMinute(), this.dateFilterDeserializer.getAddSecond());
 
-	}
-
-	/**
-	 * Sets the simple date format.
-	 *
-	 * @param timeZone the time zone
-	 * @param format   the format
-	 */
-	private void setSimpleDateFormat(TimeZone timeZone, String format) {
-		this.simpleDateFormat = new SimpleDateFormat(format);
-		this.simpleDateFormat.setTimeZone(timeZone);
 	}
 
 	/**
@@ -140,7 +137,7 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 		dateFilter(dateTimeZone, dateFilter);
 
 		if (property.getType() != null && property.getType().getRawClass() != null)
-			return new DateDeserializer<>(property.getType().getRawClass(), this.dateFilterDeserializer, this.simpleDateFormat, this.env);
+			return new DateDeserializer<>(property.getType().getRawClass(), this.dateFilterDeserializer, this.env);
 		else
 			return this;
 	}
@@ -149,7 +146,7 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 * Date filter.
 	 *
 	 * @param dateTimeZone the date time zone
-	 * @param dateFilter the date filter
+	 * @param dateFilter   the date filter
 	 */
 	private void dateFilter(DateTimeZone dateTimeZone, DateChange dateFilter) {
 		if (dateTimeZone != null)
@@ -157,18 +154,21 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 		else if (dateFilter != null)
 			this.dateFilterDeserializer = new DateChangeDeserializer(dateFilter.timeZone(), dateFilter.format(), dateFilter.addYear(), dateFilter.addMonth(), dateFilter.addWeek(), dateFilter.addDay(), dateFilter.addHour(), dateFilter.addMinute(),
 					dateFilter.addSecond());
+		String dateFormat = this.dateFilterDeserializer.getFormat();
+		if (dateFormat.startsWith("${") && dateFormat.endsWith("}")) {
+			dateFormat = this.env.resolvePlaceholders(this.dateFilterDeserializer.getFormat());
+			if (StringUtils.isBlank(dateFormat))
+				dateFormat = "yyyy-MM-dd'T'HH:mm:ss";
+		}
+		String timeZone = this.dateFilterDeserializer.getTimeZone();
+		if (timeZone.startsWith("${") && timeZone.endsWith("}"))
+			timeZone = this.env.resolvePlaceholders(this.dateFilterDeserializer.getTimeZone());
 
-		if (this.dateFilterDeserializer.getTimeZone().startsWith("${") && this.dateFilterDeserializer.getTimeZone().endsWith("}")) {
-			TimeZone timeZone = TimeZone.getDefault();
-			final String tz = this.env.resolvePlaceholders(this.dateFilterDeserializer.getTimeZone());
-			if (StringUtils.isNotBlank(tz) && !tz.equals(this.dateFilterDeserializer.getTimeZone()))
-				timeZone = TimeZone.getTimeZone(tz);
-			this.setSimpleDateFormat(timeZone, this.dateFilterDeserializer.getFormat());
-		} else
-			this.setSimpleDateFormat(TimeZone.getTimeZone(this.dateFilterDeserializer.getTimeZone()), this.dateFilterDeserializer.getFormat());
+		if (StringUtils.isBlank(timeZone))
+			timeZone = TimeZone.getDefault().getID();
+
+		this.dateFilterDeserializer.setTimeZone(timeZone);
+		this.dateFilterDeserializer.setFormat(dateFormat);
 	}
 
-	
-
-	
 }
