@@ -6,7 +6,7 @@
 	<groupId>com.github.bld-commons</groupId>
 	<artifactId>dev-commons</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.3</version>
+	<version>1.1.0</version>
 	<url>https://github.com/bld-commons/dev-commons.git</url>
 
 	<licenses>
@@ -70,8 +70,6 @@
 		<maven-site-plugin.version>3.8.2</maven-site-plugin.version>
 		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 		<org.bouncycastle-version>1.76</org.bouncycastle-version>
-		<common-annotations.version>1.0.0</common-annotations.version>
-		<common-jpa-service.version>2.0.9-SNAPSHOT</common-jpa-service.version>
 	</properties>
 
 	<scm>
@@ -93,7 +91,7 @@
 			<dependency>
 				<groupId>com.github.bld-commons</groupId>
 				<artifactId>common-annotations</artifactId>
-				<version>${common-annotations.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
@@ -119,11 +117,6 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-commons</artifactId>
 				<version>${spring-cloud-commons.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.github.bld-commons</groupId>
-				<artifactId>common-jpa-service</artifactId>
-				<version>${common-jpa-service.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.javax.persistence</groupId>
