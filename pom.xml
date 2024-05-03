@@ -70,7 +70,6 @@
 		<maven-site-plugin.version>3.8.2</maven-site-plugin.version>
 		<maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 		<org.bouncycastle-version>1.76</org.bouncycastle-version>
-		<common-annotations.version>1.0.0</common-annotations.version>
 	</properties>
 
 	<scm>
@@ -92,7 +91,7 @@
 			<dependency>
 				<groupId>com.github.bld-commons</groupId>
 				<artifactId>common-annotations</artifactId>
-				<version>${common-annotations.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.validation</groupId>
