@@ -1,0 +1,10 @@
+{"properties": [
+  {
+    "name": "com.bld.connection.proxy.port",
+    "type": "java.lang.Integer"
+  },
+  {
+    "name": "com.bld.connection.proxy.ip",
+    "type": "java.lang.String"
+  }
+]}
