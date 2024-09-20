@@ -8,8 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-
 
 /**
  * The Class JksProperties.
@@ -31,8 +29,6 @@ public class JksProperties {
 	/** The instance jks. */
 	private String instanceJks;
 
-	/** The signature algorithm. */
-	private SignatureAlgorithm signatureAlgorithm;
 
 	/**
 	 * Gets the file.
@@ -106,23 +102,6 @@ public class JksProperties {
 		this.instanceJks = instanceJks;
 	}
 
-	/**
-	 * Gets the signature algorithm.
-	 *
-	 * @return the signature algorithm
-	 */
-	public SignatureAlgorithm getSignatureAlgorithm() {
-		return signatureAlgorithm;
-	}
-
-	/**
-	 * Sets the signature algorithm.
-	 *
-	 * @param signatureAlgorithm the new signature algorithm
-	 */
-	public void setSignatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
-		this.signatureAlgorithm = signatureAlgorithm;
-	}
 	
 	
 	

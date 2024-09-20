@@ -48,7 +48,7 @@ public class CryptoJksConfiguration{
 		PrivateKey privateKey = (PrivateKey) store.getKey(this.jksProperties.getAlias(), password);
 		Certificate cert = store.getCertificate(this.jksProperties.getAlias());
 		PublicKey publicKey = cert.getPublicKey();
-		return new CipherJks(privateKey, publicKey,this.jksProperties.getSignatureAlgorithm());
+		return new CipherJks(privateKey, publicKey);
 	}
 
 
