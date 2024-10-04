@@ -21,15 +21,6 @@ public class CryptoAesUtils extends CryptoKeyUtils{
 	@Autowired
 	private CipherAesSecret cipherAesSecret;
 	
-	/**
-	 * Instance type.
-	 *
-	 * @return the instance type
-	 */
-	@Override
-	protected InstanceType instanceType() {
-		return InstanceType.AES;
-	}
 
 	/**
 	 * Encrypt value.
@@ -40,7 +31,7 @@ public class CryptoAesUtils extends CryptoKeyUtils{
 	 */
 	@Override
 	public String encryptValue(String value, String key) {
-		return super.encryptValue(value, cipherAesSecret.getSecretKey(key));
+		return super.encryptValue(value, cipherAesSecret.getSecretKey(key),InstanceType.AES);
 	}
 
 	/**
@@ -52,7 +43,7 @@ public class CryptoAesUtils extends CryptoKeyUtils{
 	 */
 	@Override
 	public String decryptValue(String value, String key) {
-		return super.decryptValue(value, cipherAesSecret.getSecretKey(key));
+		return super.decryptValue(value, cipherAesSecret.getSecretKey(key),InstanceType.AES);
 	}
 
 	/**

@@ -1,8 +1,12 @@
 {
 	"groups": [
-
 		{
 			"name": "com.bld.crypto.jks",
+			"type": "org.springframework.boot.autoconfigure.web.ServerProperties",
+			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.signature",
 			"type": "org.springframework.boot.autoconfigure.web.ServerProperties",
 			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
 		},
@@ -22,7 +26,8 @@
 			"name": "com.bld.crypto.public-key.keys",
 			"type": "java.util.Map<String,String>",
 			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
-		},{
+		},
+		{
 			"name": "com.bld.crypto.aes.keys",
 			"type": "java.util.Map<String,com.bld.crypto.aes.config.data.Aes>",
 			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
@@ -44,6 +49,31 @@
 		},
 		{
 			"name": "com.bld.crypto.jks.instance-jks",
+			"type": "java.lang.String",
+			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.signature.file",
+			"type": "java.lang.String",
+			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.signature.alias",
+			"type": "java.lang.String",
+			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.signature.password",
+			"type": "java.lang.String",
+			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.signature.instance-jks",
+			"type": "java.lang.String",
+			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.signature.instance-signature",
 			"type": "java.lang.String",
 			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
 		}

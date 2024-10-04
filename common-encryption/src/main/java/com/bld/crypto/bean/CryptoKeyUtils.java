@@ -29,18 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public abstract class CryptoKeyUtils {
 	
-	/** The Constant _252F. */
-	protected static final String _252F = "_252F25_";
-
-	/** The Constant _2F. */
-	protected static final String _2F = "%2F";
-
-	/**
-	 * Instance type.
-	 *
-	 * @return the instance type
-	 */
-	protected abstract InstanceType instanceType();
+	
 	
 	/** The Constant logger. */
 	private final static Logger logger=LoggerFactory.getLogger(CryptoKeyUtils.class);
@@ -49,21 +38,24 @@ public abstract class CryptoKeyUtils {
 	@Autowired
 	protected ObjectMapper objMapper;
 	
+
 	/**
 	 * Gets the cipher.
 	 *
 	 * @param mode the mode
 	 * @param key the key
+	 * @param instanceType the instance type
 	 * @return the cipher
 	 * @throws NoSuchAlgorithmException the no such algorithm exception
 	 * @throws NoSuchPaddingException the no such padding exception
 	 * @throws InvalidKeyException the invalid key exception
 	 */
-	protected Cipher getCipher(int mode,Key key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-		Cipher cipher = Cipher.getInstance(this.instanceType().name());
+	protected static Cipher getCipher(int mode,Key key,InstanceType instanceType) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+		Cipher cipher = Cipher.getInstance(instanceType.name());
 		cipher.init(mode, key);
 		return cipher;
 	}
+	
 	
 	
 	/**
@@ -71,13 +63,14 @@ public abstract class CryptoKeyUtils {
 	 *
 	 * @param value the value
 	 * @param key the key
+	 * @param instanceType the instance type
 	 * @return the string
 	 */
-	public String encryptValue(final String value,final Key key) {
+	public static String encryptValue(final String value,final Key key,InstanceType instanceType) {
 		String valueEncrypted = null;
 		if (StringUtils.isNotBlank(value)) {
 			try {
-				Cipher cipher = getCipher(Cipher.ENCRYPT_MODE,key);
+				Cipher cipher = CryptoKeyUtils.getCipher(Cipher.ENCRYPT_MODE,key,instanceType);
 				byte[] encrypt = cipher.doFinal(value.getBytes());
 				valueEncrypted = Base64.getEncoder().encodeToString(encrypt);
 			} catch (Exception e) {
@@ -90,18 +83,20 @@ public abstract class CryptoKeyUtils {
 	}
 	
 	
+	
 	/**
 	 * Decrypt value.
 	 *
 	 * @param value the value
 	 * @param key the key
+	 * @param instanceType the instance type
 	 * @return the string
 	 */
-	public String decryptValue(final String value,final Key key) {
+	public String decryptValue(final String value,final Key key,InstanceType instanceType) {
 		String valueDecripted = null;
 		if (StringUtils.isNotBlank(value)) {
 			try {
-				Cipher cipher = getCipher(Cipher.DECRYPT_MODE,key);
+				Cipher cipher = CryptoKeyUtils.getCipher(Cipher.DECRYPT_MODE,key,instanceType);
 				byte[] decrypt = Base64.getDecoder().decode(value);
 				valueDecripted = new String(cipher.doFinal(decrypt));
 			} catch (Exception e) {
@@ -112,6 +107,7 @@ public abstract class CryptoKeyUtils {
 		return valueDecripted;
 	}
 	
+
 	/**
 	 * Encrypt value.
 	 *
@@ -121,6 +117,7 @@ public abstract class CryptoKeyUtils {
 	 */
 	protected abstract String encryptValue(String value,final String key);
 
+	
 	/**
 	 * Decrypt value.
 	 *
@@ -131,6 +128,7 @@ public abstract class CryptoKeyUtils {
 	protected abstract String decryptValue(String value,final String key);
 	
 	
+
 	/**
 	 * Encrypt uri.
 	 *
@@ -153,7 +151,6 @@ public abstract class CryptoKeyUtils {
 	protected String encodeValue(String valueEncrypted) {
 		if (StringUtils.isNotEmpty(valueEncrypted))
 			return Base64.getEncoder().encodeToString(valueEncrypted.getBytes());
-					//UriUtils.encode(valueEncrypted, StandardCharsets.UTF_8).replace(_2F, _252F).replace(_2F.toLowerCase(), _252F.toLowerCase());
 		else
 			return null;
 	}
@@ -169,7 +166,6 @@ public abstract class CryptoKeyUtils {
 		if (StringUtils.isBlank(value))
 			return null;
 		String decode=new String(Base64.getDecoder().decode(value));
-				//UriUtils.decode(value.replace(_252F, _2F).replace(_252F.toLowerCase(), _2F.toLowerCase()), StandardCharsets.UTF_8);
 		return decryptValue(decode,key);
 	}
 
