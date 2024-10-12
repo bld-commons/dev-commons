@@ -33,7 +33,7 @@ public class CryptoPublicKeyUtils extends CryptoKeyUtils {
 	 */
 	@Override
 	public String encryptValue(String value,final String key) {
-		return super.encryptValue(value, cipherPublicKeys.getPublicKey(key));
+		return super.encryptValue(value, cipherPublicKeys.getPublicKey(key),InstanceType.RSA);
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class CryptoPublicKeyUtils extends CryptoKeyUtils {
 	 */
 	@Override
 	public String decryptValue(String value,final String key) {
-		return super.decryptValue(value, cipherPublicKeys.getPublicKey(key));
+		return super.decryptValue(value, cipherPublicKeys.getPublicKey(key),InstanceType.RSA);
 	}
 
 	/**
@@ -128,15 +128,7 @@ public class CryptoPublicKeyUtils extends CryptoKeyUtils {
 		return this.objMapper.readValue(json, response);
 	}
 
-	/**
-	 * Instance type.
-	 *
-	 * @return the instance type
-	 */
-	@Override
-	protected InstanceType instanceType() {
-		return InstanceType.RSA;
-	}
+
 
 
 
