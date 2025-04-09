@@ -30,6 +30,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(using=GeometrySerializer.class)
 public @interface TextGeometry {
 
+	/**
+	 * Value.
+	 *
+	 * @return the srid type
+	 */
 	public SridType value() default SridType.NONE;
 	
 	

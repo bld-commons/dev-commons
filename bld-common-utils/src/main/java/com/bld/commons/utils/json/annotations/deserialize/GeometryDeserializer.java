@@ -22,17 +22,29 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
+/**
+ * The Class GeometryDeserializer.
+ */
 public class GeometryDeserializer extends JsonDeserializer<Geometry> implements ContextualDeserializer{
 
+	/** The srid type. */
 	private SridType sridType;
 	
 	
+	/**
+	 * Instantiates a new geometry deserializer.
+	 */
 	public GeometryDeserializer() {
 		super();
 	}
 	
 	
 
+	/**
+	 * Instantiates a new geometry deserializer.
+	 *
+	 * @param sridType the srid type
+	 */
 	public GeometryDeserializer(SridType sridType) {
 		super();
 		this.sridType = sridType;
@@ -40,12 +52,29 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> implements 
 
 
 
+	/**
+	 * Creates the contextual.
+	 *
+	 * @param ctxt the ctxt
+	 * @param property the property
+	 * @return the json deserializer
+	 * @throws JsonMappingException the json mapping exception
+	 */
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
 		TextGeometry textGeometry=property.getAnnotation(TextGeometry.class);
 		return new GeometryDeserializer(textGeometry.value());
 	}
 
+	/**
+	 * Deserialize.
+	 *
+	 * @param p the p
+	 * @param ctxt the ctxt
+	 * @return the geometry
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws JacksonException the jackson exception
+	 */
 	@Override
 	public Geometry deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 		String textGeometry = p.getText();

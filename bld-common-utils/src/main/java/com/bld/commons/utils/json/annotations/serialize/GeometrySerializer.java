@@ -21,23 +21,45 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class GeometrySerializer.
+ */
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class GeometrySerializer extends StdScalarSerializer<Geometry>  implements ContextualSerializer {
 
+	/** The srid type. */
 	private SridType sridType;
 	
+	/**
+	 * Instantiates a new geometry serializer.
+	 */
 	protected GeometrySerializer() {
 		super(Geometry.class);
 	}
 
 
+	/**
+	 * Instantiates a new geometry serializer.
+	 *
+	 * @param t the t
+	 * @param sridType the srid type
+	 */
 	protected GeometrySerializer(Class<Geometry> t, SridType sridType) {
 		super(t);
 		this.sridType = sridType;
 	}
 
 
+	/**
+	 * Serialize.
+	 *
+	 * @param value the value
+	 * @param gen the gen
+	 * @param provider the provider
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Override
 	public void serialize(Geometry value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 		String json=null;
@@ -51,6 +73,14 @@ public class GeometrySerializer extends StdScalarSerializer<Geometry>  implement
 	}
 
 
+	/**
+	 * Creates the contextual.
+	 *
+	 * @param prov the prov
+	 * @param property the property
+	 * @return the json serializer
+	 * @throws JsonMappingException the json mapping exception
+	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
 		TextGeometry textGeometry=property.getAnnotation(TextGeometry.class);
