@@ -18,6 +18,7 @@ import com.bld.crypto.aes.config.AesConfiguration;
 import com.bld.crypto.config.CryptoConfiguration;
 import com.bld.crypto.jks.config.CryptoJksConfiguration;
 import com.bld.crypto.pubkey.config.CryptoPublicKeyConfiguration;
+import com.bld.crypto.signature.config.SignatureConfiguration;
 
 /**
  * The Interface EnableRestConnection.
@@ -26,7 +27,7 @@ import com.bld.crypto.pubkey.config.CryptoPublicKeyConfiguration;
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
-@Import({CryptoConfiguration.class,CryptoJksConfiguration.class,CryptoPublicKeyConfiguration.class,AesConfiguration.class})
+@Import({CryptoConfiguration.class,CryptoJksConfiguration.class,CryptoPublicKeyConfiguration.class,AesConfiguration.class,SignatureConfiguration.class})
 public @interface EnableCrypto {
 
 }

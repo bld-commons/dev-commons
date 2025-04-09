@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.github.bld-commons</groupId>
 		<artifactId>dev-commons</artifactId>
-		<version>2.0.3</version>
+		<version>2.0.7</version>
 	</parent>
 	<artifactId>bld-common-utils</artifactId>
 
@@ -19,6 +19,10 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.locationtech.jts</groupId>
+			<artifactId>jts-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -9,10 +9,12 @@ import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.bld.crypto.bean.CryptoKeyUtils;
-import com.bld.crypto.jks.config.data.CipherJks;
+import com.bld.crypto.jks.config.CryptoJksConfiguration;
+import com.bld.crypto.key.JksKey;
 import com.bld.crypto.type.CryptoType;
 import com.bld.crypto.type.InstanceType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +37,8 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 
 	/** The cipher jks. */
 	@Autowired
-	private CipherJks cipherJks;
+	@Qualifier(CryptoJksConfiguration.CIPHER_JKS_KEY)
+	private JksKey cipherJks;
 	
 	/**
 	 * Encrypt value.
@@ -44,7 +47,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String encryptValue(String value) {
-		return super.encryptValue(value, cipherJks.getPublicKey());
+		return super.encryptValue(value, cipherJks.getPublicKey(),InstanceType.RSA);
 	}
 
 	/**
@@ -54,7 +57,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String decryptValue(String value) {
-		return super.decryptValue(value, cipherJks.getPrivateKey());
+		return super.decryptValue(value, cipherJks.getPrivateKey(),InstanceType.RSA);
 	}
 	
 	/**
@@ -65,7 +68,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @throws JsonProcessingException the json processing exception
 	 */
 	public String encryptObject(Object value) throws JsonProcessingException {
-		return super.encryptValue(this.objMapper.writeValueAsString(value), cipherJks.getPublicKey());
+		return super.encryptValue(this.objMapper.writeValueAsString(value), cipherJks.getPublicKey(),InstanceType.RSA);
 	}
 
 	/**
@@ -91,7 +94,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 */
 	public String encryptUri(String value,CryptoType cryptoType) {
 		Key key = getEncryptKey(cryptoType);
-		String valueEncrypted = encryptValue(value,key);
+		String valueEncrypted = encryptValue(value,key,InstanceType.RSA);
 		return encodeValue(valueEncrypted);
 	}
 	
@@ -133,7 +136,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 			return null;
 		Key key = getDecryptKey(cryptoType);
 		String decode=new String(Base64.getDecoder().decode(value));
-		return decryptValue(decode,key);
+		return decryptValue(decode,key,InstanceType.RSA);
 	}
 
 	/**
@@ -157,7 +160,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String decryptValue(String value,CryptoType cryptoType) {
-		return super.decryptValue(value, getDecryptKey(cryptoType));
+		return super.decryptValue(value, getDecryptKey(cryptoType),InstanceType.RSA);
 	}
 	
 	/**
@@ -168,7 +171,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String encryptValue(String value,CryptoType cryptoType) {
-		return super.encryptValue(value, getEncryptKey(cryptoType));
+		return super.encryptValue(value, getEncryptKey(cryptoType),InstanceType.RSA);
 	}
 	
 	/**
@@ -268,15 +271,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 		return this.decryptValue(value);
 	}
 
-	/**
-	 * Instance type.
-	 *
-	 * @return the instance type
-	 */
-	@Override
-	protected InstanceType instanceType() {
-		return InstanceType.RSA;
-	}
+
 
 //	public  void cookie(String token, HttpServletResponse response) {
 //		int j=0;
