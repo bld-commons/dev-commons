@@ -6,7 +6,7 @@
 	<groupId>com.github.bld-commons</groupId>
 	<artifactId>dev-commons</artifactId>
 	<packaging>pom</packaging>
-	<version>2.0.7</version>
+	<version>2.0.8</version>
 	<url>https://github.com/bld-commons/dev-commons.git</url>
 
 	<licenses>
@@ -93,6 +93,16 @@
 				<groupId>org.locationtech.jts</groupId>
 				<artifactId>jts-core</artifactId>
 				<version>${org.locationtech.jts-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.geotools.xsd</groupId>
+				<artifactId>gt-xsd-kml</artifactId>
+				<version>23-RC</version>
+			</dependency>
+			<dependency>
+				<groupId>org.geotools</groupId>
+				<artifactId>gt-geojson</artifactId>
+				<version>11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.bld-commons</groupId>

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 
 import com.bld.commons.utils.json.annotations.deserialize.GeometryDeserializer;
 import com.bld.commons.utils.json.annotations.serialize.GeometrySerializer;
-import com.bld.commons.utils.types.SridType;
+import com.bld.commons.utils.types.SpatialType;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,9 +28,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JacksonAnnotationsInside
 @JsonDeserialize(using = GeometryDeserializer.class)
 @JsonSerialize(using=GeometrySerializer.class)
-public @interface TextGeometry {
+public @interface GeometryPostgis {
 
-	public SridType value() default SridType.NONE;
+	public SpatialType value() default SpatialType.WKT;
 	
 	
 }
