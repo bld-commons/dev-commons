@@ -7,50 +7,58 @@ package com.bld.commons.utils.json.annotations.deserialize;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKTReader;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bld.commons.utils.json.annotations.TextGeometry;
-import com.bld.commons.utils.types.SridType;
+import com.bld.commons.utils.data.PostgisGeometry;
+import com.bld.commons.utils.data.WKBGeometry;
+import com.bld.commons.utils.data.WKTGeometry;
+import com.bld.commons.utils.json.annotations.GeometryPostgis;
+import com.bld.commons.utils.types.SpatialType;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class GeometryDeserializer.
  */
-public class GeometryDeserializer extends JsonDeserializer<Geometry> implements ContextualDeserializer{
+public class GeometryDeserializer extends JsonDeserializer<Geometry> implements ContextualDeserializer {
 
-	/** The srid type. */
-	private SridType sridType;
-	
-	
+	/** The spatial type. */
+	private SpatialType spatialType;
+
+	/** The obj mapper. */
+	@Autowired
+	private ObjectMapper objMapper;
+
 	/**
 	 * Instantiates a new geometry deserializer.
 	 */
 	public GeometryDeserializer() {
 		super();
 	}
-	
-	
 
 	/**
 	 * Instantiates a new geometry deserializer.
 	 *
-	 * @param sridType the srid type
+	 * @param spatialType the spatial type
+	 * @param objMapper the obj mapper
 	 */
-	public GeometryDeserializer(SridType sridType) {
+	public GeometryDeserializer(SpatialType spatialType, ObjectMapper objMapper) {
 		super();
-		this.sridType = sridType;
+		this.spatialType = spatialType;
+		this.objMapper = objMapper;
 	}
-
-
 
 	/**
 	 * Creates the contextual.
@@ -62,8 +70,8 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> implements 
 	 */
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-		TextGeometry textGeometry=property.getAnnotation(TextGeometry.class);
-		return new GeometryDeserializer(textGeometry.value());
+		GeometryPostgis postgisGeometry = property.getAnnotation(GeometryPostgis.class);
+		return new GeometryDeserializer(postgisGeometry.value(), this.objMapper);
 	}
 
 	/**
@@ -77,22 +85,46 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> implements 
 	 */
 	@Override
 	public Geometry deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
-		String textGeometry = p.getText();
+		TreeNode treeNode = p.readValueAsTree();
 		Geometry geometry=null;
-		if(StringUtils.isNotBlank(textGeometry)) {
+		if (treeNode!=null) {
+			String textGeometry=treeNode.toString();
 			try {
-				int index=0;
-				if(textGeometry.indexOf(";")>=0)
-					index=textGeometry.indexOf(";")+1;
-				geometry = new WKTReader().read(textGeometry.substring(index));
-				geometry.setSRID(this.sridType.value());
+
+				switch (this.spatialType) {
+				case WKB:
+					WKBReader wkbReader=new WKBReader();
+					WKBGeometry wkbGeometry=this.objMapper.readValue(textGeometry,WKBGeometry.class);
+					geometry=wkbReader.read(wkbGeometry.getGeometry());
+					setSRID(geometry, wkbGeometry);
+					break;
+				case WKT:
+					WKTReader wktReader = new WKTReader();
+					WKTGeometry wktGeometry = this.objMapper.readValue(textGeometry, WKTGeometry.class);
+					geometry = wktReader.read(wktGeometry.getGeometry());
+					setSRID(geometry, wktGeometry);
+					break;
+				default:
+					break;
+
+				}
 			} catch (ParseException e) {
 				throw new IOException(e);
 			}
 		}
-			
+
 		return geometry;
 	}
 
+	/**
+	 * Sets the SRID.
+	 *
+	 * @param geometry the geometry
+	 * @param postgisGeometry the postgis geometry
+	 */
+	private void setSRID(Geometry geometry,PostgisGeometry<?>postgisGeometry) {
+		if (postgisGeometry.getSrid() != null)
+			geometry.setSRID(postgisGeometry.getSrid());
+	}
 	
 }

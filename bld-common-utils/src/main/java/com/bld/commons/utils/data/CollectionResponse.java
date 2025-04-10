@@ -10,6 +10,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class CollectionResponse.
  *

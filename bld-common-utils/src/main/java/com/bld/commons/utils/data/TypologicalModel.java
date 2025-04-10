@@ -8,6 +8,7 @@ package com.bld.commons.utils.data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class TypologicalModel.
  *

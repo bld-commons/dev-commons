@@ -7,6 +7,7 @@ package com.bld.commons.utils.data;
 
 import java.io.Serializable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class BaseModel.
  *

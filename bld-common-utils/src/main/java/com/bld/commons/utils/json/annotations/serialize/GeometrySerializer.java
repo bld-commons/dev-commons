@@ -8,83 +8,73 @@ package com.bld.commons.utils.json.annotations.serialize;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKBWriter;
 import org.locationtech.jts.io.WKTWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bld.commons.utils.json.annotations.TextGeometry;
-import com.bld.commons.utils.types.SridType;
+import com.bld.commons.utils.data.PostgisGeometry;
+import com.bld.commons.utils.data.WKBGeometry;
+import com.bld.commons.utils.data.WKTGeometry;
+import com.bld.commons.utils.json.annotations.GeometryPostgis;
+import com.bld.commons.utils.types.SpatialType;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class GeometrySerializer.
- */
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class GeometrySerializer extends StdScalarSerializer<Geometry>  implements ContextualSerializer {
 
-	/** The srid type. */
-	private SridType sridType;
+	@Autowired
+	private ObjectMapper objMapper;
 	
-	/**
-	 * Instantiates a new geometry serializer.
-	 */
+	private SpatialType spatialType;
+	
 	protected GeometrySerializer() {
 		super(Geometry.class);
 	}
 
 
-	/**
-	 * Instantiates a new geometry serializer.
-	 *
-	 * @param t the t
-	 * @param sridType the srid type
-	 */
-	protected GeometrySerializer(Class<Geometry> t, SridType sridType) {
+	protected GeometrySerializer(Class<Geometry> t, SpatialType spatialType,ObjectMapper objMapper) {
 		super(t);
-		this.sridType = sridType;
+		this.spatialType = spatialType;
+		this.objMapper=objMapper;
 	}
 
 
-	/**
-	 * Serialize.
-	 *
-	 * @param value the value
-	 * @param gen the gen
-	 * @param provider the provider
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
 	@Override
 	public void serialize(Geometry value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		String json=null;
+		PostgisGeometry<?> spatialModel=null;
 		if(value!=null) {
-			WKTWriter writer = new WKTWriter();
-	        json = writer.write(value);
-	        if(!SridType.NONE.equals(this.sridType))
-	        	json="SRID="+sridType.value()+";"+json;
+			switch(this.spatialType) {
+			case WKB:
+				WKBWriter wkbWriter = new WKBWriter();
+				spatialModel=new WKBGeometry(SpatialType.WKB,wkbWriter.write(value),value.getSRID());
+				break;
+			case WKT:
+				WKTWriter wktWriter = new WKTWriter();
+				spatialModel=new WKTGeometry(SpatialType.WKT,wktWriter.write(value),value.getSRID());
+				break;
+			default:
+				break;
+			
+			}
+			
 		}
-		gen.writeString(json);
+		gen.writeObject(spatialModel);
 	}
 
 
-	/**
-	 * Creates the contextual.
-	 *
-	 * @param prov the prov
-	 * @param property the property
-	 * @return the json serializer
-	 * @throws JsonMappingException the json mapping exception
-	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-		TextGeometry textGeometry=property.getAnnotation(TextGeometry.class);
-		return new GeometrySerializer(Geometry.class,textGeometry.value());
+		GeometryPostgis geometryPostgis=property.getAnnotation(GeometryPostgis.class);
+		return new GeometrySerializer(Geometry.class,geometryPostgis.value(),this.objMapper);
 	}
 
 

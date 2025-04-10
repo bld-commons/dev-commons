@@ -63,7 +63,6 @@ public class DateDeserializer<T> extends StdScalarDeserializer<T> implements Con
 	 *
 	 * @param classDate        the class date
 	 * @param dateDeserializer the date deserializer
-	 * @param simpleDateFormat the simple date format
 	 * @param env              the env
 	 */
 	private DateDeserializer(Class<T> classDate, DateChangeDeserializer dateDeserializer, AbstractEnvironment env) {

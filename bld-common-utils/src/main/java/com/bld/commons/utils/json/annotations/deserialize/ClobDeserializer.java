@@ -13,14 +13,30 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ClobDeserializer.
+ */
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class ClobDeserializer extends StdScalarDeserializer<Clob> {
 
+	/**
+	 * Instantiates a new clob deserializer.
+	 */
 	protected ClobDeserializer() {
 		super(Clob.class);
 	}
 
+	/**
+	 * Deserialize.
+	 *
+	 * @param p the p
+	 * @param ctxt the ctxt
+	 * @return the clob
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws JacksonException the jackson exception
+	 */
 	@Override
 	public Clob deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 		String json = p.getText();
