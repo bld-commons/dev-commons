@@ -11,8 +11,12 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.locationtech.jts.io.kml.KMLReader;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bld.commons.utils.data.GeoJsonGeometry;
+import com.bld.commons.utils.data.KMLGeometry;
 import com.bld.commons.utils.data.PostgisGeometry;
 import com.bld.commons.utils.data.WKBGeometry;
 import com.bld.commons.utils.data.WKTGeometry;
@@ -92,6 +96,12 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> implements 
 			try {
 
 				switch (this.spatialType) {
+				case GeoJSON:
+					GeoJsonReader geoJsonReader=new GeoJsonReader();
+					GeoJsonGeometry geoJsonGeometry=this.objMapper.readValue(textGeometry, GeoJsonGeometry.class);
+					geometry=geoJsonReader.read(geoJsonGeometry.geoJson(this.objMapper));
+					setSRID(geometry, geoJsonGeometry);
+					break;
 				case WKB:
 					WKBReader wkbReader=new WKBReader();
 					WKBGeometry wkbGeometry=this.objMapper.readValue(textGeometry,WKBGeometry.class);
@@ -104,6 +114,12 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> implements 
 					geometry = wktReader.read(wktGeometry.getGeometry());
 					setSRID(geometry, wktGeometry);
 					break;
+				case KML:
+					KMLReader kmlReader=new KMLReader();
+					KMLGeometry kmlGeometry=this.objMapper.readValue(textGeometry, KMLGeometry.class);
+					geometry=kmlReader.read(kmlGeometry.getGeometry());
+					setSRID(geometry, kmlGeometry);
+				
 				default:
 					break;
 

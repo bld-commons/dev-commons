@@ -1,11 +1,17 @@
 package com.bld.commons.utils.types;
 
-
+/**
+ * The Enum SpatialType.
+ */
 public enum SpatialType {
 
-	WKT, WKB
-	//, GeoJSON, KML,MVT
-	;
-	
-	
+	/** The wkt. */
+	WKT, 
+    /** The wkb. */
+    WKB, 
+    /** The Geo JSON. */
+    GeoJSON, 
+    /** The kml. */
+    KML;
+
 }

@@ -10,8 +10,12 @@ import java.io.IOException;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKBWriter;
 import org.locationtech.jts.io.WKTWriter;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
+import org.locationtech.jts.io.kml.KMLWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bld.commons.utils.data.GeoJsonGeometry;
+import com.bld.commons.utils.data.KMLGeometry;
 import com.bld.commons.utils.data.PostgisGeometry;
 import com.bld.commons.utils.data.WKBGeometry;
 import com.bld.commons.utils.data.WKTGeometry;
@@ -53,6 +57,10 @@ public class GeometrySerializer extends StdScalarSerializer<Geometry>  implement
 		PostgisGeometry<?> spatialModel=null;
 		if(value!=null) {
 			switch(this.spatialType) {
+			case GeoJSON:
+				GeoJsonWriter geoJsonWriter = new GeoJsonWriter();
+				spatialModel=new GeoJsonGeometry(SpatialType.GeoJSON, this.objMapper.readTree(geoJsonWriter.write(value)),value.getSRID());
+				break;
 			case WKB:
 				WKBWriter wkbWriter = new WKBWriter();
 				spatialModel=new WKBGeometry(SpatialType.WKB,wkbWriter.write(value),value.getSRID());
@@ -60,6 +68,10 @@ public class GeometrySerializer extends StdScalarSerializer<Geometry>  implement
 			case WKT:
 				WKTWriter wktWriter = new WKTWriter();
 				spatialModel=new WKTGeometry(SpatialType.WKT,wktWriter.write(value),value.getSRID());
+				break;
+			case KML:
+				KMLWriter kmlWriter= new KMLWriter();
+				spatialModel=new KMLGeometry(SpatialType.KML, kmlWriter.write(value), value.getSRID());
 				break;
 			default:
 				break;
