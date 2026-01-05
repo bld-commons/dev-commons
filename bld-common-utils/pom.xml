@@ -9,7 +9,7 @@
 		<version>2.1.0</version>
 	</parent>
 	<artifactId>bld-common-utils</artifactId>
-
+	<name>Common Utils</name>
 
 	<properties>
 

@@ -9,7 +9,7 @@
 		<version>2.1.0</version>
 	</parent>
 	<artifactId>common-rest-connection</artifactId>
-
+    <name>Common Rest Connection</name>
 
 
 	<dependencies>

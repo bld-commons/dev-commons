@@ -9,7 +9,7 @@
 		<version>2.1.0</version>
 	</parent>
 	<artifactId>common-encryption</artifactId>
-
+    <name>Common Encryption</name>
 
 	<dependencies>
 		<dependency>
