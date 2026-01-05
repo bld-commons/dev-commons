@@ -17,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.bld.crypto.key.JksKey;
+import com.bld.crypto.signature.SignatureKeyUtils;
 import com.bld.crypto.signature.config.properties.SignatureKeyProperties;
 
 
@@ -29,7 +30,6 @@ import com.bld.crypto.signature.config.properties.SignatureKeyProperties;
 public class SignatureConfiguration{
 
 	
-	public static final String SIGNATURE_JKS_KEY = "signatureJksKey";
 	/** The jks properties. */
 	@Autowired
 	private SignatureKeyProperties signatureProperties;
@@ -40,8 +40,8 @@ public class SignatureConfiguration{
 	 * @return the cipher jks
 	 * @throws Exception the exception
 	 */
-	@Bean(SIGNATURE_JKS_KEY)
-	JksKey signatureJksKey() throws Exception {
+	@Bean
+	SignatureKeyUtils signatureKeyUtils() throws Exception {
 		KeyStore store = KeyStore.getInstance(this.signatureProperties.getInstanceJks());
 		InputStream inputStream = this.signatureProperties.getFile().getInputStream();
 		final char[] password = this.signatureProperties.getPassword().toCharArray();
@@ -49,7 +49,7 @@ public class SignatureConfiguration{
 		PrivateKey privateKey = (PrivateKey) store.getKey(this.signatureProperties.getAlias(), password);
 		Certificate cert = store.getCertificate(this.signatureProperties.getAlias());
 		PublicKey publicKey = cert.getPublicKey();
-		return new JksKey(privateKey, publicKey);
+		return new SignatureKeyUtils(new JksKey(privateKey, publicKey), this.signatureProperties);
 	}
 
 

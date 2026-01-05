@@ -10,11 +10,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.bld.crypto.commons.KeyUtility;
 import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.type.InstanceType;
 
@@ -41,10 +41,10 @@ public final class JksKey {
 		this.publicKey = publicKey;
 	}
 
-	public JksKey(String privateKey, String publicKey) {
+	public JksKey(String privateKey, String publicKey,InstanceType instanceType) {
 		super();
-		this.privateKey = this.setPrivateKey(privateKey);
-		this.publicKey = this.setPublicKey(publicKey);
+		this.privateKey = this.setPrivateKey(privateKey,instanceType);
+		this.publicKey = this.setPublicKey(publicKey,instanceType);
 	}
 	
 	/**
@@ -71,7 +71,7 @@ public final class JksKey {
 		return null;
 	}
 
-	private PrivateKey setPrivateKey(String privateKey) {
+	private PrivateKey setPrivateKey(String privateKey,InstanceType instanceType) {
 		try {
 			if(StringUtils.isNotBlank(privateKey)) {
 				byte[] keyBytes = Base64.getDecoder().decode(privateKey);
@@ -85,18 +85,8 @@ public final class JksKey {
 		return null;
 	}
 
-	private PublicKey setPublicKey(String publicKey) {
-		try {
-			if (StringUtils.isNotBlank(publicKey)) {
-				byte[] keyBytes = Base64.getDecoder().decode(publicKey);
-				X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-				KeyFactory keyFactory = KeyFactory.getInstance(InstanceType.RSA.name());
-				return keyFactory.generatePublic(spec);
-			}
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new CryptoException(e);
-		}
-		return null;
+	private PublicKey setPublicKey(String publicKey,InstanceType instanceType) {
+		return KeyUtility.getPublicKey(publicKey,instanceType);
 	}
 
 }

@@ -7,7 +7,7 @@ package com.bld.crypto.pubkey.serializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.bean.CryptoKeyData;
-import com.bld.crypto.pubkey.CryptoPublicKeyUtils;
+import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.annotations.CryptoPubKey;
 import com.bld.crypto.pubkey.annotations.EncryptPubKey;
 import com.bld.crypto.serializer.EncryptCertificateSerializer;
@@ -34,7 +34,7 @@ public class EncryptPubKeySerializer<T> extends EncryptCertificateSerializer<T> 
 
 	/** The crypto public key utils. */
 	@Autowired
-	private CryptoPublicKeyUtils cryptoPublicKeyUtils;
+	private CryptoMapPublicKeyUtils cryptoPublicKeyUtils;
 
 	/**
 	 * Instantiates a new encrypt pub key serializer.
@@ -62,7 +62,7 @@ public class EncryptPubKeySerializer<T> extends EncryptCertificateSerializer<T> 
 	 * @param cryptoPublicKeyUtils the crypto public key utils
 	 * @param objMapper the obj mapper
 	 */
-	private EncryptPubKeySerializer(Class<T> t, CryptoKeyData cryptoPubKey,CryptoPublicKeyUtils cryptoPublicKeyUtils,ObjectMapper objMapper) {
+	private EncryptPubKeySerializer(Class<T> t, CryptoKeyData cryptoPubKey,CryptoMapPublicKeyUtils cryptoPublicKeyUtils,ObjectMapper objMapper) {
 		super(t,objMapper);
 		this.cryptoPubKey = cryptoPubKey;
 		this.cryptoPublicKeyUtils=cryptoPublicKeyUtils;

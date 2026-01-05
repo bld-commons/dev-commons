@@ -5,7 +5,11 @@
 package com.bld.crypto.pubkey.config.data;
 
 import java.security.PublicKey;
+import java.util.HashMap;
 import java.util.Map;
+
+import com.bld.crypto.commons.KeyUtility;
+import com.bld.crypto.type.InstanceType;
 
 
 /**
@@ -21,11 +25,10 @@ public class CipherPublicKeys {
 	/**
 	 * Instantiates a new cipher public keys.
 	 *
-	 * @param map the map
 	 */
-	public CipherPublicKeys(Map<String,PublicKey> map) {
+	public CipherPublicKeys() {
 		super();
-		this.map=map;
+		this.map=new HashMap<>();
 	}
 
 
@@ -41,7 +44,14 @@ public class CipherPublicKeys {
 		return this.map.get(name);
 	}
 	
+	public void addPublicKey(String key,PublicKey publicKey) {
+		this.map.put(key, publicKey);
+		
+	}
 	
-	
+	public void addPublicKey(String key,String publicKey,InstanceType instanceType) {
+		PublicKey pk=KeyUtility.getPublicKey(publicKey,instanceType);
+		this.addPublicKey(publicKey, pk);
+	}
 	
 }

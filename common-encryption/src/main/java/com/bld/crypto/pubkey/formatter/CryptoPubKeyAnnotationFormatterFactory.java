@@ -12,7 +12,7 @@ import org.springframework.format.AnnotationFormatterFactory;
 import org.springframework.format.Parser;
 import org.springframework.format.Printer;
 
-import com.bld.crypto.pubkey.CryptoPublicKeyUtils;
+import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.annotations.CryptoPubKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,7 +25,7 @@ public final class CryptoPubKeyAnnotationFormatterFactory implements AnnotationF
 	private final static Set<Class<?>> FIELD_TYPES=new HashSet<>(Arrays.asList(String.class,Number.class));
 	
 	/** The crypto pub key utils. */
-	private CryptoPublicKeyUtils cryptoPubKeyUtils;
+	private CryptoMapPublicKeyUtils cryptoPubKeyUtils;
 	
 	/** The obj mapper. */
 	private ObjectMapper objMapper;
@@ -39,7 +39,7 @@ public final class CryptoPubKeyAnnotationFormatterFactory implements AnnotationF
 	 * @param cryptoPubKeyUtils the crypto pub key utils
 	 * @param objMapper the obj mapper
 	 */
-	public CryptoPubKeyAnnotationFormatterFactory(CryptoPublicKeyUtils cryptoPubKeyUtils, ObjectMapper objMapper) {
+	public CryptoPubKeyAnnotationFormatterFactory(CryptoMapPublicKeyUtils cryptoPubKeyUtils, ObjectMapper objMapper) {
 		super();
 		this.cryptoPubKeyUtils = cryptoPubKeyUtils;
 		this.objMapper = objMapper;

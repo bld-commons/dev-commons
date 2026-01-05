@@ -1,11 +1,8 @@
 /*
  * @auth Francesco Baldi
- * @class com.bld.crypto.pubkey.CryptoPublicKeyUtils.java
+ * @class com.bld.crypto.pubkey.CryptoMapPublicKeyUtils.java
  */
 package com.bld.crypto.pubkey;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.bld.crypto.bean.CryptoKeyUtils;
 import com.bld.crypto.pubkey.config.data.CipherPublicKeys;
@@ -15,14 +12,19 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 
 /**
- * The Class CryptoPublicKeyUtils.
+ * The Class CryptoMapPublicKeyUtils.
  */
-@Component
-public class CryptoPublicKeyUtils extends CryptoKeyUtils {
+public class CryptoMapPublicKeyUtils extends CryptoKeyUtils {
 
 	/** The cipher public keys. */
-	@Autowired
-	private CipherPublicKeys cipherPublicKeys;
+	private final CipherPublicKeys cipherPublicKeys;
+	
+	
+
+	public CryptoMapPublicKeyUtils(CipherPublicKeys cipherPublicKeys) {
+		super();
+		this.cipherPublicKeys = cipherPublicKeys;
+	}
 
 	/**
 	 * Encrypt value.

@@ -14,15 +14,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class EmployeeInvertedJks {
+public class EmployeeInvertedEncryptJks {
 
-	@CryptoJks(decrypt = CryptoType.privateKey,encrypt = CryptoType.publicKey)
+	@CryptoJks(decrypt = CryptoType.publicKey,encrypt = CryptoType.privateKey,value="registry_table")
 	private Registry registry;
 	
-	@CryptoJks(decrypt = CryptoType.privateKey,encrypt = CryptoType.publicKey)
+	@CryptoJks(decrypt = CryptoType.publicKey,encrypt = CryptoType.privateKey,value="profile_table")
 	private List<Integer> idProfiles;
 	
-	@CryptoJks(decrypt = CryptoType.privateKey,encrypt = CryptoType.publicKey)
+	@CryptoJks(decrypt = CryptoType.publicKey,encrypt = CryptoType.privateKey,value="role_table")
 	private Integer[] idAuthorities; 
 	
 }

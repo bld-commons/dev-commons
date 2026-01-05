@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.bean.CryptoKeyData;
 import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
-import com.bld.crypto.pubkey.CryptoPublicKeyUtils;
+import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.annotations.CryptoPubKey;
 import com.bld.crypto.pubkey.annotations.DecryptPubKey;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -35,9 +35,9 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 	/** The crypto pub key. */
 	private CryptoKeyData cryptoPubKey;
 
-	/** The crypto pub key utils. */
+	/** The crypto map public key utils. */
 	@Autowired
-	private CryptoPublicKeyUtils cryptoPubKeyUtils;
+	private CryptoMapPublicKeyUtils cryptoMapPublicKeyUtils;
 
 	/**
 	 * Instantiates a new upper lower deserializer.
@@ -54,7 +54,7 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 	 * @param cryptoPubKeyUtils the crypto pub key utils
 	 * @param objMapper the obj mapper
 	 */
-	private DecryptPubKeyDeserializer(JavaType javaType, CryptoKeyData cryptoPubKey, CryptoPublicKeyUtils cryptoPubKeyUtils, ObjectMapper objMapper) {
+	private DecryptPubKeyDeserializer(JavaType javaType, CryptoKeyData cryptoPubKey, CryptoMapPublicKeyUtils cryptoPubKeyUtils, ObjectMapper objMapper) {
 		super(javaType, objMapper);
 		init(cryptoPubKey, cryptoPubKeyUtils);
 	}
@@ -68,7 +68,7 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 	 * @param cryptoPubKeyUtils the crypto pub key utils
 	 * @param objMapper the obj mapper
 	 */
-	private DecryptPubKeyDeserializer(JavaType javaType, Class<?> classListType, CryptoKeyData cryptoPubKey, CryptoPublicKeyUtils cryptoPubKeyUtils, ObjectMapper objMapper) {
+	private DecryptPubKeyDeserializer(JavaType javaType, Class<?> classListType, CryptoKeyData cryptoPubKey, CryptoMapPublicKeyUtils cryptoPubKeyUtils, ObjectMapper objMapper) {
 		super(javaType, classListType, objMapper);
 		init(cryptoPubKey, cryptoPubKeyUtils);
 
@@ -80,9 +80,9 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 	 * @param cryptoPubKey the crypto pub key
 	 * @param cryptoPubKeyUtils the crypto pub key utils
 	 */
-	private void init(CryptoKeyData cryptoPubKey, CryptoPublicKeyUtils cryptoPubKeyUtils) {
+	private void init(CryptoKeyData cryptoPubKey, CryptoMapPublicKeyUtils cryptoPubKeyUtils) {
 		this.cryptoPubKey = cryptoPubKey;
-		this.cryptoPubKeyUtils = cryptoPubKeyUtils;
+		this.cryptoMapPublicKeyUtils = cryptoPubKeyUtils;
 	}
 
 	/**
@@ -108,9 +108,9 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 
 		if (property.getType() != null && property.getType().getRawClass() != null) {
 			if (Collection.class.isAssignableFrom(property.getType().getRawClass()))
-				return new DecryptPubKeyDeserializer<>(type, type.getContentType().getRawClass(), cryptoPubKeyData, this.cryptoPubKeyUtils, this.objMapper);
+				return new DecryptPubKeyDeserializer<>(type, type.getContentType().getRawClass(), cryptoPubKeyData, this.cryptoMapPublicKeyUtils, this.objMapper);
 			else
-				return new DecryptPubKeyDeserializer<>(property.getType(), cryptoPubKeyData, this.cryptoPubKeyUtils, this.objMapper);
+				return new DecryptPubKeyDeserializer<>(property.getType(), cryptoPubKeyData, this.cryptoMapPublicKeyUtils, this.objMapper);
 		} else
 			return this;
 	}
@@ -123,9 +123,9 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 	 */
 	protected String decrypt(String word) {
 		if (this.cryptoPubKey.isUrl())
-			word = this.cryptoPubKeyUtils.decryptUri(word, this.cryptoPubKey.getName());
+			word = this.cryptoMapPublicKeyUtils.decryptUri(word, this.cryptoPubKey.getName());
 		else
-			word = this.cryptoPubKeyUtils.decryptValue(word, this.cryptoPubKey.getName());
+			word = this.cryptoMapPublicKeyUtils.decryptValue(word, this.cryptoPubKey.getName());
 		return word;
 	}
 

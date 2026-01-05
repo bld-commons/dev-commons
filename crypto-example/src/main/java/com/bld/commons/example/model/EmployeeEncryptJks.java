@@ -13,15 +13,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class EmployeeJks {
+public class EmployeeEncryptJks {
 
-	@CryptoJks
+	@CryptoJks("registry_table")
 	private Registry registry;
 	
-	@CryptoJks
+	@CryptoJks("profile_table")
 	private List<Integer> idProfiles;
 	
-	@CryptoJks
+	@CryptoJks("role_table")
 	private Integer[] idAuthorities; 
 	
 }

@@ -50,6 +50,8 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 	/** The class list type. */
 	protected Class<?> listFieldType;
 	
+	protected String fieldName;
+	
 	/**
 	 * Instantiates a new decrypt certificate deserializer.
 	 *
@@ -98,7 +100,7 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 
 		T value = null;
 		try {
-
+			fieldName=p.currentName();
 			if (this.isAssignableFrom(Collection.class)) {
 				List<Object> list=(List<Object>) objMapper.readValue(p, List.class);
 				for(int i=0;i<list.size();i++) {

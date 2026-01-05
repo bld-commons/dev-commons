@@ -13,6 +13,8 @@ public enum InstanceType {
 	/** The aes. */
 	AES,
 	/** The rsa. */
-	RSA;
+	RSA,
+	
+	EC;
 
 }

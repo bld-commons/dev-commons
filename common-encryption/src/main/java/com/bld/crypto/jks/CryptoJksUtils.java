@@ -5,15 +5,12 @@
 package com.bld.crypto.jks;
 
 import java.security.Key;
+import java.security.PublicKey;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import com.bld.crypto.bean.CryptoKeyUtils;
-import com.bld.crypto.jks.config.CryptoJksConfiguration;
 import com.bld.crypto.key.JksKey;
 import com.bld.crypto.type.CryptoType;
 import com.bld.crypto.type.InstanceType;
@@ -24,8 +21,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 /**
  * The Class CryptoJksUtils.
  */
-@Component
-public class CryptoJksUtils extends CryptoKeyUtils {
+public final class CryptoJksUtils extends CryptoKeyUtils {
 
 	/** The Constant SPLIT_STRING. */
 	public final static int SPLIT_STRING = 128;
@@ -35,11 +31,18 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	/** The Constant BEARER. */
 	public final static String BEARER = "Bearer ";
 
-	/** The cipher jks. */
-	@Autowired
-	@Qualifier(CryptoJksConfiguration.CIPHER_JKS_KEY)
-	private JksKey cipherJks;
 	
+
+	/** The jks key. */
+	private final JksKey jksKey;
+	
+	
+	
+	public CryptoJksUtils(JksKey jksKey) {
+		super();
+		this.jksKey = jksKey;
+	}
+
 	/**
 	 * Encrypt value.
 	 *
@@ -47,7 +50,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String encryptValue(String value) {
-		return super.encryptValue(value, cipherJks.getPublicKey(),InstanceType.RSA);
+		return super.encryptValue(value, jksKey.getPublicKey(),InstanceType.RSA);
 	}
 
 	/**
@@ -57,7 +60,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the string
 	 */
 	public String decryptValue(String value) {
-		return super.decryptValue(value, cipherJks.getPrivateKey(),InstanceType.RSA);
+		return super.decryptValue(value, jksKey.getPrivateKey(),InstanceType.RSA);
 	}
 	
 	/**
@@ -68,7 +71,7 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @throws JsonProcessingException the json processing exception
 	 */
 	public String encryptObject(Object value) throws JsonProcessingException {
-		return super.encryptValue(this.objMapper.writeValueAsString(value), cipherJks.getPublicKey(),InstanceType.RSA);
+		return super.encryptValue(this.objMapper.writeValueAsString(value), jksKey.getPublicKey(),InstanceType.RSA);
 	}
 
 	/**
@@ -117,9 +120,9 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the encrypt key
 	 */
 	private Key getEncryptKey(CryptoType cryptoType) {
-		Key key=this.cipherJks.getPublicKey();
+		Key key=this.jksKey.getPublicKey();
 		if(CryptoType.privateKey.equals(cryptoType))
-			key=this.cipherJks.getPrivateKey();
+			key=this.jksKey.getPrivateKey();
 		return key;
 	}
 	
@@ -146,9 +149,9 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	 * @return the decrypt key
 	 */
 	private Key getDecryptKey(CryptoType cryptoType) {
-		Key key=this.cipherJks.getPrivateKey();
+		Key key=this.jksKey.getPrivateKey();
 		if(CryptoType.publicKey.equals(cryptoType))
-			key=this.cipherJks.getPublicKey();
+			key=this.jksKey.getPublicKey();
 		return key;
 	}
 	
@@ -272,25 +275,13 @@ public class CryptoJksUtils extends CryptoKeyUtils {
 	}
 
 
+	public final PublicKey getPublicKey() {
+		return this.jksKey.getPublicKey();
+	}
+	
+	public final String publicKey() {
+		return this.jksKey.publicKey();
+	}
 
-//	public  void cookie(String token, HttpServletResponse response) {
-//		int j=0;
-//		token=BEARER+token;
-//		for(int i=0 ; i<token.length();i+=CryptoUtils.SPLIT_STRING) {
-//			String itemToken=null;
-//			if(i+CryptoUtils.SPLIT_STRING>=token.length())
-//				itemToken=token.substring(i);
-//			else
-//				itemToken=token.substring(i,i+CryptoUtils.SPLIT_STRING);
-//			itemToken=this.encryptUri(itemToken);
-//			CookieUtils.addCookie(response, j+"-"+HttpHeaders.AUTHORIZATION, itemToken);
-//			j++;
-//		}
-//	}
-
-//	public void headerAuthorization(String token, HttpServletResponse response) {
-//		token=BEARER+token;
-//		response.setHeader(HttpHeaders.AUTHORIZATION, this.encryptUri(token));
-//	}
 
 }

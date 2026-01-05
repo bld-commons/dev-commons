@@ -49,4 +49,8 @@ public @interface CryptoJks {
 	 */
 	public CryptoType decrypt() default CryptoType.privateKey;
 	
+	
+	public String value() default "";
+	
+	
 }

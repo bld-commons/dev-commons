@@ -8,23 +8,23 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Base64;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import com.bld.crypto.key.JksKey;
-import com.bld.crypto.signature.config.SignatureConfiguration;
 import com.bld.crypto.signature.config.properties.SignatureKeyProperties;
 
-@Component
-public class SignatureKeyUtils {
+public final class SignatureKeyUtils {
 
-	@Autowired
-	@Qualifier(SignatureConfiguration.SIGNATURE_JKS_KEY)
-	private JksKey jksKey;
+	private final JksKey jksKey;
+	
+	
+	private final SignatureKeyProperties signatureKeyProperties;
+	
 
-	@Autowired
-	private SignatureKeyProperties signatureKeyProperties;
+
+	public SignatureKeyUtils(JksKey jksKey, SignatureKeyProperties signatureKeyProperties) {
+		super();
+		this.jksKey = jksKey;
+		this.signatureKeyProperties = signatureKeyProperties;
+	}
 
 	public static String sign(String text, PrivateKey privateKey,String instance) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		Signature signature = Signature.getInstance(instance);
@@ -48,5 +48,13 @@ public class SignatureKeyUtils {
 
 	public boolean verify(String signed, String checkText) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		return SignatureKeyUtils.verify(this.jksKey.getPublicKey(), signed, checkText,this.signatureKeyProperties.getInstanceSignature());
+	}
+	
+	public PublicKey getPublicKey() {
+		return this.jksKey.getPublicKey();
+	}
+	
+	public String publicKey() {
+		return this.jksKey.publicKey();
 	}
 }

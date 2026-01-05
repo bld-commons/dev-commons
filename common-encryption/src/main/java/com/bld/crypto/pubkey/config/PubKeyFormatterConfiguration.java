@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.bld.crypto.pubkey.CryptoPublicKeyUtils;
+import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.formatter.CryptoPubKeyAnnotationFormatterFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,7 +21,7 @@ public class PubKeyFormatterConfiguration implements WebMvcConfigurer{
 
 	/** The crypto pub key utils. */
 	@Autowired
-	private CryptoPublicKeyUtils cryptoPubKeyUtils;
+	private CryptoMapPublicKeyUtils cryptoPubKeyUtils;
 	
 	/** The obj mapper. */
 	@Autowired

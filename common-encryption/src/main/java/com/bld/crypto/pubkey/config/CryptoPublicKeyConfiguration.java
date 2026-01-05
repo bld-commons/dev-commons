@@ -9,8 +9,6 @@ import java.io.Reader;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections4.MapUtils;
@@ -25,6 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.bld.crypto.exception.CryptoException;
+import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.config.data.CipherPublicKeys;
 import com.bld.crypto.pubkey.config.data.PublicKeyProperties;
 import com.bld.crypto.type.InstanceType;
@@ -42,15 +41,18 @@ public class CryptoPublicKeyConfiguration implements WebMvcConfigurer{
 	@Autowired
 	private PublicKeyProperties publicKeyProps;
 
+
 	/**
-	 * Pipher public keys.
+	 * Crypto map public key utils.
 	 *
-	 * @return the cipher public keys
+	 * @return the crypto map public key utils
 	 * @throws Exception the exception
 	 */
 	@Bean
-	CipherPublicKeys cipherPublicKeys() throws Exception {
-		Map<String,PublicKey> map=new HashMap<>();
+	CryptoMapPublicKeyUtils cryptoMapPublicKeyUtils() throws Exception {
+		CipherPublicKeys cipherPublicKeys=new CipherPublicKeys();
+		if(MapUtils.isEmpty(publicKeyProps.getKeys()))
+			throw new CryptoException("The public keys is empty");
 		for(Entry<String, Resource> key:publicKeyProps.getKeys().entrySet()) {
 			KeyFactory factory = KeyFactory.getInstance(InstanceType.RSA.name());
 			Reader reader =  new InputStreamReader(key.getValue().getInputStream());
@@ -59,11 +61,9 @@ public class CryptoPublicKeyConfiguration implements WebMvcConfigurer{
 			byte[] content = pemObject.getContent();
 			X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(content);
 			PublicKey publicKey = factory.generatePublic(pubKeySpec);
-			map.put(key.getKey(), publicKey);
+			cipherPublicKeys.addPublicKey(key.getKey(), publicKey);
 		}
-		if(MapUtils.isEmpty(map))
-			throw new CryptoException("The public keys is empty");
-		return new CipherPublicKeys(map);
+		return new CryptoMapPublicKeyUtils(cipherPublicKeys);
 	}
 
 

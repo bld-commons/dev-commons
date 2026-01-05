@@ -5,7 +5,7 @@
 package com.bld.crypto.pubkey.formatter;
 
 import com.bld.crypto.formatter.CryptoFormatter;
-import com.bld.crypto.pubkey.CryptoPublicKeyUtils;
+import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.annotations.CryptoPubKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,7 +20,7 @@ public class CryptoPubKeyFormatter<T> extends CryptoFormatter<T> {
 	private CryptoPubKey cryptoPubKey;
 
 	/** The crypto pub key utils. */
-	private CryptoPublicKeyUtils cryptoPubKeyUtils;
+	private CryptoMapPublicKeyUtils cryptoPubKeyUtils;
 
 	/**
 	 * Instantiates a new crypto pub key formatter.
@@ -30,7 +30,7 @@ public class CryptoPubKeyFormatter<T> extends CryptoFormatter<T> {
 	 * @param cryptoPubKey the crypto pub key
 	 * @param cryptoPublicKeyUtils the crypto public key utils
 	 */
-	public CryptoPubKeyFormatter(ObjectMapper objMapper, Class<T> fieldType, CryptoPubKey cryptoPubKey, CryptoPublicKeyUtils cryptoPublicKeyUtils) {
+	public CryptoPubKeyFormatter(ObjectMapper objMapper, Class<T> fieldType, CryptoPubKey cryptoPubKey, CryptoMapPublicKeyUtils cryptoPublicKeyUtils) {
 		super(objMapper, fieldType);
 		this.cryptoPubKey = cryptoPubKey;
 		this.cryptoPubKeyUtils = cryptoPublicKeyUtils;
