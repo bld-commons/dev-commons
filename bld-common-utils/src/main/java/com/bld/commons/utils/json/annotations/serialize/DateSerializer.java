@@ -43,9 +43,6 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	/** The date time zone. */
 	protected DateTimeZone dateTimeZone = null;
 
-	/** The simple date format. */
-	private SimpleDateFormat simpleDateFormat = null;
-
 	/**
 	 * Instantiates a new custom date serializer.
 	 */
@@ -72,12 +69,10 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 *
 	 * @param classDate        the class date
 	 * @param dateTimeZone     the date time zone
-	 * @param simpleDateFormat the simple date format
 	 */
-	private DateSerializer(Class<T> classDate, DateTimeZone dateTimeZone, SimpleDateFormat simpleDateFormat, AbstractEnvironment env) {
+	private DateSerializer(Class<T> classDate, DateTimeZone dateTimeZone, AbstractEnvironment env) {
 		super(classDate);
 		this.dateTimeZone = dateTimeZone;
-		this.simpleDateFormat = simpleDateFormat;
 		this.env = env;
 	}
 
@@ -87,14 +82,14 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 * @param date the date
 	 * @return the string
 	 */
-	public String formatDate(T date) {
+	public String formatDate(T date,SimpleDateFormat simpleDateFormat) {
 		String dateString = null;
 		if (date instanceof Calendar)
-			dateString = this.simpleDateFormat.format(DateUtils.calendarToDate((Calendar) date));
+			dateString = simpleDateFormat.format(DateUtils.calendarToDate((Calendar) date));
 		else if (date instanceof Date)
-			dateString = this.simpleDateFormat.format((Date) date);
+			dateString = simpleDateFormat.format((Date) date);
 		else if (date instanceof Timestamp)
-			dateString = this.simpleDateFormat.format(DateUtils.timestampToDate((Timestamp) date));
+			dateString = simpleDateFormat.format(DateUtils.timestampToDate((Timestamp) date));
 		return dateString;
 	}
 
@@ -108,18 +103,15 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 */
 	@Override
 	public void serialize(T date, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		gen.writeString(this.formatDate(date));
+		SimpleDateFormat simpleDateFormat=this.getSimpleDateFormat(this.dateTimeZone);
+		gen.writeString(formatDate(date,simpleDateFormat));
 	}
 
-	/**
-	 * Sets the simple date format.
-	 *
-	 * @param timeZone the time zone
-	 * @param format   the format
-	 */
-	private void setSimpleDateFormat(TimeZone timeZone, String format) {
-		this.simpleDateFormat = new SimpleDateFormat(format);
-		this.simpleDateFormat.setTimeZone(timeZone);
+
+	private SimpleDateFormat getSimpleDateFormat(TimeZone timeZone, String format) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+		simpleDateFormat.setTimeZone(timeZone);
+		return simpleDateFormat;
 	}
 
 	/**
@@ -132,50 +124,32 @@ public class DateSerializer<T> extends StdScalarSerializer<T> implements Context
 	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-		this.dateTimeZone = property.getAnnotation(DateTimeZone.class);
+		DateTimeZone dateTimeZone = property.getAnnotation(DateTimeZone.class);
+		if (property.getType() != null && property.getType().getRawClass() != null)
+			return new DateSerializer<>(property.getType().getRawClass(), dateTimeZone, this.env);
+		else
+			return this;
+	}
+
+	
+	private SimpleDateFormat getSimpleDateFormat(DateTimeZone dateTimeZone) {
+		String dateFormat = dateTimeZone.format();
 		TimeZone timeZone = TimeZone.getDefault();
-		String dateFormat = this.dateTimeZone.format();
 		if (dateFormat.startsWith("${") && dateFormat.endsWith("}")) {
 			dateFormat = this.env.resolvePlaceholders(dateFormat);
 			if (StringUtils.isBlank(dateFormat))
 				dateFormat = "yyyy-MM-dd'T'HH:mm:ss";
 		}
-		if (this.dateTimeZone.timeZone().startsWith("${") && this.dateTimeZone.timeZone().endsWith("}")) {
-			final String tz = this.env.resolvePlaceholders(this.dateTimeZone.timeZone());
-			if (StringUtils.isNotBlank(tz) && !tz.equals(this.dateTimeZone.timeZone()))
+		if (dateTimeZone.timeZone().startsWith("${") && dateTimeZone.timeZone().endsWith("}")) {
+			final String tz = this.env.resolvePlaceholders(dateTimeZone.timeZone());
+			if (StringUtils.isNotBlank(tz) && !tz.equals(dateTimeZone.timeZone()))
 				timeZone = TimeZone.getTimeZone(tz);
 			
 		} else
-			timeZone = TimeZone.getTimeZone(this.dateTimeZone.timeZone());
-		this.setSimpleDateFormat(timeZone, dateFormat);
-		if (property.getType() != null && property.getType().getRawClass() != null)
-			return new DateSerializer<>(property.getType().getRawClass(), this.dateTimeZone, this.simpleDateFormat, this.env);
-		else
-			return this;
+			timeZone = TimeZone.getTimeZone(dateTimeZone.timeZone());
+		SimpleDateFormat simpleDateFormat=this.getSimpleDateFormat(timeZone, dateFormat);
+		return simpleDateFormat;
 	}
-
-//	private void dateFilter(DateTimeZone dateTimeZone, DateChange dateFilter) {
-//		if (dateTimeZone != null)
-//			this.dateFilterDeserializer = new DateChangeDeserializer(dateTimeZone.timeZone(), dateTimeZone.format());
-//		else if (dateFilter != null)
-//			this.dateFilterDeserializer = new DateChangeDeserializer(dateFilter.timeZone(), dateFilter.format(), dateFilter.addYear(), dateFilter.addMonth(), dateFilter.addWeek(), dateFilter.addDay(), dateFilter.addHour(), dateFilter.addMinute(),
-//					dateFilter.addSecond());
-//		TimeZone timeZone = TimeZone.getDefault();
-//
-//		if (this.dateFilterDeserializer.getTimeZone().startsWith("${") && this.dateFilterDeserializer.getTimeZone().endsWith("}")) {
-//			final String tz = this.env.resolvePlaceholders(this.dateFilterDeserializer.getTimeZone());
-//			if (StringUtils.isNotBlank(tz) && !tz.equals(this.dateFilterDeserializer.getTimeZone()))
-//				timeZone = TimeZone.getTimeZone(tz);
-//			this.setSimpleDateFormat(timeZone, this.dateFilterDeserializer.getFormat());
-//		} else
-//			timeZone = TimeZone.getTimeZone(this.dateFilterDeserializer.getTimeZone());
-//		String dateFormat = this.dateFilterDeserializer.getFormat();
-//		if (dateFormat.startsWith("${") && dateFormat.endsWith("}")) {
-//			dateFormat = this.env.resolvePlaceholders(this.dateFilterDeserializer.getFormat());
-//			if (StringUtils.isBlank(dateFormat))
-//				dateFormat = "yyyy-MM-dd'T'HH:mm:ss";
-//		}
-//		this.setSimpleDateFormat(timeZone, dateFormat);
-//	}
+	
 
 }
