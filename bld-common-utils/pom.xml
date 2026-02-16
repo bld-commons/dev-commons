@@ -21,10 +21,6 @@
 			<artifactId>commons-text</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.geotools.xsd</groupId>
-			<artifactId>gt-xsd-kml</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.locationtech.jts.io</groupId>
 			<artifactId>jts-io-common</artifactId>
 		</dependency>
