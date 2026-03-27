@@ -16,12 +16,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import com.bld.commons.connection.client.RestClientConnection;
 import com.bld.commons.connection.model.BasicRequest;
@@ -75,7 +79,7 @@ public class RestClientConnectionImpl implements RestClientConnection {
 			Object body = RestConnectionMapper.mapToMultiValueMap(mapRequest.getData());
 			request = new HttpEntity<>(body, mapRequest.getHttpHeaders());
 		}else {
-			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(mapRequest.getUrl());
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(mapRequest.getUrl());
 			RestConnectionMapper.builderQuery(builder, mapRequest.getData());
 			url = builder.toUriString();
 		}
@@ -119,7 +123,7 @@ public class RestClientConnectionImpl implements RestClientConnection {
 			Object body = RestConnectionMapper.mapToMultiValueMap(mapRequest.getData());
 			request = new HttpEntity<>(body, mapRequest.getHttpHeaders());
 		}else {
-			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(mapRequest.getUrl());
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(mapRequest.getUrl());
 			RestConnectionMapper.builderQuery(builder, mapRequest.getData());
 			url = builder.toUriString();
 		}
@@ -190,6 +194,11 @@ public class RestClientConnectionImpl implements RestClientConnection {
 			restTemplate = new RestTemplate();
 			restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
 		}
+		MappingJackson2HttpMessageConverter yamlConverter = new MappingJackson2HttpMessageConverter(new YAMLMapper());
+		yamlConverter.setSupportedMediaTypes(List.of(new MediaType("application", "yaml"),
+				new MediaType("application", "x-yaml"),
+				new MediaType("text", "yaml")));
+		restTemplate.getMessageConverters().add(yamlConverter);
 		return restTemplate;
 	}
 	

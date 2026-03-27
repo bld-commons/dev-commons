@@ -5,6 +5,11 @@
  */
 package com.bld.commons.connection.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -33,16 +38,16 @@ public abstract class BasicRequest<T> {
 	private HttpHeaders httpHeaders;
 
 	/** The uri params. */
-	private Object[] uriParams;
+	private List<Object> uriParams;
 
 	/** The timeout. */
 	private Integer timeout;
-	
+
 	/**
 	 * Instantiates a new basic request.
 	 *
-	 * @param url the url
-	 * @param method the method
+	 * @param url       the url
+	 * @param method    the method
 	 * @param mediaType the media type
 	 */
 	protected BasicRequest(String url, HttpMethod method, MediaType mediaType) {
@@ -53,20 +58,18 @@ public abstract class BasicRequest<T> {
 		this.setContentType(mediaType);
 	}
 
-
 	/**
 	 * Inits the.
 	 */
 	private void init() {
 		this.httpHeaders = new HttpHeaders();
-		this.uriParams = new Object[] {};
+		this.uriParams = new ArrayList<Object>();
 	}
-	
 
 	/**
 	 * Instantiates a new basic request.
 	 *
-	 * @param url the url
+	 * @param url    the url
 	 * @param method the method
 	 */
 	protected BasicRequest(String url, HttpMethod method) {
@@ -121,7 +124,7 @@ public abstract class BasicRequest<T> {
 	public void addHeader(String props, String value) {
 		this.httpHeaders.add(props, value);
 	}
-	
+
 	/**
 	 * Removes the haeder.
 	 *
@@ -137,7 +140,7 @@ public abstract class BasicRequest<T> {
 	 * @return the uri params
 	 */
 	public Object[] getUriParams() {
-		return uriParams;
+		return uriParams.toArray();
 	}
 
 	/**
@@ -146,16 +149,15 @@ public abstract class BasicRequest<T> {
 	 * @param uriParams the uri params
 	 */
 	public void addUriParams(Object... uriParams) {
-		int i = this.uriParams.length;
-		for (Object uriParam : uriParams)
-			this.uriParams[i++] = uriParam;
+		if(ArrayUtils.isNotEmpty(uriParams))
+			this.uriParams.addAll(Arrays.asList(uriParams));
 	}
-	
+
 	/**
 	 * Clear uri paramas.
 	 */
 	public void clearUriParamas() {
-		this.uriParams = new Object[] {};
+		this.uriParams.clear();
 	}
 
 	/**
@@ -184,7 +186,7 @@ public abstract class BasicRequest<T> {
 	public T getData() {
 		return data;
 	}
-	
+
 	/**
 	 * Sets the content type.
 	 *
@@ -193,8 +195,18 @@ public abstract class BasicRequest<T> {
 	public void setContentType(MediaType mediaType) {
 		this.httpHeaders.setContentType(mediaType);
 	}
+
 	
-	
+	/**
+	 * Sets the accept.
+	 *
+	 * @param mediaTypes the new accept
+	 */
+	public void setAccept(MediaType... mediaTypes) {
+		if (ArrayUtils.isNotEmpty(mediaTypes))
+			this.httpHeaders.setAccept(Arrays.asList(mediaTypes));
+	}
+
 	/**
 	 * Sets the bearer auth.
 	 *
@@ -203,11 +215,15 @@ public abstract class BasicRequest<T> {
 	public void setBearerAuth(String token) {
 		this.httpHeaders.setBearerAuth(token);
 	}
-		
-	public void setBasicAuth(String usermame,String password) {
+
+	/**
+	 * Sets the basic auth.
+	 *
+	 * @param usermame the usermame
+	 * @param password the password
+	 */
+	public void setBasicAuth(String usermame, String password) {
 		this.httpHeaders.setBasicAuth(usermame, password);
 	}
-	
-	
 
 }
