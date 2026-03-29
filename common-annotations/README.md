@@ -133,4 +133,48 @@ com.bld.context.annotation.config
 
 ## License
 
-See the root `dev-commons` project for license information.
+See the root [`dev-commons`](../README.md) project for license information (MIT).
+
+---
+
+---
+
+## Italiano
+
+`common-annotations` è un modulo Spring Boot che risolve il problema dell'iniezione delle dipendenze Spring all'interno dei gestori Jackson personalizzati (`JsonSerializer`, `JsonDeserializer`, ecc.).
+
+Per impostazione predefinita, Jackson crea i gestori personalizzati direttamente tramite reflection, senza passare per il contesto Spring. Ciò significa che qualsiasi campo annotato con `@Autowired` all'interno di un gestore rimane `null` a runtime, causando un `NullPointerException` difficile da diagnosticare.
+
+Questo modulo risolve il problema registrando uno `SpringHandlerInstantiator` — il ponte tra il ciclo di vita dei gestori Jackson e la `AutowireCapableBeanFactory` di Spring — insieme a un `Jackson2ObjectMapperBuilder` e un `MappingJackson2HttpMessageConverter` completamente personalizzati.
+
+### Abilitazione
+
+```java
+@Configuration
+@EnableContextAnnotation
+public class AppConfig { }
+```
+
+### Bean registrati automaticamente
+
+| Nome | Tipo | Descrizione |
+|---|---|---|
+| `contextHandlerInstantiator` | `HandlerInstantiator` | Delega la creazione dei gestori Jackson alla `AutowireCapableBeanFactory` di Spring |
+| `contextJackson2ObjectMapperBuilder` | `Jackson2ObjectMapperBuilder` | Builder configurato con lo `SpringHandlerInstantiator` |
+| `contextMappingJackson2HttpMessageConverter` | `MappingJackson2HttpMessageConverter` | Converter HTTP costruito dal builder personalizzato |
+
+### Esempio
+
+```java
+@JsonComponent
+public class OrderDeserializer extends JsonDeserializer<Order> {
+
+    @Autowired
+    private OrderRepository orderRepository;   // iniettato correttamente grazie a questo modulo
+
+    @Override
+    public Order deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return orderRepository.findById(p.getValueAsString()).orElseThrow();
+    }
+}
+```
