@@ -18,7 +18,9 @@ import org.springframework.context.annotation.Import;
 import com.bld.commons.connection.config.EnableRestConnectionConfiguration;
 
 /**
- * The Interface EnableRestConnection.
+ * Annotation that enables the REST connection library.
+ * Place it on a {@code @Configuration} class to import {@link EnableRestConnectionConfiguration}
+ * and register all library beans in the application context.
  */
 @Configuration
 @Documented

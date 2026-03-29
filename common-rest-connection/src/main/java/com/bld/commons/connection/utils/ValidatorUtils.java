@@ -26,36 +26,32 @@ public class ValidatorUtils {
 	private final static Log logger = LogFactory.getLog(ValidatorUtils.class);
 
 	/** The Constant VALIDATOR. */
-	private final static Validator VALIDATOR=getValidator();
-	
-	
+	private final static Validator VALIDATOR = getValidator();
+
 	/**
 	 * Gets the validator.
 	 *
 	 * @return the validator
 	 */
 	private static Validator getValidator() {
-		ValidatorFactory valdiatorFactory = Validation.buildDefaultValidatorFactory(); 
-		return  valdiatorFactory.getValidator();
+		ValidatorFactory valdiatorFactory = Validation.buildDefaultValidatorFactory();
+		return valdiatorFactory.getValidator();
 	}
-	
-	
 
-	
 	/**
-	 * Check validatr build class.
+	 * Validates the given object and throws an exception on the first constraint violation.
 	 *
-	 * @param obj the obj
-	 * @throws Exception the exception
+	 * @param obj the object to validate
+	 * @throws Exception if any constraint is violated
 	 */
 	public static void checkValidatrBuildClass(Object obj) throws Exception {
 		Set<ConstraintViolation<Object>> failedValidations = VALIDATOR.validate(obj);
 		if (!failedValidations.isEmpty()) {
 			for (ConstraintViolation<Object> failedValidation : failedValidations) {
-				logger.error(failedValidation.getPropertyPath()+": "+failedValidation.getMessage());
-				throw new Exception(failedValidation.getPropertyPath()+": "+failedValidation.getMessage());
+				logger.error(failedValidation.getPropertyPath() + ": " + failedValidation.getMessage());
+				throw new Exception(failedValidation.getPropertyPath() + ": " + failedValidation.getMessage());
 			}
 		}
 	}
-	
+
 }

@@ -7,14 +7,15 @@ package com.bld.commons.connection.model;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 
 import jakarta.validation.constraints.NotNull;
 
 /**
- * The Class BasicRequest.
+ * Base class for all request types (REST and SOAP).
+ * Holds the fields common to every call: URL, HTTP method, timeout, body and HTTP headers.
+ * REST-specific features (URI params, Content-Type, Accept) are provided by {@link RestBasicRequest}.
  *
- * @param <T> the generic type
+ * @param <T> the type of the request body
  */
 public abstract class BasicRequest<T> {
 
@@ -32,48 +33,19 @@ public abstract class BasicRequest<T> {
 	/** The http headers. */
 	private HttpHeaders httpHeaders;
 
-	/** The uri params. */
-	private Object[] uriParams;
-
 	/** The timeout. */
 	private Integer timeout;
-	
-	/**
-	 * Instantiates a new basic request.
-	 *
-	 * @param url the url
-	 * @param method the method
-	 * @param mediaType the media type
-	 */
-	protected BasicRequest(String url, HttpMethod method, MediaType mediaType) {
-		super();
-		this.url = url;
-		this.method = method;
-		init();
-		this.setContentType(mediaType);
-	}
-
-
-	/**
-	 * Inits the.
-	 */
-	private void init() {
-		this.httpHeaders = new HttpHeaders();
-		this.uriParams = new Object[] {};
-	}
-	
 
 	/**
 	 * Instantiates a new basic request.
 	 *
-	 * @param url the url
+	 * @param url    the url
 	 * @param method the method
 	 */
 	protected BasicRequest(String url, HttpMethod method) {
-		super();
 		this.url = url;
 		this.method = method;
-		init();
+		this.httpHeaders = new HttpHeaders();
 	}
 
 	/**
@@ -115,47 +87,20 @@ public abstract class BasicRequest<T> {
 	/**
 	 * Adds the header.
 	 *
-	 * @param props the props
-	 * @param value the value
+	 * @param props the header name
+	 * @param value the header value
 	 */
 	public void addHeader(String props, String value) {
 		this.httpHeaders.add(props, value);
 	}
-	
+
 	/**
-	 * Removes the haeder.
+	 * Removes the header.
 	 *
-	 * @param props the props
+	 * @param props the header name
 	 */
-	public void removeHaeder(String props) {
+	public void removeHeader(String props) {
 		this.httpHeaders.remove(props);
-	}
-
-	/**
-	 * Gets the uri params.
-	 *
-	 * @return the uri params
-	 */
-	public Object[] getUriParams() {
-		return uriParams;
-	}
-
-	/**
-	 * Adds the uri params.
-	 *
-	 * @param uriParams the uri params
-	 */
-	public void addUriParams(Object... uriParams) {
-		int i = this.uriParams.length;
-		for (Object uriParam : uriParams)
-			this.uriParams[i++] = uriParam;
-	}
-	
-	/**
-	 * Clear uri paramas.
-	 */
-	public void clearUriParamas() {
-		this.uriParams = new Object[] {};
 	}
 
 	/**
@@ -170,7 +115,7 @@ public abstract class BasicRequest<T> {
 	/**
 	 * Sets the timeout.
 	 *
-	 * @param timeout the new timeout
+	 * @param timeout the new timeout in milliseconds
 	 */
 	public void setTimeout(Integer timeout) {
 		this.timeout = timeout;
@@ -184,30 +129,24 @@ public abstract class BasicRequest<T> {
 	public T getData() {
 		return data;
 	}
-	
-	/**
-	 * Sets the content type.
-	 *
-	 * @param mediaType the new content type
-	 */
-	public void setContentType(MediaType mediaType) {
-		this.httpHeaders.setContentType(mediaType);
-	}
-	
-	
+
 	/**
 	 * Sets the bearer auth.
 	 *
-	 * @param token the new bearer auth
+	 * @param token the Bearer token
 	 */
 	public void setBearerAuth(String token) {
 		this.httpHeaders.setBearerAuth(token);
 	}
-		
-	public void setBasicAuth(String usermame,String password) {
-		this.httpHeaders.setBasicAuth(usermame, password);
+
+	/**
+	 * Sets the basic auth.
+	 *
+	 * @param username the username
+	 * @param password the password
+	 */
+	public void setBasicAuth(String username, String password) {
+		this.httpHeaders.setBasicAuth(username, password);
 	}
-	
-	
 
 }

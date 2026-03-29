@@ -6,7 +6,7 @@
 package com.bld.commons.connection.constant;
 
 /**
- * The Interface CommonRestConnectionCostant.
+ * Constants for the common-rest-connection library.
  */
 public interface CommonRestConnectionCostant {
 

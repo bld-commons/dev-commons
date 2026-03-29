@@ -23,6 +23,6 @@ import org.springframework.context.annotation.Import;
 @Retention(RUNTIME)
 @Target(TYPE)
 @Import(EnableContextAnnotationConfiguration.class)
-public @interface EnableContextAnnotatation {
+public @interface EnableContextAnnotation {
 
 }

@@ -6,13 +6,13 @@ package com.bld.crypto.config;
 
 import org.springframework.context.annotation.Configuration;
 
-import com.bld.context.annotation.config.EnableContextAnnotatation;
+import com.bld.context.annotation.config.EnableContextAnnotation;
 
 /**
  * The Class EnableCryptoConfiguration.
  */
 @Configuration
-@EnableContextAnnotatation
+@EnableContextAnnotation
 public class CryptoConfiguration {
 
 
