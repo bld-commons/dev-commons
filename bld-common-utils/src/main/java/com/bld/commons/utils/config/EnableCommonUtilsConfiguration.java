@@ -36,7 +36,6 @@ import com.bld.context.annotation.config.EnableContextAnnotation;
  *   <li>{@link com.bld.commons.utils.formatter.ClobAnnotationFormatterFactory} &mdash;
  *       handles {@link com.bld.commons.utils.json.annotations.TextClob} on {@code Clob} fields</li>
  * </ul>
- * </p>
  *
  * @author Francesco Baldi
  */
