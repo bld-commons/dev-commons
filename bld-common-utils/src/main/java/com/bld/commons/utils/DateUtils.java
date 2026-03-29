@@ -19,7 +19,16 @@ import com.bld.commons.utils.types.TimeUnitMeasureType;
 
 
 /**
- * The Class DateUtils.
+ * Utility class offering static helper methods for common date and time operations.
+ *
+ * <p>Covers conversions between {@link Date}, {@link Calendar}, {@link java.sql.Timestamp}
+ * and {@link String}, time-zone handling, date arithmetic (sum/difference), and
+ * extraction of individual date components.</p>
+ *
+ * <p>The constants {@link #PROPS_TIME_ZONE} and {@link #ENV_TIME_ZONE} expose
+ * the Spring property key used to resolve the application's default time zone.</p>
+ *
+ * @author Francesco Baldi
  */
 public class DateUtils {
 
@@ -116,6 +125,14 @@ public class DateUtils {
 	}
 
 	
+	/**
+	 * Parses a date string into a {@link Date} using the given format and time zone.
+	 *
+	 * @param createTimestamp the date/time string to parse
+	 * @param dateFormat      the pattern understood by {@link java.text.SimpleDateFormat}
+	 * @param timeZone        the time zone to apply during parsing
+	 * @return the parsed {@link Date}, or {@code null} if parsing fails
+	 */
 	public static Date stringToDate(String createTimestamp, String dateFormat,TimeZone timeZone) {
 		try {
 			SimpleDateFormat sdf=new SimpleDateFormat(dateFormat);

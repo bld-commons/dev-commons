@@ -6,11 +6,15 @@
 package com.bld.commons.connection.constant;
 
 /**
- * Constants for the common-rest-connection library.
+ * Shared string constants for the {@code common-rest-connection} library.
+ * Centralises literal values used across multiple classes to avoid duplication.
  */
 public interface CommonRestConnectionCostant {
 
-	/** The Constant COMMON_REST_CONNECTION. */
+	/**
+	 * Identifier string for the module, used in log messages and diagnostics.
+	 * Value: {@value}.
+	 */
 	public final static String COMMON_REST_CONNECTION = "common-rest-connection";
 
 }

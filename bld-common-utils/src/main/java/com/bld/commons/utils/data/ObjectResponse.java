@@ -9,11 +9,16 @@ import java.io.Serializable;
 
 import jakarta.validation.Valid;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ObjectResponse.
+ * Generic response wrapper for a single data payload.
  *
- * @param <T> the generic type
+ * <p>Wraps an arbitrary result object in a consistent API response envelope.
+ * The wrapped value is validated via Jakarta Bean Validation constraints
+ * ({@link jakarta.validation.Valid}) when the response is used as a request body.</p>
+ *
+ * @param <T> the type of the wrapped data object
+ *
+ * @author Francesco Baldi
  */
 @SuppressWarnings("serial")
 public class ObjectResponse<T> implements Serializable{

@@ -30,55 +30,66 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 
 /**
- * The Class DecryptCertificateDeserializer.
+ * Abstract Jackson {@link StdScalarDeserializer} that decrypts a JSON string field
+ * before converting it to the target Java type.
  *
- * @param <T> the generic type
+ * <p>The deserializer handles scalar types ({@link Number}, {@link String}), arrays,
+ * and {@link Collection} types.  After decryption, POJO values are deserialised from
+ * JSON using the injected {@link ObjectMapper}.
+ *
+ * <p>Concrete subclasses implement {@link #decrypt(String)} to supply the actual
+ * decryption algorithm (AES, RSA via JKS, or RSA public key).
+ *
+ * @param <T> the target Java type after decryption
  */
 @SuppressWarnings({ "serial", "unchecked" })
 public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeserializer<T>{
 
-	/** The Constant logger. */
+	/** Logger for this class. */
 	private final static Logger logger = LoggerFactory.getLogger(DecryptCertificateDeserializer.class);
-	
-	/** The obj mapper. */
+
+	/** Jackson {@link ObjectMapper} used to deserialise POJO values from JSON after decryption. */
 	@Autowired
 	protected ObjectMapper objMapper;
-	
-	/** The class field. */
+
+	/** The raw class of the target field type. */
 	protected Class<T> fieldType;
 
-	/** The class list type. */
+	/** The element type when the field is a {@link Collection} or array. */
 	protected Class<?> listFieldType;
-	
+
+	/** The name of the JSON field currently being deserialised (used for error messages). */
 	protected String fieldName;
-	
+
 	/**
-	 * Instantiates a new decrypt certificate deserializer.
+	 * Constructs a new deserializer for the given raw type.  Used for the no-arg
+	 * public constructor required by Jackson when Spring injection is used.
 	 *
-	 * @param t the t
+	 * @param t the handled value type
 	 */
 	protected DecryptCertificateDeserializer(Class<?> t) {
 		super(t);
 	}
-	
+
 	/**
-	 * Instantiates a new decrypt certificate deserializer.
+	 * Constructs a new deserializer for the given {@link JavaType} with an explicit
+	 * {@link ObjectMapper}.
 	 *
-	 * @param javaType the java type
-	 * @param objMapper the obj mapper
+	 * @param javaType  the Jackson type descriptor of the target field
+	 * @param objMapper the Jackson {@link ObjectMapper} instance
 	 */
 	protected DecryptCertificateDeserializer(JavaType javaType,ObjectMapper objMapper) {
 		super(javaType);
 		this.fieldType = (Class<T>) javaType.getRawClass();
 		this.objMapper=objMapper;
 	}
-	
+
 	/**
-	 * Instantiates a new decrypt certificate deserializer.
+	 * Constructs a new deserializer for a {@link Collection} field.
 	 *
-	 * @param javaType the java type
-	 * @param listFieldType the class list type
-	 * @param objMapper the obj mapper
+	 * @param javaType      the Jackson type descriptor of the collection field
+	 * @param listFieldType the element type of the collection
+	 * @param objMapper     the Jackson {@link ObjectMapper} instance
 	 */
 	protected DecryptCertificateDeserializer(JavaType javaType,Class<?> listFieldType,ObjectMapper objMapper) {
 		this(javaType,objMapper);
@@ -182,10 +193,11 @@ public abstract class DecryptCertificateDeserializer<T> extends StdScalarDeseria
 	}
 
 	/**
-	 * Decrypt.
+	 * Decrypts the given cipher-text string.  Concrete subclasses supply the algorithm
+	 * and key selection logic.
 	 *
-	 * @param word the word
-	 * @return the string
+	 * @param word the Base64-encoded cipher text to decrypt
+	 * @return the plain-text string
 	 */
 	protected abstract String decrypt(String word);
 

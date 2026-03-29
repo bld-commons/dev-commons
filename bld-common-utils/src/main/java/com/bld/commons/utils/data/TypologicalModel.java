@@ -8,11 +8,16 @@ package com.bld.commons.utils.data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class TypologicalModel.
+ * Base model for typological (lookup/reference) entities that have both an identifier and a name.
  *
- * @param <ID> the generic type
+ * <p>Extends {@link BaseModel} by adding a mandatory {@code name} field, validated with
+ * {@link jakarta.validation.constraints.NotBlank}. The {@link #equals(Object)} and
+ * {@link #hashCode()} implementations consider both {@code id} and {@code name}.</p>
+ *
+ * @param <ID> the type of the entity identifier
+ *
+ * @author Francesco Baldi
  */
 @SuppressWarnings("serial")
 public class TypologicalModel<ID> extends BaseModel<ID> {

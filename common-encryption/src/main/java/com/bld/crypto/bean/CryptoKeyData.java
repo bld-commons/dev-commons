@@ -6,21 +6,24 @@ package com.bld.crypto.bean;
 
 
 /**
- * The Class CryptoPubKeyData.
+ * Data transfer object that carries the key name and the URL-encoding flag used by
+ * serializers and deserializers to locate the correct cryptographic key and to decide
+ * whether the encrypted payload must be further Base64-encoded for safe embedding in
+ * a URL.
  */
 public class CryptoKeyData {
 
-	/** The name. */
+	/** The logical name of the cryptographic key, used to look it up in the key store. */
 	private String name;
-	
-	/** The url. */
+
+	/** Whether the encrypted value must be URL-safe Base64-encoded. */
 	private boolean url;
 
 	/**
-	 * Instantiates a new crypto pub key data.
+	 * Constructs a new {@code CryptoKeyData} instance.
 	 *
-	 * @param name the name
-	 * @param url the url
+	 * @param name the logical name of the cryptographic key
+	 * @param url  {@code true} if the encrypted value should be URL-safe Base64-encoded
 	 */
 	public CryptoKeyData(String name, boolean url) {
 		super();
@@ -29,18 +32,18 @@ public class CryptoKeyData {
 	}
 
 	/**
-	 * Gets the name.
+	 * Returns the logical name of the cryptographic key.
 	 *
-	 * @return the name
+	 * @return the key name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Checks if is url.
+	 * Returns whether the encrypted value must be URL-safe Base64-encoded.
 	 *
-	 * @return true, if is url
+	 * @return {@code true} if URL-encoding is required, {@code false} otherwise
 	 */
 	public boolean isUrl() {
 		return url;

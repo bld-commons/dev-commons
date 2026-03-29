@@ -11,7 +11,13 @@ import org.apache.commons.text.WordUtils;
 import com.bld.commons.utils.types.UpperLowerType;
 
 /**
- * The Class CamelCaseUtils.
+ * Utility class for converting between camelCase and underscore-separated naming conventions.
+ *
+ * <p>Provides static helper methods to convert Java camelCase field names into
+ * database-style underscore-separated names (e.g., {@code myField} &rarr; {@code MY_FIELD})
+ * and to perform the reverse conversion.</p>
+ *
+ * @author Francesco Baldi
  */
 public class CamelCaseUtils {
 
@@ -19,11 +25,16 @@ public class CamelCaseUtils {
 	private static final String P_UPPER = "(?=\\p{Upper})";
 
 	/**
-	 * Reverse camel case.
+	 * Converts a camelCase Java field name into an underscore-separated database column name.
 	 *
-	 * @param javaField the java field
-	 * @param upperLowerType the upper lower type
-	 * @return the string
+	 * <p>For example, {@code myFieldName} becomes {@code My_Field_Name},
+	 * {@code MY_FIELD_NAME}, or {@code my_field_name} depending on the
+	 * {@code upperLowerType} parameter.</p>
+	 *
+	 * @param javaField      the camelCase Java field name to convert
+	 * @param upperLowerType the case transformation to apply ({@code UPPER}, {@code LOWER},
+	 *                       or {@code null} to capitalise only the first character)
+	 * @return the underscore-separated column name with the requested case applied
 	 */
 	public static String reverseCamelCase(String javaField, UpperLowerType upperLowerType) {
 		String dbField = "";
@@ -48,11 +59,18 @@ public class CamelCaseUtils {
 	
 	
 	/**
-	 * Camel case.
+	 * Converts an underscore-separated name (e.g., a database table or column name)
+	 * into a camelCase string.
 	 *
-	 * @param tableName the table name
-	 * @param firstCharacterLowerCase the first character lower case
-	 * @return the string
+	 * <p>For example, {@code my_table_name} becomes {@code MyTableName} when
+	 * {@code firstCharacterLowerCase} is {@code false}, or {@code myTableName}
+	 * when it is {@code true}.</p>
+	 *
+	 * @param tableName             the underscore-separated name to convert
+	 * @param firstCharacterLowerCase {@code true} to make the first character lowercase
+	 *                              (suitable for field names); {@code false} to capitalise it
+	 *                              (suitable for class names)
+	 * @return the camelCase representation of the input name
 	 */
 	public static String camelCase(String tableName,boolean firstCharacterLowerCase) {
 		String className = tableName.replace("_", " ");
@@ -63,10 +81,14 @@ public class CamelCaseUtils {
 	}
 
 	/**
-	 * Camel case.
+	 * Converts an underscore-separated name into a camelCase string with an
+	 * uppercase first character (suitable for use as a Java class name).
 	 *
-	 * @param tableName the table name
-	 * @return the string
+	 * <p>Delegates to {@link #camelCase(String, boolean)} with
+	 * {@code firstCharacterLowerCase = false}.</p>
+	 *
+	 * @param tableName the underscore-separated name to convert
+	 * @return the PascalCase representation of the input name
 	 */
 	public static String camelCase(String tableName) {
 		return camelCase(tableName, false);

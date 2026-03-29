@@ -97,10 +97,14 @@ public final class XmlNodeConverter {
     }
 
     /**
-     * Builds node.
+     * Recursively builds a Jackson {@link ObjectNode} from a DOM {@link Element}.
+     * Attributes are mapped as direct string fields (namespace declarations are skipped).
+     * Child elements are grouped by qualified name: a single occurrence produces a nested
+     * {@link ObjectNode}, multiple occurrences produce an {@link ArrayNode}.
+     * Leaf elements that contain only text produce a {@code "value"} string field.
      *
-     * @param element the element
-     * @return the object node
+     * @param element the DOM element to convert
+     * @return the ObjectNode representation of the element's children and attributes
      */
     private static ObjectNode buildNode(Element element) {
         ObjectNode node = JsonNodeFactory.instance.objectNode();
@@ -164,10 +168,12 @@ public final class XmlNodeConverter {
     }
 
     /**
-     * Qualified name.
+     * Returns the qualified name of an element, combining the namespace prefix and local name.
+     * If no prefix is present, the local name is returned as-is.
+     * Example: an element {@code soap:Envelope} returns {@code "soap:Envelope"}.
      *
-     * @param element the element
-     * @return the string
+     * @param element the DOM element
+     * @return the qualified name in the form {@code prefix:localName} or just {@code localName}
      */
     private static String qualifiedName(Element element) {
         String prefix = element.getPrefix();
