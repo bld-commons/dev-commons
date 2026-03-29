@@ -1,7 +1,7 @@
 /**
  * @author Francesco Baldi
  * @mail francesco.baldi1987@gmail.com
- * @class com.bld.commons.connection.config.annotation.EnableRestConnection.java
+ * @class com.bld.context.annotation.config.EnableContextAnnotation.java
  */
 package com.bld.context.annotation.config;
 
@@ -16,7 +16,26 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * The Interface EnableRestConnection.
+ * Annotation that enables Spring dependency injection support inside custom Jackson
+ * serializers and deserializers.
+ *
+ * <p>Place this annotation on any {@code @Configuration} class to activate the
+ * {@link EnableContextAnnotationConfiguration} auto-configuration, which registers a
+ * {@link com.fasterxml.jackson.databind.cfg.HandlerInstantiator} backed by
+ * Spring's {@link org.springframework.http.converter.json.SpringHandlerInstantiator}.
+ * This allows custom Jackson handlers (serializers, deserializers, type handlers, etc.)
+ * to receive Spring-managed beans via {@code @Autowired} or constructor injection.
+ *
+ * <p>Usage example:
+ * <pre>{@code
+ * @Configuration
+ * @EnableContextAnnotation
+ * public class AppConfig {
+ *     // custom serializers/deserializers can now @Autowired Spring beans
+ * }
+ * }</pre>
+ *
+ * @see EnableContextAnnotationConfiguration
  */
 @Configuration
 @Documented

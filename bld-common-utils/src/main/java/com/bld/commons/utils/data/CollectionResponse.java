@@ -10,11 +10,17 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class CollectionResponse.
+ * Generic response wrapper for paginated collection results.
  *
- * @param <T> the generic type
+ * <p>Extends {@link ObjectResponse} to carry a {@link Collection} of items together
+ * with optional pagination metadata: total record count, page size, and current page
+ * number. The {@link #getNextPageNumber()} computed property is serialised as a
+ * read-only JSON field.</p>
+ *
+ * @param <T> the type of elements contained in the collection
+ *
+ * @author Francesco Baldi
  */
 @SuppressWarnings("serial")
 public class CollectionResponse<T> extends ObjectResponse<Collection<T>> {
@@ -117,9 +123,12 @@ public class CollectionResponse<T> extends ObjectResponse<Collection<T>> {
 	
 
 	/**
-	 * Gets the next page number.
+	 * Returns the next page number (i.e., {@code pageNumber + 1}).
 	 *
-	 * @return the next page number
+	 * <p>This property is serialised as a read-only JSON field named
+	 * {@code nextPageNumber} and is {@code null} when {@code pageNumber} is not set.</p>
+	 *
+	 * @return the next page number, or {@code null} if {@code pageNumber} is {@code null}
 	 */
 	@JsonProperty(value = "nextPageNumber", access = Access.READ_ONLY)
 	public Integer getNextPageNumber() {

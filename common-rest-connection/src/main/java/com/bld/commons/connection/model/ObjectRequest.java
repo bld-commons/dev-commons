@@ -25,33 +25,36 @@ public class ObjectRequest<T> extends RestBasicRequest<T> {
 	}
 
 	/**
-	 * New instance post.
+	 * Creates a new {@link ObjectRequest} for an HTTP POST call.
+	 * Set the body with {@link #setData(Object)} before dispatching.
 	 *
-	 * @param <T> the generic type
-	 * @param url the url
-	 * @return the object request
+	 * @param <T> the type of the request body
+	 * @param url the target URL
+	 * @return a new ObjectRequest configured for POST
 	 */
 	public static <T> ObjectRequest<T> newInstancePost(String url) {
 		return new ObjectRequest<T>(url, HttpMethod.POST);
 	}
 
 	/**
-	 * New instance put.
+	 * Creates a new {@link ObjectRequest} for an HTTP PUT call.
+	 * Set the body with {@link #setData(Object)} before dispatching.
 	 *
-	 * @param <T> the generic type
-	 * @param url the url
-	 * @return the object request
+	 * @param <T> the type of the request body
+	 * @param url the target URL
+	 * @return a new ObjectRequest configured for PUT
 	 */
 	public static <T> ObjectRequest<T> newInstancePut(String url) {
 		return new ObjectRequest<T>(url, HttpMethod.PUT);
 	}
 
 	/**
-	 * New instance patch.
+	 * Creates a new {@link ObjectRequest} for an HTTP PATCH call.
+	 * Set the body with {@link #setData(Object)} before dispatching.
 	 *
-	 * @param <T> the generic type
-	 * @param url the url
-	 * @return the object request
+	 * @param <T> the type of the request body
+	 * @param url the target URL
+	 * @return a new ObjectRequest configured for PATCH
 	 */
 	public static <T> ObjectRequest<T> newInstancePatch(String url) {
 		return new ObjectRequest<T>(url, HttpMethod.PATCH);

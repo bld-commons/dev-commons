@@ -41,50 +41,59 @@ public class MapRequest extends RestBasicRequest<Map<String,Object>> implements 
 	}
 
 	/**
-	 * New instance get.
+	 * Creates a new {@link MapRequest} for an HTTP GET call.
+	 * Query parameters should be added via {@link #addData(String, Object)};
+	 * they are appended as URL query string entries at dispatch time.
 	 *
-	 * @param url the url
-	 * @return the map request
+	 * @param url the target URL
+	 * @return a new MapRequest configured for GET
 	 */
 	public static MapRequest newInstanceGet(String url) {
 		return new MapRequest(url, HttpMethod.GET);
 	}
 
 	/**
-	 * New instance delete.
+	 * Creates a new {@link MapRequest} for an HTTP DELETE call.
+	 * Parameters added via {@link #addData(String, Object)} are sent as query string entries.
 	 *
-	 * @param url the url
-	 * @return the map request
+	 * @param url the target URL
+	 * @return a new MapRequest configured for DELETE
 	 */
 	public static MapRequest newInstanceDelete(String url) {
 		return new MapRequest(url, HttpMethod.DELETE);
 	}
 
 	/**
-	 * New instance post.
+	 * Creates a new {@link MapRequest} for an HTTP POST call.
+	 * Parameters added via {@link #addData(String, Object)} are sent as the request body
+	 * encoded as a {@link org.springframework.util.MultiValueMap}.
 	 *
-	 * @param url the url
-	 * @return the map request
+	 * @param url the target URL
+	 * @return a new MapRequest configured for POST
 	 */
 	public static MapRequest newInstancePost(String url) {
 		return new MapRequest(url, HttpMethod.POST);
 	}
 
 	/**
-	 * New instance put.
+	 * Creates a new {@link MapRequest} for an HTTP PUT call.
+	 * Parameters added via {@link #addData(String, Object)} are sent as the request body
+	 * encoded as a {@link org.springframework.util.MultiValueMap}.
 	 *
-	 * @param url the url
-	 * @return the map request
+	 * @param url the target URL
+	 * @return a new MapRequest configured for PUT
 	 */
 	public static MapRequest newInstancePut(String url) {
 		return new MapRequest(url, HttpMethod.PUT);
 	}
 
 	/**
-	 * New instance patch.
+	 * Creates a new {@link MapRequest} for an HTTP PATCH call.
+	 * Parameters added via {@link #addData(String, Object)} are sent as the request body
+	 * encoded as a {@link org.springframework.util.MultiValueMap}.
 	 *
-	 * @param url the url
-	 * @return the map request
+	 * @param url the target URL
+	 * @return a new MapRequest configured for PATCH
 	 */
 	public static MapRequest newInstancePatch(String url) {
 		return new MapRequest(url, HttpMethod.PATCH);

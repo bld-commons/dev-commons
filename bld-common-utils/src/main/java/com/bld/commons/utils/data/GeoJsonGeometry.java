@@ -8,7 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
- * The Class GeoJsonGeometry.
+ * PostGIS geometry holder that stores the spatial data as a GeoJSON {@link JsonNode}.
+ *
+ * <p>Used in conjunction with {@link com.bld.commons.utils.json.annotations.GeometryPostgis}
+ * (with {@code value = SpatialType.GeoJSON}) to deserialise incoming GeoJSON payloads
+ * and serialise JTS {@link org.locationtech.jts.geom.Geometry} objects back to GeoJSON.</p>
+ *
+ * @author Francesco Baldi
  */
 public class GeoJsonGeometry extends PostgisGeometry<JsonNode> {
 
@@ -33,11 +39,11 @@ public class GeoJsonGeometry extends PostgisGeometry<JsonNode> {
 	}
 
 	/**
-	 * Geo json.
+	 * Serialises the contained GeoJSON {@link JsonNode} to its JSON string representation.
 	 *
-	 * @param objMapper the obj mapper
-	 * @return the string
-	 * @throws JsonProcessingException the json processing exception
+	 * @param objMapper the Jackson {@link ObjectMapper} to use for serialisation
+	 * @return a GeoJSON string representing the geometry
+	 * @throws JsonProcessingException if the node cannot be serialised
 	 */
 	@JsonIgnore
 	public String geoJson(ObjectMapper objMapper) throws JsonProcessingException {

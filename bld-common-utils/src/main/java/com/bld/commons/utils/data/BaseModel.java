@@ -7,11 +7,16 @@ package com.bld.commons.utils.data;
 
 import java.io.Serializable;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class BaseModel.
+ * Abstract base model carrying a single generic identifier field.
  *
- * @param <ID> the generic type
+ * <p>Intended to be extended by all domain/DTO model classes that have a primary key.
+ * Provides standard {@link #equals(Object)}, {@link #hashCode()}, and
+ * {@link #toString()} implementations based solely on the {@code id} field.</p>
+ *
+ * @param <ID> the type of the entity identifier (e.g., {@code Long}, {@code String})
+ *
+ * @author Francesco Baldi
  */
 @SuppressWarnings("serial")
 public class BaseModel<ID> implements Serializable{

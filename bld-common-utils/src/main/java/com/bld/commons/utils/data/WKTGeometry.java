@@ -4,9 +4,17 @@ import com.bld.commons.utils.types.SpatialType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class WKTGeometry.
+ * PostGIS geometry holder that stores the spatial data as a Well-Known Text (WKT) string.
+ *
+ * <p>Used in conjunction with {@link com.bld.commons.utils.json.annotations.GeometryPostgis}
+ * (with {@code value = SpatialType.WKT}) to deserialise and serialise WKT geometry
+ * representations to and from JTS {@link org.locationtech.jts.geom.Geometry} objects.</p>
+ *
+ * <p>The {@link #sridGeometry()} convenience method returns the geometry string
+ * prefixed with the SRID in the PostGIS extended WKT format (e.g., {@code SRID=4326;POINT(...)}).</p>
+ *
+ * @author Francesco Baldi
  */
 public class WKTGeometry extends PostgisGeometry<String> {
 
@@ -29,9 +37,13 @@ public class WKTGeometry extends PostgisGeometry<String> {
 	}
 
 	/**
-	 * Srid geometry.
+	 * Returns the WKT geometry string prefixed with the SRID in PostGIS extended format.
 	 *
-	 * @return the string
+	 * <p>If the SRID is set and greater than zero, the returned value has the form
+	 * {@code SRID=&lt;srid&gt;;&lt;wkt&gt;}; otherwise the plain WKT string is returned.
+	 * This property is serialised as the read-only JSON field {@code sridGeometry}.</p>
+	 *
+	 * @return the SRID-prefixed WKT string, or the plain WKT if no valid SRID is set
 	 */
 	@JsonProperty(value = "sridGeometry",access = Access.READ_ONLY)
 	public String sridGeometry() {

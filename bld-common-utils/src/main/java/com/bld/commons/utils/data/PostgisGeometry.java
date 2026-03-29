@@ -3,9 +3,19 @@ package com.bld.commons.utils.data;
 import com.bld.commons.utils.types.SpatialType;
 
 /**
- * The Class PostgisGeometry.
+ * Abstract base class for PostGIS geometry wrappers.
  *
- * @param <T> the generic type
+ * <p>Holds a spatial geometry value of type {@code T} (e.g., a {@code String} for WKT/KML,
+ * a {@code byte[]} for WKB, or a {@link com.fasterxml.jackson.databind.JsonNode} for GeoJSON),
+ * together with the spatial reference system identifier (SRID) and the
+ * {@link com.bld.commons.utils.types.SpatialType} that indicates the serialisation format.</p>
+ *
+ * <p>Concrete subclasses: {@link WKTGeometry}, {@link WKBGeometry},
+ * {@link GeoJsonGeometry}, {@link KMLGeometry}.</p>
+ *
+ * @param <T> the type used to hold the geometry data
+ *
+ * @author Francesco Baldi
  */
 public abstract class PostgisGeometry<T> {
 

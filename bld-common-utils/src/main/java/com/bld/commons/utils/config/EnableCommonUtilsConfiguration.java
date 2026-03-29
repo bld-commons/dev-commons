@@ -21,14 +21,31 @@ import com.bld.context.annotation.config.EnableContextAnnotation;
 
 
 /**
- * The Class EnableCommonUtilsConfiguration.
+ * Spring MVC configuration class imported by {@link com.bld.commons.utils.config.annotation.EnableCommonUtils}.
+ *
+ * <p>Registers the annotation-based Spring {@link org.springframework.format.Formatter}s
+ * provided by this module so that they participate in data binding for form/request
+ * parameters:
+ * <ul>
+ *   <li>{@link com.bld.commons.utils.formatter.DateTimeZoneAnnotationFormatterFactory} &mdash;
+ *       handles {@link com.bld.commons.utils.json.annotations.DateTimeZone} on {@code Date}/{@code Calendar} fields</li>
+ *   <li>{@link com.bld.commons.utils.formatter.DateFilterAnnotationFormatterFactory} &mdash;
+ *       handles {@link com.bld.commons.utils.json.annotations.DateChange} on {@code Date}/{@code Calendar} fields</li>
+ *   <li>{@link com.bld.commons.utils.formatter.UpperLowerAnnotationFormatterFactory} &mdash;
+ *       handles {@link com.bld.commons.utils.json.annotations.UpperLowerCase} on {@code String} fields</li>
+ *   <li>{@link com.bld.commons.utils.formatter.ClobAnnotationFormatterFactory} &mdash;
+ *       handles {@link com.bld.commons.utils.json.annotations.TextClob} on {@code Clob} fields</li>
+ * </ul>
+ * </p>
+ *
+ * @author Francesco Baldi
  */
 @Configuration
 @EnableContextAnnotation
 @ComponentScan(basePackages = {"com.bld.commons.utils"})
 public class EnableCommonUtilsConfiguration implements WebMvcConfigurer
 {
-	
+
 	@Autowired
 	private AbstractEnvironment env;
 	
@@ -45,6 +62,12 @@ public class EnableCommonUtilsConfiguration implements WebMvcConfigurer
 //	}
 //	
 	
+    /**
+     * Registers all annotation-driven formatters provided by this module into the
+     * Spring {@link FormatterRegistry}.
+     *
+     * @param registry the formatter registry to add formatters to
+     */
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addFormatterForFieldAnnotation(new DateTimeZoneAnnotationFormatterFactory(env));

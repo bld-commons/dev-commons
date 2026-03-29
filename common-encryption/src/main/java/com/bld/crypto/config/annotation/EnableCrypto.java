@@ -21,7 +21,24 @@ import com.bld.crypto.pubkey.config.CryptoPublicKeyConfiguration;
 import com.bld.crypto.signature.config.SignatureConfiguration;
 
 /**
- * The Interface EnableRestConnection.
+ * Meta-annotation that activates the {@code common-encryption} module.
+ *
+ * <p>Place {@code @EnableCrypto} on any Spring {@code @Configuration} class to import
+ * all encryption sub-configurations:
+ * <ul>
+ *   <li>{@link CryptoConfiguration} – base configuration (enables context annotations)</li>
+ *   <li>{@link CryptoJksConfiguration} – RSA/JKS bidirectional encryption (conditional on property)</li>
+ *   <li>{@link CryptoPublicKeyConfiguration} – public-key-only encryption (conditional on property)</li>
+ *   <li>{@link AesConfiguration} – AES symmetric encryption (conditional on property)</li>
+ *   <li>{@link SignatureConfiguration} – digital signature (conditional on property)</li>
+ * </ul>
+ *
+ * <p>Example:
+ * <pre>{@code
+ * @Configuration
+ * @EnableCrypto
+ * public class AppConfig { }
+ * }</pre>
  */
 @Configuration
 @Documented

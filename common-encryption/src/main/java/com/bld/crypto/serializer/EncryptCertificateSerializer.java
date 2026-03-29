@@ -19,31 +19,41 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 
 /**
- * The Class EncryptCertificateSerializer.
+ * Abstract Jackson {@link StdScalarSerializer} that encrypts a field value before
+ * writing it to the JSON output stream.
  *
- * @param <T> the generic type
+ * <p>The serializer supports scalar types ({@link Number}, {@link String}), arrays,
+ * and collections.  POJOs are first serialised to JSON using the injected
+ * {@link ObjectMapper} and then encrypted.
+ *
+ * <p>Concrete subclasses implement {@link #encryptValue(String)} to supply the actual
+ * encryption algorithm (AES, RSA via JKS, or RSA public key).
+ *
+ * @param <T> the type of the value to encrypt
  */
 @SuppressWarnings({ "serial", "unchecked" })
 public abstract class EncryptCertificateSerializer<T> extends StdScalarSerializer<T> {
 
-	/** The obj mapper. */
+	/** Jackson {@link ObjectMapper} used to serialise POJO values to JSON before encryption. */
 	@Autowired
 	protected ObjectMapper objMapper;
 
 	/**
-	 * Instantiates a new encrypt certificate serializer.
+	 * Constructs a new serializer for the given type.  The {@link ObjectMapper} will be
+	 * injected by Spring.
 	 *
-	 * @param t the t
+	 * @param t the handled value type
 	 */
 	protected EncryptCertificateSerializer(Class<T> t) {
 		super(t);
 	}
 
 	/**
-	 * Instantiates a new encrypt certificate serializer.
+	 * Constructs a new serializer for the given type with an explicit {@link ObjectMapper}.
+	 * Use this constructor when Spring injection is not available (e.g., in tests).
 	 *
-	 * @param t the t
-	 * @param objMapper the obj mapper
+	 * @param t         the handled value type
+	 * @param objMapper the Jackson {@link ObjectMapper} instance
 	 */
 	protected EncryptCertificateSerializer(Class<T> t, ObjectMapper objMapper) {
 		super(t);
@@ -51,12 +61,13 @@ public abstract class EncryptCertificateSerializer<T> extends StdScalarSerialize
 	}
 
 	/**
-	 * Serialize.
+	 * Serialises and encrypts the value, writing the result as a JSON string (or JSON
+	 * array when the value is a {@link Collection} or array).
 	 *
-	 * @param value the value
-	 * @param gen the gen
-	 * @param provider the provider
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @param value    the value to encrypt and serialise; nothing is written if {@code null}
+	 * @param gen      the Jackson {@link JsonGenerator}
+	 * @param provider the serialiser provider
+	 * @throws IOException if a JSON I/O error occurs
 	 */
 	@Override
 	public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
@@ -89,10 +100,11 @@ public abstract class EncryptCertificateSerializer<T> extends StdScalarSerialize
 	}
 
 	/**
-	 * Encrypt value.
+	 * Encrypts the given plain-text string.  Concrete subclasses supply the algorithm
+	 * and key selection logic.
 	 *
-	 * @param word the word
-	 * @return the string
+	 * @param word the plain-text string to encrypt
+	 * @return the encrypted, Base64-encoded string
 	 */
 	protected abstract String encryptValue(String word);
 

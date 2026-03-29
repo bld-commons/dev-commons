@@ -4,7 +4,13 @@ package com.bld.commons.utils.data;
 import com.bld.commons.utils.types.SpatialType;
 
 /**
- * The Class KMLGeometry.
+ * PostGIS geometry holder that stores the spatial data as a KML string.
+ *
+ * <p>Used in conjunction with {@link com.bld.commons.utils.json.annotations.GeometryPostgis}
+ * (with {@code value = SpatialType.KML}) to deserialise and serialise KML geometry
+ * representations to and from JTS {@link org.locationtech.jts.geom.Geometry} objects.</p>
+ *
+ * @author Francesco Baldi
  */
 public class KMLGeometry extends PostgisGeometry<String> {
 

@@ -17,7 +17,10 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 /**
- * The Class ValidatorUtils.
+ * Spring component that wraps the Jakarta Bean Validation API.
+ * Provides a single static utility method to validate any object against
+ * its declared constraint annotations (e.g. {@code @NotNull}, {@code @NotBlank}).
+ * A shared {@link Validator} instance is built once at class-loading time.
  */
 @Component
 public class ValidatorUtils {
