@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Abstract Spring {@link Formatter} that encrypts a value on {@link #print(Object, Locale)}
- * and decrypts it on {@link #parse(String, java.text.ParseException)}.
+ * and decrypts it on {@link #parse(String, java.util.Locale)}.
  *
  * <p>Subclasses supply the actual encryption/decryption logic by implementing
  * {@link #encryptValue(String)} and {@link #decrypt(String)}.  The class handles
