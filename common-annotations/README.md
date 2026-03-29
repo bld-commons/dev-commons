@@ -1,0 +1,136 @@
+# common-annotations
+
+> **Module:** `com.github.bld-commons:common-annotations`
+> **Version:** 2.1.4
+> **Parent:** `dev-commons`
+
+## 🇮🇹 [Leggi in italiano](README.it.md)
+
+---
+
+## Description
+
+`common-annotations` is a Spring Boot library module that enables **full Spring dependency injection (DI) inside custom Jackson serializers and deserializers**.
+
+By default, Jackson instantiates custom handlers (serializers, deserializers, type handlers, etc.) on its own, completely bypassing the Spring context. This means that any `@Autowired` field inside a custom handler is never injected and remains `null` at runtime, causing `NullPointerException` errors that are difficult to diagnose.
+
+This module solves the problem by registering a `SpringHandlerInstantiator` — the bridge between Jackson's handler lifecycle and Spring's `AutowireCapableBeanFactory` — together with a fully customized `Jackson2ObjectMapperBuilder` and `MappingJackson2HttpMessageConverter`.
+
+---
+
+## Prerequisites / Dependencies
+
+| Dependency | Scope |
+|---|---|
+| `org.springframework.boot:spring-boot-starter-validation` | compile |
+| `org.springframework:spring-web` | compile |
+| `org.apache.commons:commons-lang3` | compile |
+| `org.apache.commons:commons-collections4` | compile |
+| `io.jsonwebtoken:jjwt-api` / `jjwt-impl` / `jjwt-jackson` | compile / runtime |
+| `org.bouncycastle:bcprov-jdk18on` | compile |
+
+The module is managed by the `dev-commons` parent BOM; no explicit version declaration is needed in consumer projects.
+
+---
+
+## How to Enable
+
+Add the dependency to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.github.bld-commons</groupId>
+    <artifactId>common-annotations</artifactId>
+</dependency>
+```
+
+Then annotate any Spring `@Configuration` class with `@EnableContextAnnotation`:
+
+```java
+@Configuration
+@EnableContextAnnotation
+public class AppConfig {
+    // nothing else required
+}
+```
+
+That's all. The annotation triggers the import of `EnableContextAnnotationConfiguration`, which registers the three beans automatically.
+
+---
+
+## The Problem This Module Solves
+
+Consider a custom Jackson deserializer that needs a Spring-managed service:
+
+```java
+@JsonComponent
+public class ProductDeserializer extends JsonDeserializer<Product> {
+
+    @Autowired          // <-- injected only when Spring DI is enabled for Jackson
+    private ProductService productService;
+
+    @Override
+    public Product deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        String id = p.getText();
+        return productService.findById(id);   // NullPointerException without this module!
+    }
+}
+```
+
+Without `common-annotations`, Jackson creates `ProductDeserializer` by calling its no-arg constructor directly. Spring never processes the instance, so `productService` is `null`.
+
+With `@EnableContextAnnotation`, Jackson delegates instantiation to `SpringHandlerInstantiator`, which in turn asks Spring's `AutowireCapableBeanFactory` to create the instance. Spring wires all dependencies before the handler is used.
+
+---
+
+## Example: Deserializer With an Injected Spring Service
+
+```java
+// 1. Enable the module in your configuration
+@Configuration
+@EnableContextAnnotation
+public class JacksonConfig { }
+
+// 2. Write a deserializer that uses @Autowired as normal
+@JsonComponent
+public class OrderDeserializer extends JsonDeserializer<Order> {
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Override
+    public Order deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        String orderId = p.getValueAsString();
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+    }
+}
+```
+
+No additional wiring is required. The `OrderRepository` bean is injected automatically.
+
+---
+
+## Beans Registered Automatically
+
+| Bean name | Type | Description |
+|---|---|---|
+| `contextHandlerInstantiator` | `HandlerInstantiator` | Bridges Jackson's handler lifecycle to Spring's `AutowireCapableBeanFactory`. This is the core bean that enables `@Autowired` inside handlers. |
+| `contextJackson2ObjectMapperBuilder` | `Jackson2ObjectMapperBuilder` | A fully configured mapper builder that applies the Spring-aware instantiator and all registered `Jackson2ObjectMapperBuilderCustomizer` beans. |
+| `contextMappingJackson2HttpMessageConverter` | `MappingJackson2HttpMessageConverter` | An HTTP message converter built from the customized mapper builder. Register it in your MVC/WebFlux configuration to ensure all JSON I/O goes through the Spring-aware Jackson instance. |
+
+---
+
+## Package Structure
+
+```
+com.bld.context.annotation.config
+├── EnableContextAnnotation.java           — activation annotation (@Configuration meta-annotation)
+└── EnableContextAnnotationConfiguration.java — Spring configuration that registers the three beans
+```
+
+---
+
+## License
+
+See the root `dev-commons` project for license information.
