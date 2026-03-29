@@ -260,4 +260,73 @@ request.removeHeader("X-Correlation-Id");
 
 ---
 
-## 🇮🇹 [Leggi in italiano](README.it.md)
+## License
+
+See the root [`dev-commons`](../README.md) project for license information (MIT).
+
+---
+
+---
+
+## Italiano
+
+`common-rest-connection` è un modulo Spring Boot che fornisce un client unificato per chiamate **REST** e **SOAP 1.1** tramite un'unica interfaccia iniettabile (`RestClientConnection`).
+
+Gestisce la creazione e la configurazione di `RestTemplate` per ogni singola chiamata, con supporto per:
+- timeout configurabile per richiesta
+- proxy HTTP opzionale tramite `application.properties`
+- helper per autenticazione Bearer e Basic
+- deserializzazione trasparente di risposte JSON, XML e YAML
+- costruzione di envelope SOAP 1.1 con header personalizzato
+
+### Abilitazione
+
+```java
+@Configuration
+@EnableRestConnection
+public class AppConfig { }
+
+@Autowired
+private RestClientConnection restClient;
+```
+
+### Gerarchia dei modelli di richiesta
+
+| Classe | Utilizzo |
+|---|---|
+| `MapRequest` | Parametri di query o corpo form-encoded come mappa chiave-valore |
+| `ObjectRequest<T>` | Corpo JSON/XML serializzato da un oggetto Java tipizzato |
+| `SoapRequest<B,H>` | Chiamate SOAP 1.1 con corpo JAXB annotato |
+| `MapSoapRequest<H>` | Chiamate SOAP 1.1 con corpo come mappa chiave-valore |
+
+### Esempi rapidi
+
+```java
+// GET con parametri
+MapRequest req = MapRequest.newInstanceGet("https://api.example.com/users/{id}");
+req.addUriParams(42);
+req.setTimeout(5000);
+UserDto user = restClient.entityRestTemplate(req, UserDto.class);
+
+// POST con oggetto tipizzato
+ObjectRequest<CreateUserRequest> req2 =
+    ObjectRequest.newInstancePost("https://api.example.com/users");
+req2.setData(new CreateUserRequest("Alice", "alice@example.com"));
+req2.setBearerAuth("eyJhbGci...");
+UserDto created = restClient.entityRestTemplate(req2, UserDto.class);
+
+// Chiamata SOAP
+MapSoapRequest<Void> soap = new MapSoapRequest<>(
+    "https://www.w3schools.com/xml/tempconvert.asmx",
+    "CelsiusToFahrenheit",
+    "https://www.w3schools.com/xml/");
+soap.addData("Celsius", "100");
+String result = restClient.soapRestTemplate(soap, String.class);
+```
+
+### Configurazione proxy
+
+```properties
+com.bld.connection.proxy.ip=proxy.example.com
+com.bld.connection.proxy.port=8080
+```
