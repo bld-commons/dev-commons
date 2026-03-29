@@ -24,18 +24,18 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * The Class RestConnectionMapper.
+ * Utility class for mapping objects to and from JSON, and for building URI query parameters
+ * and multi-value maps from a {@code Map<String,Object>}.
  */
 @SuppressWarnings({"unchecked"})
 public class RestConnectionMapper {
 
- 
 	/**
-	 * From object to json.
+	 * Serialises an object to a pretty-printed JSON string.
 	 *
-	 * @param obj the obj
-	 * @return the string
-	 * @throws JsonProcessingException the json processing exception
+	 * @param obj the object to serialise
+	 * @return the JSON string
+	 * @throws JsonProcessingException if serialisation fails
 	 */
 	public static String fromObjectToJson(Object obj) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
@@ -44,15 +44,15 @@ public class RestConnectionMapper {
 	}
 
 	/**
-	 * From json to entity.
+	 * Deserialises a JSON string to an instance of the given class.
 	 *
-	 * @param <T> the generic type
-	 * @param json the json
-	 * @param classObj the class obj
-	 * @return the t
-	 * @throws JsonParseException the json parse exception
-	 * @throws JsonMappingException the json mapping exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @param <T>      the target type
+	 * @param json     the JSON string
+	 * @param classObj the target class
+	 * @return the deserialised object
+	 * @throws JsonParseException   if the JSON is malformed
+	 * @throws JsonMappingException if the JSON cannot be mapped to the target type
+	 * @throws IOException          if an I/O error occurs
 	 */
 	public static <T> T fromJsonToEntity(String json, Class<T> classObj)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -62,125 +62,121 @@ public class RestConnectionMapper {
 	}
 
 	/**
-	 * From object to map.
+	 * Converts an object to a {@code Map<String,Object>}.
+	 * If the object is already a Map it is returned as-is; otherwise it is first
+	 * serialised to JSON and then deserialised to a Map.
 	 *
-	 * @param obj the obj
-	 * @return the map
-	 * @throws JsonProcessingException the json processing exception
+	 * @param obj the object to convert
+	 * @return the resulting map
+	 * @throws JsonProcessingException if serialisation fails
 	 */
 	public static Map<String, Object> fromObjectToMap(Object obj) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> map=new HashMap<>();
-		if(obj!=null) {
-			if(obj instanceof Map)
-				map=(Map<String,Object>)obj;
-			else 
-				map=(Map<String, Object>) mapper.readValue(fromObjectToJson(obj), Map.class);
+		Map<String, Object> map = new HashMap<>();
+		if (obj != null) {
+			if (obj instanceof Map)
+				map = (Map<String, Object>) obj;
+			else
+				map = (Map<String, Object>) mapper.readValue(fromObjectToJson(obj), Map.class);
 		}
 		return map;
 	}
-	
+
 	/**
-	 * Builder query.
+	 * Appends all entries of the given params map as query parameters on the builder.
 	 *
-	 * @param builder the builder
-	 * @param params the params
+	 * @param builder the URI components builder
+	 * @param params  the query parameters
 	 */
-	public static void builderQuery(UriComponentsBuilder builder,Map<String,Object>params) {
+	public static void builderQuery(UriComponentsBuilder builder, Map<String, Object> params) {
 		builder.uriVariables(params);
-		for(Entry<String,Object>entry:params.entrySet())
+		for (Entry<String, Object> entry : params.entrySet())
 			builder.queryParam(entry.getKey(), entry.getValue());
 	}
-	
+
 	/**
-	 * Map to multi value map.
+	 * Converts a flat {@code Map<String,Object>} to a {@link MultiValueMap}.
 	 *
-	 * @param params the params
-	 * @return the multi value map
+	 * @param params the source map
+	 * @return the multi-value map
 	 */
-	public static MultiValueMap<String, Object> mapToMultiValueMap(Map<String,Object>params){
-		MultiValueMap<String, Object> multiValueMap=new LinkedMultiValueMap<>();
-		for(Entry<String,Object>entry:params.entrySet())
+	public static MultiValueMap<String, Object> mapToMultiValueMap(Map<String, Object> params) {
+		MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
+		for (Entry<String, Object> entry : params.entrySet())
 			multiValueMap.add(entry.getKey(), entry.getValue());
 		return multiValueMap;
 	}
-	
+
 	/**
-	 * Builder query.
+	 * Recursively appends all entries of the given params map as query parameters,
+	 * prefixing nested keys with {@code nameObj}.
 	 *
-	 * @param builder the builder
-	 * @param params the params
-	 * @param nameObj the name obj
+	 * @param builder the URI components builder
+	 * @param params  the query parameters
+	 * @param nameObj the key prefix for nested objects
 	 */
-	public static void builderQuery(UriComponentsBuilder builder,Map<String,Object>params,String nameObj) {
+	public static void builderQuery(UriComponentsBuilder builder, Map<String, Object> params, String nameObj) {
 		builder.uriVariables(params);
 		for (Entry<String, Object> entry : params.entrySet()) {
-			if(entry.getValue() instanceof Map)
-				builderQuery(builder, (Map<String,Object>)entry.getValue(), entry.getKey()+".");
-			else if(entry.getValue() instanceof Collection) {
-				List<Object> list=new ArrayList<>((Collection<Object>)entry.getValue());
-				for(int i=0;i<list.size();i++) {
-					Object item=list.get(i);
-					if(item instanceof Map) 
-						builderQuery(builder, (Map<String,Object>)item, entry.getKey()+"["+i+"].");
+			if (entry.getValue() instanceof Map)
+				builderQuery(builder, (Map<String, Object>) entry.getValue(), entry.getKey() + ".");
+			else if (entry.getValue() instanceof Collection) {
+				List<Object> list = new ArrayList<>((Collection<Object>) entry.getValue());
+				for (int i = 0; i < list.size(); i++) {
+					Object item = list.get(i);
+					if (item instanceof Map)
+						builderQuery(builder, (Map<String, Object>) item, entry.getKey() + "[" + i + "].");
 					else
-						builder.queryParam(nameObj+entry.getKey()+"["+i+"]", ((List<Object>)entry.getValue()).get(i));
-						
+						builder.queryParam(nameObj + entry.getKey() + "[" + i + "]", ((List<Object>) entry.getValue()).get(i));
 				}
 			} else
-		    builder.queryParam(nameObj+entry.getKey(), entry.getValue());
+				builder.queryParam(nameObj + entry.getKey(), entry.getValue());
 		}
 	}
-	
-	
+
 	/**
-	 * Map to multi value map.
+	 * Recursively populates a {@link MultiValueMap} from a params map,
+	 * prefixing nested keys with {@code nameObj}.
 	 *
-	 * @param multiValueMap the multi value map
-	 * @param params the params
-	 * @param nameObj the name obj
-	 * @return the multi value map
+	 * @param multiValueMap the target multi-value map
+	 * @param params        the source map
+	 * @param nameObj       the key prefix for nested objects
+	 * @return the populated multi-value map
 	 */
-	public static MultiValueMap<String, Object> mapToMultiValueMap(MultiValueMap<String, Object> multiValueMap,Map<String,Object>params,String nameObj){
-		
+	public static MultiValueMap<String, Object> mapToMultiValueMap(MultiValueMap<String, Object> multiValueMap, Map<String, Object> params, String nameObj) {
 		for (Entry<String, Object> entry : params.entrySet()) {
-			if(entry.getValue() instanceof Map)
-				mapToMultiValueMap(multiValueMap, (Map<String,Object>)entry.getValue(), entry.getKey()+".");
-			else if(entry.getValue() instanceof Collection) {
-				Collection<Object> collection=(Collection<Object>)entry.getValue();
-				List<Object> list=new ArrayList<>(collection);
-				for(int i=0;i<list.size();i++) {
-					Object item=list.get(i);
-					if(item instanceof Map)
-						mapToMultiValueMap(multiValueMap, (Map<String,Object>)item, entry.getKey()+"["+i+"].");
+			if (entry.getValue() instanceof Map)
+				mapToMultiValueMap(multiValueMap, (Map<String, Object>) entry.getValue(), entry.getKey() + ".");
+			else if (entry.getValue() instanceof Collection) {
+				Collection<Object> collection = (Collection<Object>) entry.getValue();
+				List<Object> list = new ArrayList<>(collection);
+				for (int i = 0; i < list.size(); i++) {
+					Object item = list.get(i);
+					if (item instanceof Map)
+						mapToMultiValueMap(multiValueMap, (Map<String, Object>) item, entry.getKey() + "[" + i + "].");
 					else
-						multiValueMap.add(nameObj+entry.getKey()+"["+i+"]", ((List<Object>)entry.getValue()).get(i));
-						
+						multiValueMap.add(nameObj + entry.getKey() + "[" + i + "]", ((List<Object>) entry.getValue()).get(i));
 				}
 			} else
-				multiValueMap.add(nameObj+entry.getKey(), entry.getValue());
+				multiValueMap.add(nameObj + entry.getKey(), entry.getValue());
 		}
 		return multiValueMap;
 	}
-	
-	
-	
+
 	/**
-	 * Removes the empty value.
+	 * Removes entries with empty string values from the given map.
 	 *
-	 * @param map the map
+	 * @param map the map to clean
 	 */
-	public static void removeEmptyValue(Map<String,Object>map) {
-		List<String>keyRemove=new ArrayList<>();
-		for(Entry<String, Object> item:map.entrySet()) {
-			if(item.getValue() instanceof String && StringUtils.isEmpty((String)item.getValue()))
+	public static void removeEmptyValue(Map<String, Object> map) {
+		List<String> keyRemove = new ArrayList<>();
+		for (Entry<String, Object> item : map.entrySet()) {
+			if (item.getValue() instanceof String && StringUtils.isEmpty((String) item.getValue()))
 				keyRemove.add(item.getKey());
-			else if(item.getValue() instanceof List) {
-				
+			else if (item.getValue() instanceof List) {
+
 			}
 		}
 	}
-	
-	
-	
+
 }

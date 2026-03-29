@@ -12,37 +12,33 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 /**
- * The Class MapRequest.
+ * REST request whose body is a {@code Map<String,Object>}.
+ * Implements {@link MapDataHolder} for fluent field management.
  */
-public class MapRequest extends BasicRequest<Map<String,Object>> {
+public class MapRequest extends RestBasicRequest<Map<String,Object>> implements MapDataHolder {
 
-	
 	/**
 	 * Instantiates a new map request.
 	 *
-	 * @param url the url
+	 * @param url    the url
 	 * @param method the method
 	 */
 	private MapRequest(String url, HttpMethod method) {
 		super(url, method);
-		super.data=new HashMap<>();
+		super.data = new HashMap<>();
 	}
-	
-	
 
 	/**
 	 * Instantiates a new map request.
 	 *
-	 * @param url the url
-	 * @param method the method
+	 * @param url       the url
+	 * @param method    the method
 	 * @param mediaType the media type
 	 */
 	private MapRequest(String url, HttpMethod method, MediaType mediaType) {
 		super(url, method, mediaType);
-		super.data=new HashMap<>();
+		super.data = new HashMap<>();
 	}
-
-
 
 	/**
 	 * New instance get.
@@ -53,7 +49,7 @@ public class MapRequest extends BasicRequest<Map<String,Object>> {
 	public static MapRequest newInstanceGet(String url) {
 		return new MapRequest(url, HttpMethod.GET);
 	}
-	
+
 	/**
 	 * New instance delete.
 	 *
@@ -63,7 +59,7 @@ public class MapRequest extends BasicRequest<Map<String,Object>> {
 	public static MapRequest newInstanceDelete(String url) {
 		return new MapRequest(url, HttpMethod.DELETE);
 	}
-	
+
 	/**
 	 * New instance post.
 	 *
@@ -73,7 +69,7 @@ public class MapRequest extends BasicRequest<Map<String,Object>> {
 	public static MapRequest newInstancePost(String url) {
 		return new MapRequest(url, HttpMethod.POST);
 	}
-	
+
 	/**
 	 * New instance put.
 	 *
@@ -83,7 +79,7 @@ public class MapRequest extends BasicRequest<Map<String,Object>> {
 	public static MapRequest newInstancePut(String url) {
 		return new MapRequest(url, HttpMethod.PUT);
 	}
-	
+
 	/**
 	 * New instance patch.
 	 *
@@ -93,31 +89,34 @@ public class MapRequest extends BasicRequest<Map<String,Object>> {
 	public static MapRequest newInstancePatch(String url) {
 		return new MapRequest(url, HttpMethod.PATCH);
 	}
-	
+
 	/**
 	 * Adds the data.
 	 *
-	 * @param key the key
-	 * @param value the value
+	 * @param key   the field name
+	 * @param value the field value
 	 */
-	public void addData(String key,Object value) {
+	@Override
+	public void addData(String key, Object value) {
 		super.data.put(key, value);
 	}
 
 	/**
 	 * Clear data.
 	 */
+	@Override
 	public void clearData() {
-		super.data=new HashMap<>();
+		super.data = new HashMap<>();
 	}
-	
+
 	/**
 	 * Removes the data.
 	 *
-	 * @param props the props
+	 * @param key the field name to remove
 	 */
-	public void removeData(String props) {
-		super.data.remove(props);
+	@Override
+	public void removeData(String key) {
+		super.data.remove(key);
 	}
 
 }

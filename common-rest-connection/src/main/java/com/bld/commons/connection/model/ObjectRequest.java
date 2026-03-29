@@ -8,16 +8,16 @@ package com.bld.commons.connection.model;
 import org.springframework.http.HttpMethod;
 
 /**
- * The Class ObjectRequest.
+ * REST request whose body is a typed object.
  *
- * @param <T> the generic type
+ * @param <T> the type of the request body
  */
-public class ObjectRequest<T> extends BasicRequest<T>{
+public class ObjectRequest<T> extends RestBasicRequest<T> {
 
 	/**
 	 * Instantiates a new object request.
 	 *
-	 * @param url the url
+	 * @param url    the url
 	 * @param method the method
 	 */
 	private ObjectRequest(String url, HttpMethod method) {
@@ -34,7 +34,7 @@ public class ObjectRequest<T> extends BasicRequest<T>{
 	public static <T> ObjectRequest<T> newInstancePost(String url) {
 		return new ObjectRequest<T>(url, HttpMethod.POST);
 	}
-	
+
 	/**
 	 * New instance put.
 	 *
@@ -45,7 +45,7 @@ public class ObjectRequest<T> extends BasicRequest<T>{
 	public static <T> ObjectRequest<T> newInstancePut(String url) {
 		return new ObjectRequest<T>(url, HttpMethod.PUT);
 	}
-	
+
 	/**
 	 * New instance patch.
 	 *
@@ -56,13 +56,14 @@ public class ObjectRequest<T> extends BasicRequest<T>{
 	public static <T> ObjectRequest<T> newInstancePatch(String url) {
 		return new ObjectRequest<T>(url, HttpMethod.PATCH);
 	}
-	
+
 	/**
 	 * Sets the data.
 	 *
 	 * @param data the new data
 	 */
 	public void setData(T data) {
-		this.data=data;
+		this.data = data;
 	}
+
 }

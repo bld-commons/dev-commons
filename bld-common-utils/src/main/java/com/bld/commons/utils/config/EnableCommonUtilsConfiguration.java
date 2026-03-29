@@ -16,7 +16,7 @@ import com.bld.commons.utils.formatter.ClobAnnotationFormatterFactory;
 import com.bld.commons.utils.formatter.DateFilterAnnotationFormatterFactory;
 import com.bld.commons.utils.formatter.DateTimeZoneAnnotationFormatterFactory;
 import com.bld.commons.utils.formatter.UpperLowerAnnotationFormatterFactory;
-import com.bld.context.annotation.config.EnableContextAnnotatation;
+import com.bld.context.annotation.config.EnableContextAnnotation;
 
 
 
@@ -24,7 +24,7 @@ import com.bld.context.annotation.config.EnableContextAnnotatation;
  * The Class EnableCommonUtilsConfiguration.
  */
 @Configuration
-@EnableContextAnnotatation
+@EnableContextAnnotation
 @ComponentScan(basePackages = {"com.bld.commons.utils"})
 public class EnableCommonUtilsConfiguration implements WebMvcConfigurer
 {
