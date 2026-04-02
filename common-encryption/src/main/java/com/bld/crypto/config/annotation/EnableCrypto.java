@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import com.bld.crypto.aes.config.AesConfiguration;
 import com.bld.crypto.config.CryptoConfiguration;
 import com.bld.crypto.jks.config.CryptoJksConfiguration;
+import com.bld.crypto.pkcs12.config.CryptoPkcs12Configuration;
 import com.bld.crypto.pubkey.config.CryptoPublicKeyConfiguration;
 import com.bld.crypto.signature.config.SignatureConfiguration;
 
@@ -31,6 +32,7 @@ import com.bld.crypto.signature.config.SignatureConfiguration;
  *   <li>{@link CryptoPublicKeyConfiguration} – public-key-only encryption (conditional on property)</li>
  *   <li>{@link AesConfiguration} – AES symmetric encryption (conditional on property)</li>
  *   <li>{@link SignatureConfiguration} – digital signature (conditional on property)</li>
+ *   <li>{@link CryptoPkcs12Configuration} – X25519 + AES-256-GCM hybrid encryption via PKCS12 (conditional on property)</li>
  * </ul>
  *
  * <p>Example:
@@ -44,7 +46,7 @@ import com.bld.crypto.signature.config.SignatureConfiguration;
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
-@Import({CryptoConfiguration.class,CryptoJksConfiguration.class,CryptoPublicKeyConfiguration.class,AesConfiguration.class,SignatureConfiguration.class})
+@Import({CryptoConfiguration.class,CryptoJksConfiguration.class,CryptoPublicKeyConfiguration.class,AesConfiguration.class,SignatureConfiguration.class,CryptoPkcs12Configuration.class})
 public @interface EnableCrypto {
 
 }
