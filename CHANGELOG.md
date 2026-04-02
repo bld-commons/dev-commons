@@ -1,0 +1,85 @@
+# Changelog
+
+## [2.1.5] - 2026-04-03
+
+### common-encryption — PKCS12 support
+
+Added support for encryption/decryption via **PKCS12** keystores (`.p12` / `.pfx`), alongside the existing AES, RSA/PEM and JKS mechanisms.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `CryptoPkcs12.java` | New Jackson annotation `@CryptoPkcs12` to mark fields for encryption/decryption |
+| `CryptoPkcs12Utils.java` | Utility for loading keys from a PKCS12 keystore and performing cryptographic operations |
+| `CryptoPkcs12Configuration.java` | Spring bean that initialises the PKCS12 encryption context |
+| `Pkcs12FormatterConfiguration.java` | Registers PKCS12 formatters in the Spring MVC context |
+| `Pkcs12KeyProperties.java` | Configuration properties (`pkcs12.key.*`) for keystore path, alias and password |
+| `DecryptPkcs12Deserializer.java` | `JsonDeserializer` that automatically decrypts fields annotated with `@CryptoPkcs12` |
+| `EncryptPkcs12Serializer.java` | `JsonSerializer` that automatically encrypts fields annotated with `@CryptoPkcs12` |
+| `CryptoPkcs12AnnotationFormatterFactory.java` | Annotation-driven formatter factory for PKCS12 |
+| `CryptoPkcs12Formatter.java` | Spring formatter for bidirectional conversion of PKCS12-encrypted values |
+
+**Modified classes:**
+
+- `EnableCrypto.java` — imports the new `CryptoPkcs12Configuration`
+- `spring-configuration-metadata.json` — added `pkcs12.key` configuration prefix
+
+---
+
+### common-rest-connection — SOAP models and XML utilities
+
+Added new helper classes for SOAP 1.1 calls and XML document handling.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `SoapRequest.java` | Base model for SOAP 1.1 requests |
+| `MapSoapRequest.java` | `SoapRequest` variant with a `Map<String, Object>` payload |
+| `SoapHeader.java` | Represents a single SOAP header entry |
+| `MapSoapHeader.java` | Key-value map of SOAP headers |
+| `MapDataHolder.java` | Generic container for map-based payloads |
+| `RestBasicRequest.java` | Common base model for REST requests |
+| `SoapXmlBuilder.java` | Builder that constructs SOAP 1.1 envelopes from Java models |
+| `XmlNodeConverter.java` | Utility for converting and navigating XML nodes (`org.w3c.dom`) |
+
+---
+
+### bld-common-utils — Javadoc and comments
+
+Added full Javadoc to the main classes of the module:
+
+- `CamelCaseUtils`, `CommonUtility`, `DateUtils`
+- `EnableCommonUtilsConfiguration`, `EnableCommonUtils`
+- Data models: `BaseModel`, `CollectionResponse`, `ObjectResponse`, `GeoJsonGeometry`, `KMLGeometry`, `PostgisGeometry`, `WKBGeometry`, `WKTGeometry`, `TypologicalModel`
+- Formatters: `ClobAnnotationFormatterFactory`, `ClobFormatter`, `DateFilterAnnotationFormatterFactory`, `DateFormatter`
+
+---
+
+### common-annotations — Javadoc
+
+Added Javadoc to `EnableContextAnnotation` and `EnableContextAnnotationConfiguration`.
+
+---
+
+### common-encryption — Javadoc
+
+Added Javadoc to existing classes:
+`CryptoKeyData`, `CryptoKeyUtils`, `CryptoUtils`, `KeyUtility`, `CryptoConfiguration`, `DecryptCertificateDeserializer`, `CryptoException`, `CryptoFormatter`, `EncryptCertificateSerializer`, `AesSizeType`, `CryptoType`, `InstanceType`.
+
+---
+
+### Documentation
+
+Added and updated README files for all modules (English and Italian):
+
+- `README.md` (root) — version updated to 2.1.5
+- `common-annotations/README.md`, `README.it.md`
+- `common-rest-connection/README.md`, `README.it.md`
+- `bld-common-utils/README.md`
+- `common-encryption/README.md`
+
+---
+
+## [2.1.4] - previous release
