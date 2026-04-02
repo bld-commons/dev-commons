@@ -19,6 +19,11 @@
 			"name": "com.bld.crypto.aes",
 			"type": "org.springframework.boot.autoconfigure.web.ServerProperties",
 			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.pkcs12",
+			"type": "com.bld.crypto.pkcs12.config.properties.Pkcs12KeyProperties",
+			"sourceType": "com.bld.crypto.pkcs12.config.properties.Pkcs12KeyProperties"
 		}
 	],
 	"properties": [
@@ -76,6 +81,31 @@
 			"name": "com.bld.crypto.signature.instance-signature",
 			"type": "java.lang.String",
 			"sourceType": "org.springframework.boot.autoconfigure.web.ServerProperties"
+		},
+		{
+			"name": "com.bld.crypto.pkcs12.file",
+			"type": "java.lang.String",
+			"description": "Path to the PKCS12 keystore containing the X25519 key pair (e.g. classpath:keystore.p12).",
+			"sourceType": "com.bld.crypto.pkcs12.config.properties.Pkcs12KeyProperties"
+		},
+		{
+			"name": "com.bld.crypto.pkcs12.alias",
+			"type": "java.lang.String",
+			"description": "Alias of the X25519 key entry inside the PKCS12 keystore.",
+			"sourceType": "com.bld.crypto.pkcs12.config.properties.Pkcs12KeyProperties"
+		},
+		{
+			"name": "com.bld.crypto.pkcs12.password",
+			"type": "java.lang.String",
+			"description": "Password used to open the PKCS12 keystore and extract the private key.",
+			"sourceType": "com.bld.crypto.pkcs12.config.properties.Pkcs12KeyProperties"
+		},
+		{
+			"name": "com.bld.crypto.pkcs12.instance-jks",
+			"type": "java.lang.String",
+			"description": "KeyStore type. Must be PKCS12.",
+			"defaultValue": "PKCS12",
+			"sourceType": "com.bld.crypto.pkcs12.config.properties.Pkcs12KeyProperties"
 		}
 	]
 }
