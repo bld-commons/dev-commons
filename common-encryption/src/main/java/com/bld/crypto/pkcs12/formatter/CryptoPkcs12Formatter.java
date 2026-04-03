@@ -4,9 +4,18 @@
  */
 package com.bld.crypto.pkcs12.formatter;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.formatter.CryptoFormatter;
 import com.bld.crypto.pkcs12.CryptoPkcs12Utils;
 import com.bld.crypto.pkcs12.annotation.CryptoPkcs12;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -18,6 +27,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @param <T> the field type handled by this formatter
  */
 public class CryptoPkcs12Formatter<T> extends CryptoFormatter<T> {
+
+	private static final Logger logger = LoggerFactory.getLogger(CryptoPkcs12Formatter.class);
 
 	/** The annotation instance resolved for the current field. */
 	private final CryptoPkcs12 crypto;
@@ -47,22 +58,47 @@ public class CryptoPkcs12Formatter<T> extends CryptoFormatter<T> {
 	 * @param word the encrypted string to decrypt
 	 * @return the plain-text string
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected String decrypt(String word) {
-		return this.crypto.url()
+		word = this.crypto.url()
 				? this.cryptoPkcs12Utils.decryptUri(word)
 				: this.cryptoPkcs12Utils.decryptValue(word);
+		try {
+			Map<String, String> map = this.objMapper.readValue(word, Map.class);
+			String key = map.get("key");
+			if (!this.crypto.value().equals(key)) {
+				String errorMessage = "The \"" + this.crypto.value() + "\" value does not match the original \"" + key + "\" value";
+				logger.error(errorMessage);
+				throw new CryptoException(errorMessage);
+			}
+			word = map.get("value");
+		} catch (JsonProcessingException e) {
+			logger.error(ExceptionUtils.getStackTrace(e));
+			throw new CryptoException(e);
+		}
+		return word;
 	}
 
 
 	/**
-	 * Encrypts the given plain-text string using the PKCS12 public key.
+	 * Wraps the plain-text value in a {@code {key, value}} JSON envelope and encrypts it
+	 * using the PKCS12 public key, aligning with the Jackson serializer behaviour.
 	 *
 	 * @param word the plain-text string to encrypt
 	 * @return the encrypted string
 	 */
 	@Override
 	protected String encryptValue(String word) {
+		try {
+			Map<String, String> map = new LinkedHashMap<>();
+			map.put("key", this.crypto.value());
+			map.put("value", word);
+			word = this.objMapper.writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			logger.error(ExceptionUtils.getStackTrace(e));
+			throw new CryptoException(e);
+		}
 		return this.crypto.url()
 				? this.cryptoPkcs12Utils.encryptUri(word)
 				: this.cryptoPkcs12Utils.encryptValue(word);

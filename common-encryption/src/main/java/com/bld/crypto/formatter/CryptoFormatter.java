@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public abstract class CryptoFormatter<T> implements Formatter<T> {
 
 	/** Jackson {@link ObjectMapper} used for JSON serialisation/deserialisation of POJO values. */
-	private ObjectMapper objMapper;
+	protected ObjectMapper objMapper;
 
 	/** The Java type of the field that this formatter is attached to. */
 	private Class<T> fieldType;
