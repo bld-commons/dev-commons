@@ -10,13 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 /**
- * Base class for REST requests.
- * Extends {@link BasicRequest} with URI template parameters, Content-Type and Accept management —
- * features that are not applicable to SOAP calls.
+ * Base class for REST requests. Extends {@link BasicRequest} with URI template
+ * parameters, Content-Type and Accept management — features that are not
+ * applicable to SOAP calls.
  *
  * @param <T> the type of the request body
  */
@@ -84,6 +85,11 @@ public abstract class RestBasicRequest<T> extends BasicRequest<T> {
 		this.getHttpHeaders().setContentType(mediaType);
 	}
 
+	public void setContentType(String mediaType) {
+		if (StringUtils.isNotBlank(mediaType))
+			this.getHttpHeaders().setContentType(MediaType.parseMediaType(mediaType));
+	}
+
 	/**
 	 * Sets the accept.
 	 *
@@ -92,6 +98,11 @@ public abstract class RestBasicRequest<T> extends BasicRequest<T> {
 	public void setAccept(MediaType... mediaTypes) {
 		if (ArrayUtils.isNotEmpty(mediaTypes))
 			this.getHttpHeaders().setAccept(Arrays.asList(mediaTypes));
+	}
+
+	public void setAccept(String... mediaTypes) {
+		if (ArrayUtils.isNotEmpty(mediaTypes))
+			this.getHttpHeaders().setAccept(MediaType.parseMediaTypes(Arrays.asList(mediaTypes)));
 	}
 
 }
