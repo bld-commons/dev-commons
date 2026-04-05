@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
  * Jackson {@link ContextualDeserializer} that verifies an HMAC token and converts
  * the extracted plain-text value to the target Java type.
  *
- * <p>The token is expected to have been produced by {@link EncryptHmacSerializer}.
+ * <p>The token is expected to have been produced by {@link com.bld.crypto.hmac.serializer.EncryptHmacSerializer}.
  * Verification failure or field key mismatch throws a
  * {@link com.bld.crypto.exception.CryptoException}.
  *
