@@ -1,5 +1,54 @@
 # Changelog
 
+## [2.1.6] - 2026-04-05
+
+### common-encryption — HMAC support
+
+Added support for HMAC (Hash-based Message Authentication Code) signing and verification via a new set of classes, alongside the existing AES, RSA/PEM, JKS and PKCS12 mechanisms.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `CryptoHmac.java` | New Jackson annotation `@CryptoHmac` to mark fields for HMAC signing/verification |
+| `CryptoHmacUtils.java` | Utility for computing and verifying HMAC digests |
+| `HmacConfiguration.java` | Spring bean that initialises the HMAC context |
+| `HmacConditional.java` | Conditional that activates the HMAC context only when configured |
+| `HmacFormatterConfiguration.java` | Registers HMAC formatters in the Spring MVC context |
+| `CryptoHmacSecret.java` | Data class holding the HMAC secret |
+| `HmacProperties.java` | Configuration properties (`hmac.*`) for secret and algorithm |
+| `DecryptHmacDeserializer.java` | `JsonDeserializer` that automatically verifies fields annotated with `@CryptoHmac` |
+| `EncryptHmacSerializer.java` | `JsonSerializer` that automatically signs fields annotated with `@CryptoHmac` |
+| `CryptoHmacAnnotationFormatterFactory.java` | Annotation-driven formatter factory for HMAC |
+| `CryptoHmacFormatter.java` | Spring formatter for bidirectional conversion of HMAC-signed values |
+
+**Modified classes:**
+
+- `CryptoJksFormatter.java`, `CryptoPkcs12Formatter.java` — minor adjustments
+
+---
+
+### common-rest-connection — Client refactoring and SOAP split
+
+Refactored the REST/SOAP client to separate REST and SOAP concerns into dedicated interfaces and implementations.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `AbstractClientConnection.java` | Abstract base class with shared HTTP execution logic |
+| `SoapClientConnection.java` | Dedicated interface for SOAP 1.1 calls (extracted from `RestClientConnection`) |
+| `SoapClientConnectionImpl.java` | Dedicated implementation for SOAP 1.1 calls |
+
+**Modified / renamed classes:**
+
+- `RestClientConnection.java` — SOAP methods removed; now focused exclusively on REST
+- `RestClientConnectionImpl.java` — shared logic extracted to `AbstractClientConnection`
+- `MapDataHolder.java` → renamed to `BasicMapRequest.java`
+- `MapRequest.java`, `MapSoapHeader.java`, `MapSoapRequest.java`, `RestBasicRequest.java` — minor updates
+
+---
+
 ## [2.1.5] - 2026-04-03
 
 ### common-encryption — PKCS12 support
