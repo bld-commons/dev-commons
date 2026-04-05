@@ -10,9 +10,9 @@ import java.util.Map;
 
 /**
  * Specialisation of {@link SoapHeader} that uses a {@code Map<String,Object>} as the SOAP
- * header body. Implements {@link MapDataHolder} for fluent field management.
+ * header body. Implements {@link BasicMapRequest} for fluent field management.
  */
-public class MapSoapHeader extends SoapHeader<Map<String, Object>> implements MapDataHolder {
+public class MapSoapHeader extends SoapHeader<Map<String, Object>> implements BasicMapRequest {
 
 	/**
 	 * Instantiates a new map soap header.

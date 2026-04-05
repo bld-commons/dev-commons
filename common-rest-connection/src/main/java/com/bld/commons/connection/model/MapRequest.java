@@ -13,9 +13,9 @@ import org.springframework.http.MediaType;
 
 /**
  * REST request whose body is a {@code Map<String,Object>}.
- * Implements {@link MapDataHolder} for fluent field management.
+ * Implements {@link BasicMapRequest} for fluent field management.
  */
-public class MapRequest extends RestBasicRequest<Map<String,Object>> implements MapDataHolder {
+public class MapRequest extends RestBasicRequest<Map<String,Object>> implements BasicMapRequest {
 
 	/**
 	 * Instantiates a new map request.
@@ -38,6 +38,10 @@ public class MapRequest extends RestBasicRequest<Map<String,Object>> implements 
 	private MapRequest(String url, HttpMethod method, MediaType mediaType) {
 		super(url, method, mediaType);
 		super.data = new HashMap<>();
+	}
+	
+	public static MapRequest newInstance(String url, HttpMethod method) {
+		return new MapRequest(url, method);
 	}
 
 	/**
