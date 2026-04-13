@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * The Interface EncryptPubKey.
  */
 @Retention(RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({ElementType.FIELD,ElementType.METHOD,ElementType.PARAMETER})
 @JacksonAnnotationsInside
 @JsonSerialize(using = EncryptJksSerializer.class)
 @JsonInclude(Include.NON_NULL)

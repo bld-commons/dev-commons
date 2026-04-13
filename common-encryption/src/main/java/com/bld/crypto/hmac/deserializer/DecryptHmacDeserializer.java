@@ -12,7 +12,6 @@ import com.bld.crypto.bean.CryptoKeyData;
 import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
 import com.bld.crypto.hmac.CryptoHmacUtils;
 import com.bld.crypto.hmac.annotation.CryptoHmac;
-import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -64,8 +63,6 @@ public class DecryptHmacDeserializer<T> extends DecryptCertificateDeserializer<T
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
 		CryptoHmac annotation = property.getAnnotation(CryptoHmac.class);
-		if (annotation == null)
-			annotation = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoHmac.class);
 		CryptoKeyData cryptoKeyData = new CryptoKeyData(annotation.value(), annotation.url());
 		JavaType type = ctxt.getContextualType() != null ? ctxt.getContextualType() : property.getMember().getType();
 		if (property.getType() != null && property.getType().getRawClass() != null) {

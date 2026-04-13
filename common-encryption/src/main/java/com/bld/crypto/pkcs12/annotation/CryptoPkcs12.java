@@ -10,7 +10,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.bld.crypto.pkcs12.deserializer.DecryptPkcs12Deserializer;
+import com.bld.crypto.pkcs12.serializer.EncryptPkcs12Serializer;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 
 /**
@@ -25,10 +29,10 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
  * }</pre>
  */
 @Retention(RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @JacksonAnnotationsInside
-//@JsonDeserialize(using = DecryptPkcs12Deserializer.class)
-//@JsonSerialize(using = EncryptPkcs12Serializer.class)
+@JsonDeserialize(using = DecryptPkcs12Deserializer.class)
+@JsonSerialize(using = EncryptPkcs12Serializer.class)
 public @interface CryptoPkcs12 {
 
 	/**
