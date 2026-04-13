@@ -10,13 +10,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.bld.crypto.hmac.deserializer.DecryptHmacDeserializer;
-import com.bld.crypto.hmac.serializer.EncryptHmacSerializer;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Field-level annotation that transparently signs a value on Jackson serialisation
@@ -33,10 +29,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * }</pre>
  */
 @Retention(RUNTIME)
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE_USE })
 @JacksonAnnotationsInside
-@JsonDeserialize(using = DecryptHmacDeserializer.class)
-@JsonSerialize(using = EncryptHmacSerializer.class)
+//@JsonDeserialize(using = DecryptHmacDeserializer.class)
+//@JsonSerialize(using = EncryptHmacSerializer.class)
 @JsonInclude(Include.NON_NULL)
 public @interface CryptoHmac {
 

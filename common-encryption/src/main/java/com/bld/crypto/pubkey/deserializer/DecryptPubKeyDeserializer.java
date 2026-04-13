@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.bean.CryptoKeyData;
 import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
+import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.annotations.CryptoPubKey;
 import com.bld.crypto.pubkey.annotations.DecryptPubKey;
@@ -102,6 +103,15 @@ public class DecryptPubKeyDeserializer<T> extends DecryptCertificateDeserializer
 		} else if (property.getAnnotation(DecryptPubKey.class) != null) {
 			DecryptPubKey decryptPubKey = property.getAnnotation(DecryptPubKey.class);
 			cryptoPubKeyData = new CryptoKeyData(decryptPubKey.value(), decryptPubKey.url());
+		} else {
+			CryptoPubKey cryptoPubKey = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoPubKey.class);
+			if (cryptoPubKey != null) {
+				cryptoPubKeyData = new CryptoKeyData(cryptoPubKey.value(), cryptoPubKey.url());
+			} else {
+				DecryptPubKey decryptPubKey = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, DecryptPubKey.class);
+				if (decryptPubKey != null)
+					cryptoPubKeyData = new CryptoKeyData(decryptPubKey.value(), decryptPubKey.url());
+			}
 		}
 
 		JavaType type = ctxt.getContextualType() != null ? ctxt.getContextualType() : property.getMember().getType();

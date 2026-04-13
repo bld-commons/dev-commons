@@ -7,6 +7,7 @@ package com.bld.crypto.pubkey.serializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.bean.CryptoKeyData;
+import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.bld.crypto.pubkey.CryptoMapPublicKeyUtils;
 import com.bld.crypto.pubkey.annotations.CryptoPubKey;
 import com.bld.crypto.pubkey.annotations.EncryptPubKey;
@@ -78,13 +79,22 @@ public class EncryptPubKeySerializer<T> extends EncryptCertificateSerializer<T> 
 	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-		CryptoKeyData cryptoPubKeyData=null;
-		if(property.getAnnotation(CryptoPubKey.class)!=null) {
-			CryptoPubKey cryptoPubKey=property.getAnnotation(CryptoPubKey.class);
-			cryptoPubKeyData=new CryptoKeyData(cryptoPubKey.value(), cryptoPubKey.url());
-		}else if(property.getAnnotation(EncryptPubKey.class)!=null) {
-			EncryptPubKey encryptPubKey=property.getAnnotation(EncryptPubKey.class);
-			cryptoPubKeyData=new CryptoKeyData(encryptPubKey.value(), encryptPubKey.url());
+		CryptoKeyData cryptoPubKeyData = null;
+		if (property.getAnnotation(CryptoPubKey.class) != null) {
+			CryptoPubKey cryptoPubKey = property.getAnnotation(CryptoPubKey.class);
+			cryptoPubKeyData = new CryptoKeyData(cryptoPubKey.value(), cryptoPubKey.url());
+		} else if (property.getAnnotation(EncryptPubKey.class) != null) {
+			EncryptPubKey encryptPubKey = property.getAnnotation(EncryptPubKey.class);
+			cryptoPubKeyData = new CryptoKeyData(encryptPubKey.value(), encryptPubKey.url());
+		} else {
+			CryptoPubKey cryptoPubKey = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoPubKey.class);
+			if (cryptoPubKey != null) {
+				cryptoPubKeyData = new CryptoKeyData(cryptoPubKey.value(), cryptoPubKey.url());
+			} else {
+				EncryptPubKey encryptPubKey = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, EncryptPubKey.class);
+				if (encryptPubKey != null)
+					cryptoPubKeyData = new CryptoKeyData(encryptPubKey.value(), encryptPubKey.url());
+			}
 		}
 		if (property.getType() != null && property.getType().getRawClass() != null)
 			return new EncryptPubKeySerializer<>(property.getType().getRawClass(), cryptoPubKeyData,this.cryptoPublicKeyUtils,this.objMapper);
