@@ -1,7 +1,30 @@
 # Changelog
 
-<<<<<<< Updated upstream
-=======
+## [2.1.8] - 2026-04-13
+
+### common-encryption — Swagger/OpenAPI integration
+
+Added optional SpringDoc/OpenAPI support so that fields annotated with any crypto annotation are correctly documented as `string` (Base64-encoded ciphertext or HMAC token) instead of the underlying Java type.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `CryptoSwaggerAutoConfiguration.java` | Spring Boot auto-configuration that registers `CryptoModelConverter` when `swagger-core-jakarta` is on the classpath |
+| `CryptoModelConverter.java` | SpringDoc `ModelConverter` (lowest precedence) that resolves fields annotated with `@CryptoAes`, `@CryptoHmac`, `@CryptoJks`, `@CryptoPkcs12`, `@CryptoPubKey` to a `StringSchema` |
+
+**New optional dependency:**
+
+`io.swagger.core.v3:swagger-core-jakarta:2.2.28` (optional) — added to `common-encryption/pom.xml`.
+
+---
+
+### common-rest-connection — XmlNodeConverter improvements
+
+Minor additions to `XmlNodeConverter.java`.
+
+---
+
 ## [2.1.7] - 2026-04-10
 
 ### common-annotations — Fix Spring DI in Jackson handlers (JSON & YAML)
@@ -76,7 +99,6 @@ Refactored the REST/SOAP client to separate REST and SOAP concerns into dedicate
 
 ---
 
->>>>>>> Stashed changes
 ## [2.1.5] - 2026-04-03
 
 ### common-encryption — PKCS12 support
