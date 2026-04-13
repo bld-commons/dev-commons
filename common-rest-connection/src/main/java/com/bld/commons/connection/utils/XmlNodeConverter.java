@@ -22,6 +22,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -41,6 +44,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * </ul>
  */
 public final class XmlNodeConverter {
+
+    private static final Logger log = LoggerFactory.getLogger(XmlNodeConverter.class);
 
     /** The factory. */
     private static final DocumentBuilderFactory FACTORY = createFactory();
@@ -138,6 +143,8 @@ public final class XmlNodeConverter {
             for (Element child : childElements) {
                 grouped.computeIfAbsent(qualifiedName(child), k -> new ArrayList<>()).add(child);
             }
+            log.debug("buildNode <{}>: {} distinct child type(s), {} total children",
+                    qualifiedName(element), grouped.size(), childElements.size());
             grouped.forEach((childType, elements) -> {
                 if (elements.size() == 1) {
                     Element e = elements.get(0);
@@ -147,6 +154,7 @@ public final class XmlNodeConverter {
                         node.set(childType, buildNode(e));
                     }
                 } else {
+                    log.debug("buildNode <{}>: '{}' → ArrayNode[{}]", qualifiedName(element), childType, elements.size());
                     boolean allPlainText = elements.stream().allMatch(XmlNodeConverter::isPlainText);
                     ArrayNode arr = JsonNodeFactory.instance.arrayNode();
                     if (allPlainText) {

@@ -1,7 +1,7 @@
 # common-annotations
 
 > **Modulo:** `com.github.bld-commons:common-annotations`
-> **Versione:** 2.1.4
+> **Versione:** 2.1.7
 > **Parent:** `dev-commons`
 
 ## 🇬🇧 [Read in English](README.md)
@@ -14,7 +14,7 @@
 
 Per impostazione predefinita, Jackson istanzia i propri handler (serializer, deserializer, type handler, ecc.) autonomamente, bypassando completamente il contesto Spring. Ciò significa che qualsiasi campo `@Autowired` all'interno di un handler personalizzato non viene mai iniettato e rimane `null` a runtime, provocando `NullPointerException` difficili da diagnosticare.
 
-Questo modulo risolve il problema registrando uno `SpringHandlerInstantiator` — il ponte tra il ciclo di vita degli handler di Jackson e l'`AutowireCapableBeanFactory` di Spring — insieme a un `Jackson2ObjectMapperBuilder` completamente personalizzato e a un `MappingJackson2HttpMessageConverter`.
+Questo modulo risolve il problema registrando uno `SpringHandlerInstantiator` — il ponte tra il ciclo di vita degli handler di Jackson e l'`AutowireCapableBeanFactory` di Spring — applicato sia all'`ObjectMapper` primario di Spring Boot (tramite un `Jackson2ObjectMapperBuilderCustomizer`) sia a converter JSON e YAML dedicati. Il supporto YAML viene attivato automaticamente quando `jackson-dataformat-yaml` è sul classpath.
 
 ---
 
@@ -54,7 +54,7 @@ public class AppConfig {
 }
 ```
 
-L'annotazione attiva l'importazione di `EnableContextAnnotationConfiguration`, che registra automaticamente i tre bean.
+L'annotazione attiva l'importazione di `EnableContextAnnotationConfiguration`, che registra automaticamente tutti i bean.
 
 ---
 
@@ -116,8 +116,10 @@ Non è richiesta nessuna configurazione aggiuntiva. Il bean `OrderRepository` vi
 | Nome bean | Tipo | Descrizione |
 |---|---|---|
 | `contextHandlerInstantiator` | `HandlerInstantiator` | Collega il ciclo di vita degli handler di Jackson all'`AutowireCapableBeanFactory` di Spring. È il bean principale che abilita `@Autowired` all'interno degli handler. |
+| *(customizer)* | `Jackson2ObjectMapperBuilderCustomizer` | Applica `SpringHandlerInstantiator` all'`ObjectMapper` **primario** di Spring Boot, in modo che anche il converter JSON predefinito inietti correttamente gli handler. |
 | `contextJackson2ObjectMapperBuilder` | `Jackson2ObjectMapperBuilder` | Un mapper builder completamente configurato che applica l'instantiator Spring-aware e tutti i bean `Jackson2ObjectMapperBuilderCustomizer` registrati. |
-| `contextMappingJackson2HttpMessageConverter` | `MappingJackson2HttpMessageConverter` | Un convertitore HTTP costruito dal mapper builder personalizzato. Registrarlo nella configurazione MVC/WebFlux per garantire che tutto l'I/O JSON passi attraverso l'istanza Jackson consapevole di Spring. |
+| `contextMappingJackson2HttpMessageConverter` | `MappingJackson2HttpMessageConverter` | Converter HTTP JSON costruito dal mapper builder personalizzato. |
+| `contextYamlMappingJackson2HttpMessageConverter` | `MappingJackson2HttpMessageConverter` | Converter HTTP YAML (registrato solo se `jackson-dataformat-yaml` è sul classpath). Supporta `application/yaml`, `application/x-yaml`, `text/yaml`. |
 
 ---
 

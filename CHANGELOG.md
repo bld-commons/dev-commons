@@ -1,5 +1,82 @@
 # Changelog
 
+<<<<<<< Updated upstream
+=======
+## [2.1.7] - 2026-04-10
+
+### common-annotations — Fix Spring DI in Jackson handlers (JSON & YAML)
+
+Fixed a bug where `@Autowired` fields inside custom Jackson serializers and deserializers remained `null` at runtime when responses used the default JSON converter or the YAML converter.
+
+**Root cause:** `SpringHandlerInstantiator` was configured only on the secondary `contextMappingJackson2HttpMessageConverter` bean, not on the primary `ObjectMapper` created by Spring Boot's auto-configuration. The default `MappingJackson2HttpMessageConverter` (and any YAML converter) therefore never went through Spring's `AutowireCapableBeanFactory`, leaving all `@Autowired` fields uninitialised.
+
+**Modified classes:**
+
+| Class | Change |
+|---|---|
+| `EnableContextAnnotationConfiguration.java` | Added `handlerInstantiatorCustomizer` (`Jackson2ObjectMapperBuilderCustomizer`) to propagate `SpringHandlerInstantiator` to the primary Spring Boot `ObjectMapper` |
+| `EnableContextAnnotationConfiguration.java` | Added inner `YamlConverterConfiguration` (`@ConditionalOnClass(YAMLFactory.class)`) that registers a YAML-capable `MappingJackson2HttpMessageConverter` with `SpringHandlerInstantiator` for `application/yaml`, `application/x-yaml` and `text/yaml` |
+
+**Removed (redundant) from all serializer/deserializer subclasses:**
+
+`injectObjectMapper(ObjectMapper)` setter methods added as a workaround in `EncryptAesSerializer`, `DecryptAesDeserializer`, `EncryptHmacSerializer`, `DecryptHmacDeserializer`, `EncryptJksSerializer`, `DecryptJksDeserializer`, `EncryptPkcs12Serializer`, `DecryptPkcs12Deserializer`, `EncryptPubKeySerializer`, `DecryptPubKeyDeserializer` — now unnecessary because `SpringHandlerInstantiator` correctly injects inherited `@Autowired` fields from the superclass.
+
+**New optional dependency:**
+
+`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml` (optional) — version managed by `spring-boot-starter-parent`.
+
+---
+
+## [2.1.6] - 2026-04-05
+
+### common-encryption — HMAC support
+
+Added support for HMAC (Hash-based Message Authentication Code) signing and verification via a new set of classes, alongside the existing AES, RSA/PEM, JKS and PKCS12 mechanisms.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `CryptoHmac.java` | New Jackson annotation `@CryptoHmac` to mark fields for HMAC signing/verification |
+| `CryptoHmacUtils.java` | Utility for computing and verifying HMAC digests |
+| `HmacConfiguration.java` | Spring bean that initialises the HMAC context |
+| `HmacConditional.java` | Conditional that activates the HMAC context only when configured |
+| `HmacFormatterConfiguration.java` | Registers HMAC formatters in the Spring MVC context |
+| `CryptoHmacSecret.java` | Data class holding the HMAC secret |
+| `HmacProperties.java` | Configuration properties (`hmac.*`) for secret and algorithm |
+| `DecryptHmacDeserializer.java` | `JsonDeserializer` that automatically verifies fields annotated with `@CryptoHmac` |
+| `EncryptHmacSerializer.java` | `JsonSerializer` that automatically signs fields annotated with `@CryptoHmac` |
+| `CryptoHmacAnnotationFormatterFactory.java` | Annotation-driven formatter factory for HMAC |
+| `CryptoHmacFormatter.java` | Spring formatter for bidirectional conversion of HMAC-signed values |
+
+**Modified classes:**
+
+- `CryptoJksFormatter.java`, `CryptoPkcs12Formatter.java` — minor adjustments
+
+---
+
+### common-rest-connection — Client refactoring and SOAP split
+
+Refactored the REST/SOAP client to separate REST and SOAP concerns into dedicated interfaces and implementations.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `AbstractClientConnection.java` | Abstract base class with shared HTTP execution logic |
+| `SoapClientConnection.java` | Dedicated interface for SOAP 1.1 calls (extracted from `RestClientConnection`) |
+| `SoapClientConnectionImpl.java` | Dedicated implementation for SOAP 1.1 calls |
+
+**Modified / renamed classes:**
+
+- `RestClientConnection.java` — SOAP methods removed; now focused exclusively on REST
+- `RestClientConnectionImpl.java` — shared logic extracted to `AbstractClientConnection`
+- `MapDataHolder.java` → renamed to `BasicMapRequest.java`
+- `MapRequest.java`, `MapSoapHeader.java`, `MapSoapRequest.java`, `RestBasicRequest.java` — minor updates
+
+---
+
+>>>>>>> Stashed changes
 ## [2.1.5] - 2026-04-03
 
 ### common-encryption — PKCS12 support

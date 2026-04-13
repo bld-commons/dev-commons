@@ -1,6 +1,10 @@
 # dev-commons
 
+<<<<<<< Updated upstream
 > **Group:** `com.github.bld-commons` | **Version:** 2.1.5 | **License:** [MIT](http://www.opensource.org/licenses/mit-license.php)
+=======
+> **Group:** `com.github.bld-commons` | **Version:** 2.1.7 | **License:** [MIT](http://www.opensource.org/licenses/mit-license.php)
+>>>>>>> Stashed changes
 
 A collection of Spring Boot 3.x library modules that provide reusable infrastructure for enterprise Java applications: REST/SOAP clients, Jackson DI bridging, encryption, and general-purpose utilities.
 
@@ -52,7 +56,11 @@ The root POM acts as a Bill of Materials. Add it to your project's `dependencyMa
         <dependency>
             <groupId>com.github.bld-commons</groupId>
             <artifactId>dev-commons</artifactId>
+<<<<<<< Updated upstream
             <version>2.1.5</version>
+=======
+            <version>2.1.7</version>
+>>>>>>> Stashed changes
             <type>pom</type>
             <scope>import</scope>
         </dependency>
