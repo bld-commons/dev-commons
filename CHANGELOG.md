@@ -1,5 +1,56 @@
 # Changelog
 
+## [2.1.8] - 2026-04-13
+
+### common-encryption — Swagger/OpenAPI integration
+
+Added optional SpringDoc/OpenAPI support so that fields annotated with any crypto annotation are correctly documented as `string` (Base64-encoded ciphertext or HMAC token) instead of the underlying Java type.
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `CryptoSwaggerAutoConfiguration.java` | Spring Boot auto-configuration that registers `CryptoModelConverter` when `swagger-core-jakarta` is on the classpath |
+| `CryptoModelConverter.java` | SpringDoc `ModelConverter` (lowest precedence) that resolves fields annotated with `@CryptoAes`, `@CryptoHmac`, `@CryptoJks`, `@CryptoPkcs12`, `@CryptoPubKey` to a `StringSchema` |
+
+**New optional dependency:**
+
+`io.swagger.core.v3:swagger-core-jakarta:2.2.28` (optional) — added to `common-encryption/pom.xml`.
+
+---
+
+### common-rest-connection — XmlNodeConverter improvements
+
+Minor additions to `XmlNodeConverter.java`.
+
+---
+
+## [2.1.7] - 2026-04-10
+
+### common-annotations — Fix Spring DI in Jackson handlers (JSON & YAML)
+
+Fixed a bug where `@Autowired` fields inside custom Jackson serializers and deserializers remained `null` at runtime when responses used the default JSON converter or the YAML converter.
+
+**Root cause:** `SpringHandlerInstantiator` was configured only on the secondary `contextMappingJackson2HttpMessageConverter` bean, not on the primary `ObjectMapper` created by Spring Boot's auto-configuration. The default `MappingJackson2HttpMessageConverter` (and any YAML converter) therefore never went through Spring's `AutowireCapableBeanFactory`, leaving all `@Autowired` fields uninitialised.
+
+**Modified classes:**
+
+| Class | Change |
+|---|---|
+| `EnableContextAnnotationConfiguration.java` | Added `handlerInstantiatorCustomizer` (`Jackson2ObjectMapperBuilderCustomizer`) to propagate `SpringHandlerInstantiator` to the primary Spring Boot `ObjectMapper` |
+| `EnableContextAnnotationConfiguration.java` | Added inner `YamlConverterConfiguration` (`@ConditionalOnClass(YAMLFactory.class)`) that registers a YAML-capable `MappingJackson2HttpMessageConverter` with `SpringHandlerInstantiator` for `application/yaml`, `application/x-yaml` and `text/yaml` |
+
+**Removed (redundant) from all serializer/deserializer subclasses:**
+
+`injectObjectMapper(ObjectMapper)` setter methods added as a workaround in `EncryptAesSerializer`, `DecryptAesDeserializer`, `EncryptHmacSerializer`, `DecryptHmacDeserializer`, `EncryptJksSerializer`, `DecryptJksDeserializer`, `EncryptPkcs12Serializer`, `DecryptPkcs12Deserializer`, `EncryptPubKeySerializer`, `DecryptPubKeyDeserializer` — now unnecessary because `SpringHandlerInstantiator` correctly injects inherited `@Autowired` fields from the superclass.
+
+**New optional dependency:**
+
+`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml` (optional) — version managed by `spring-boot-starter-parent`.
+
+---
+
+
 ## [2.1.6] - 2026-04-05
 
 ### common-encryption — HMAC support
