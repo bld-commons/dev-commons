@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -43,8 +44,9 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	/** HTTP methods that carry a request body. */
 	private static final List<HttpMethod> HTTP_METHODS = Arrays.asList(HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH);
 
-	/** The Constant OBJECT_MAPPER. */
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	/** The object mapper. */
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	/**
 	 * {@inheritDoc}
@@ -137,7 +139,7 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 			if (body != null) {
 				result = body.trim().startsWith("<")
 						? (T) XmlNodeConverter.fromXml(body)
-						: (T) OBJECT_MAPPER.readTree(body);
+						: (T) objectMapper.readTree(body);
 			}
 			return ResponseEntity.status(raw.getStatusCode()).body(result);
 		}

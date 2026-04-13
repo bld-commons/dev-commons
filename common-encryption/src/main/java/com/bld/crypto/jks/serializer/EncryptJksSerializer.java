@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.exception.CryptoException;
+import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.bld.crypto.jks.CryptoJksUtils;
 import com.bld.crypto.jks.annotation.CryptoJks;
 import com.bld.crypto.serializer.EncryptCertificateSerializer;
@@ -89,6 +90,8 @@ public class EncryptJksSerializer<T> extends EncryptCertificateSerializer<T> imp
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
 		this.crypto = property.getAnnotation(CryptoJks.class);
+		if (this.crypto == null)
+			this.crypto = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoJks.class);
 		if (property.getType() != null && property.getType().getRawClass() != null)
 			return new EncryptJksSerializer<>(property.getType().getRawClass(), this.crypto,this.cryptoJksUtils,this.objMapper);
 		else

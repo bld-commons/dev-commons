@@ -12,6 +12,7 @@ import com.bld.crypto.aes.CryptoAesUtils;
 import com.bld.crypto.aes.annotation.CryptoAes;
 import com.bld.crypto.bean.CryptoKeyData;
 import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
+import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -95,6 +96,8 @@ public class DecryptAesDeserializer<T> extends DecryptCertificateDeserializer<T>
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
 		CryptoAes cryptoAes = property.getAnnotation(CryptoAes.class);
+		if (cryptoAes == null)
+			cryptoAes = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoAes.class);
 		CryptoKeyData cryptoKeyData = new CryptoKeyData(cryptoAes.value(), cryptoAes.url());
 		JavaType type = ctxt.getContextualType() != null ? ctxt.getContextualType() : property.getMember().getType();
 		if (property.getType() != null && property.getType().getRawClass() != null) {

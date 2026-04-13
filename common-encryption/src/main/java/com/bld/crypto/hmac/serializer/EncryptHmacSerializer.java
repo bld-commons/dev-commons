@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bld.crypto.bean.CryptoKeyData;
 import com.bld.crypto.hmac.CryptoHmacUtils;
 import com.bld.crypto.hmac.annotation.CryptoHmac;
+import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.bld.crypto.serializer.EncryptCertificateSerializer;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -56,6 +57,8 @@ public class EncryptHmacSerializer<T> extends EncryptCertificateSerializer<T> im
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
 		CryptoHmac annotation = property.getAnnotation(CryptoHmac.class);
+		if (annotation == null)
+			annotation = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoHmac.class);
 		CryptoKeyData cryptoKeyData = new CryptoKeyData(annotation.value(), annotation.url());
 		if (property.getType() != null && property.getType().getRawClass() != null)
 			return new EncryptHmacSerializer<>(property.getType().getRawClass(), cryptoKeyData, this.cryptoHmacUtils, this.objMapper);
