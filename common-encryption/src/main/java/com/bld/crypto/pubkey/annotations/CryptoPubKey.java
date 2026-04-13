@@ -10,19 +10,23 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.bld.crypto.pubkey.deserializer.DecryptPubKeyDeserializer;
+import com.bld.crypto.pubkey.serializer.EncryptPubKeySerializer;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 
 /**
  * The Interface CryptoPubKey.
  */
 @Retention(RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({ElementType.FIELD,ElementType.METHOD,ElementType.PARAMETER})
 @JacksonAnnotationsInside
-//@JsonDeserialize(using = DecryptPubKeyDeserializer.class)
-//@JsonSerialize(using = EncryptPubKeySerializer.class)
+@JsonDeserialize(using = DecryptPubKeyDeserializer.class)
+@JsonSerialize(using = EncryptPubKeySerializer.class)
 @JsonInclude(Include.NON_NULL)
 public @interface CryptoPubKey {
 

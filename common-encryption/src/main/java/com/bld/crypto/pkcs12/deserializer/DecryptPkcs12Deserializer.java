@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
 import com.bld.crypto.exception.CryptoException;
-import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.bld.crypto.pkcs12.CryptoPkcs12Utils;
 import com.bld.crypto.pkcs12.annotation.CryptoPkcs12;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -108,8 +107,6 @@ public class DecryptPkcs12Deserializer<T> extends DecryptCertificateDeserializer
 	@Override
 	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
 		this.crypto = property.getAnnotation(CryptoPkcs12.class);
-		if (this.crypto == null)
-			this.crypto = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoPkcs12.class);
 		JavaType type = ctxt.getContextualType() != null ? ctxt.getContextualType() : property.getMember().getType();
 		if (property.getType() != null && property.getType().getRawClass() != null) {
 			if (Collection.class.isAssignableFrom(property.getType().getRawClass()))

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bld.crypto.aes.CryptoAesUtils;
 import com.bld.crypto.aes.annotation.CryptoAes;
 import com.bld.crypto.bean.CryptoKeyData;
-import com.bld.crypto.introspector.CryptoTypeUseAnnotationIntrospector;
 import com.bld.crypto.serializer.EncryptCertificateSerializer;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -78,9 +77,7 @@ public class EncryptAesSerializer<T> extends EncryptCertificateSerializer<T> imp
 	 */
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-		CryptoAes cryptoAes = property.getAnnotation(CryptoAes.class);
-		if (cryptoAes == null)
-			cryptoAes = CryptoTypeUseAnnotationIntrospector.findAnnotationOnTypeParam(property, CryptoAes.class);
+		CryptoAes cryptoAes=property.getAnnotation(CryptoAes.class);
 		CryptoKeyData cryptoKeyData=new CryptoKeyData(cryptoAes.value(), cryptoAes.url());
 		if (property.getType() != null && property.getType().getRawClass() != null)
 			return new EncryptAesSerializer<>(property.getType().getRawClass(), cryptoKeyData,this.cryptoAesUtils,this.objMapper);
