@@ -1,7 +1,6 @@
 # Changelog
 
-<<<<<<< Updated upstream
-=======
+
 ## [2.1.7] - 2026-04-10
 
 ### common-annotations — Fix Spring DI in Jackson handlers (JSON & YAML)
@@ -77,7 +76,6 @@ Refactored the REST/SOAP client to separate REST and SOAP concerns into dedicate
 
 ---
 
->>>>>>> Stashed changes
 ## [2.1.5] - 2026-04-03
 
 ### common-encryption — PKCS12 support
