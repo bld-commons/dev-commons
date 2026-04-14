@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [2.2.0] - 2026-04-14
+
+### Version bump
+
+Version aligned to 2.2.0 across all modules.
+
+---
+
 ## [2.1.7] - 2026-04-10
 
 ### common-annotations — Fix Spring DI in Jackson handlers (JSON & YAML)

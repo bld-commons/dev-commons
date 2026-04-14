@@ -1,7 +1,7 @@
 # common-encryption
 
 > **Module:** `com.github.bld-commons:common-encryption`
-> **Version:** 2.1.7
+> **Version:** 2.2.0
 > **Parent:** `dev-commons`
 
 A Spring Boot encryption framework that provides **transparent field-level encryption and decryption** during JSON serialization and deserialization via Jackson annotations. Supports AES symmetric encryption, RSA with PEM public keys, RSA with JKS keystores, X25519 + AES-256-GCM hybrid encryption via PKCS12, and digital signatures — all configured through `application.properties`.
@@ -49,7 +49,7 @@ Key transitive dependencies:
 <dependency>
     <groupId>com.github.bld-commons</groupId>
     <artifactId>common-encryption</artifactId>
-    <version>2.1.7</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 

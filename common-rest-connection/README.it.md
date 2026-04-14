@@ -43,7 +43,7 @@ Aggiungere la dipendenza al proprio `pom.xml`:
 <dependency>
     <groupId>com.github.bld-commons</groupId>
     <artifactId>common-rest-connection</artifactId>
-    <version>2.1.4</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 

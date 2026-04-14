@@ -1,7 +1,7 @@
 # bld-common-utils
 
 > **Module:** `com.github.bld-commons:bld-common-utils`
-> **Version:** 2.1.4
+> **Version:** 2.2.0
 > **Parent:** `dev-commons`
 
 A general-purpose Spring Boot utility library providing date/time handling, string transformations, custom Jackson annotations, JSR-380 validators, geometry data models (PostGIS, WKT, WKB, KML, GeoJSON), and Spring formatter factories — all activated with a single `@EnableCommonUtils` annotation.
@@ -57,7 +57,7 @@ Key transitive dependencies included automatically:
 <dependency>
     <groupId>com.github.bld-commons</groupId>
     <artifactId>bld-common-utils</artifactId>
-    <version>2.1.4</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
