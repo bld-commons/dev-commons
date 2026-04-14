@@ -196,8 +196,8 @@ openssl genpkey -algorithm X25519 -out private.key
 # 2. Package into PKCS12 (no certificate needed)
 openssl pkcs12 -export -nocerts \
     -inkey private.key \
-    -out mase-x25519.p12 \
-    -name "mase-x25519"
+    -out crypto-x25519.p12 \
+    -name "crypto-x25519"
 ```
 
 The warning `Warning: -chain option ignored with -nocerts` is harmless and can be ignored.
@@ -205,9 +205,9 @@ The warning `Warning: -chain option ignored with -nocerts` is harmless and can b
 ### Configuration
 
 ```properties
-com.bld.crypto.pkcs12.file=classpath:mase-x25519.p12
+com.bld.crypto.pkcs12.file=classpath:crypto-x25519.p12
 com.bld.crypto.pkcs12.password=yourPassword
-com.bld.crypto.pkcs12.alias=mase-x25519
+com.bld.crypto.pkcs12.alias=crypto-x25519
 com.bld.crypto.pkcs12.instance-jks=PKCS12
 ```
 
@@ -548,8 +548,8 @@ openssl genpkey -algorithm X25519 -out private.key
 # 2. Crea il PKCS12 senza certificato
 openssl pkcs12 -export -nocerts \
     -inkey private.key \
-    -out mase-x25519.p12 \
-    -name "mase-x25519"
+    -out crypto-x25519.p12 \
+    -name "crypto-x25519"
 ```
 
 Il warning `Warning: -chain option ignored with -nocerts` è innocuo.
@@ -558,9 +558,9 @@ Il modulo ricava automaticamente la chiave pubblica dalla chiave privata tramite
 #### Configurazione
 
 ```properties
-com.bld.crypto.pkcs12.file=classpath:mase-x25519.p12
+com.bld.crypto.pkcs12.file=classpath:crypto-x25519.p12
 com.bld.crypto.pkcs12.password=tuapassword
-com.bld.crypto.pkcs12.alias=mase-x25519
+com.bld.crypto.pkcs12.alias=crypto-x25519
 com.bld.crypto.pkcs12.instance-jks=PKCS12
 ```
 
