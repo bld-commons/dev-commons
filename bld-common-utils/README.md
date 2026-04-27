@@ -189,22 +189,209 @@ public class AttachmentDto {
 
 ### @GeometryPostgis
 
-Deserializes and serializes geometry fields in various spatial formats.
+Handles automatic Jackson serialization and deserialization of JTS `Geometry` objects to and from four spatial formats: **WKT**, **WKB**, **GeoJSON**, and **KML**.
+
+#### Declaration
 
 ```java
-public class LocationDto {
-    @GeometryPostgis(SpatialType.POSTGIS)
-    private PostgisGeometry location;    // PostGIS WKB hex
-
-    @GeometryPostgis(SpatialType.WKT)
-    private WKTGeometry boundary;        // Well-Known Text
-
-    @GeometryPostgis(SpatialType.GEOJSON)
-    private GeoJsonGeometry area;        // GeoJSON
+@Retention(RUNTIME)
+@Target({ FIELD, METHOD, PARAMETER })
+@JacksonAnnotationsInside
+@JsonDeserialize(using = GeometryDeserializer.class)
+@JsonSerialize(using = GeometrySerializer.class)
+public @interface GeometryPostgis {
+    SpatialType value() default SpatialType.WKT;
 }
 ```
 
-`SpatialType` values: `POSTGIS`, `WKB`, `WKT`, `KML`, `GEOJSON`.
+The annotation is a composed Jackson annotation (`@JacksonAnnotationsInside`). It registers `GeometrySerializer` and `GeometryDeserializer` transparently — no manual `ObjectMapper` configuration is required.
+
+#### Parameter
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `value` | `SpatialType` | `SpatialType.WKT` | The spatial format used for both serialization and deserialization |
+
+#### SpatialType values
+
+| Value | Format | Java type stored in wrapper | Typical use |
+|---|---|---|---|
+| `WKT` | Well-Known Text (OGC) | `String` | Human-readable, default choice |
+| `WKB` | Well-Known Binary (OGC) | `byte[]` | Compact binary encoding |
+| `GeoJSON` | GeoJSON (RFC 7946) | `JsonNode` | REST APIs, web maps |
+| `KML` | Keyhole Markup Language | `String` | Google Earth / mapping tools |
+
+#### Field type
+
+The annotated field must be declared as `org.locationtech.jts.geom.Geometry` or any of its concrete subclasses (`Point`, `Polygon`, `LineString`, …). The library wraps and unwraps the geometry automatically; the application layer always works with the JTS type.
+
+```java
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
+
+public class LocationDto {
+
+    // WKT (default) — "POINT(9.19 45.46)"
+    @GeometryPostgis
+    private Geometry position;
+
+    // Explicit WKT
+    @GeometryPostgis(SpatialType.WKT)
+    private Geometry boundary;
+
+    // Well-Known Binary
+    @GeometryPostgis(SpatialType.WKB)
+    private Geometry area;
+
+    // GeoJSON
+    @GeometryPostgis(SpatialType.GeoJSON)
+    private Geometry region;
+
+    // KML
+    @GeometryPostgis(SpatialType.KML)
+    private Geometry zone;
+}
+```
+
+#### How serialization works
+
+`GeometrySerializer` extends `StdScalarSerializer<Geometry>` and implements `ContextualSerializer`. On each serialized field it:
+
+1. Reads the `@GeometryPostgis` annotation via `createContextual()` to obtain the `SpatialType`.
+2. Converts the JTS `Geometry` to the target format using the corresponding JTS writer:
+
+| SpatialType | JTS writer | Result wrapper |
+|---|---|---|
+| `WKT` | `WKTWriter` | `WKTGeometry` |
+| `WKB` | `WKBWriter` | `WKBGeometry` |
+| `GeoJSON` | `GeoJsonWriter` | `GeoJsonGeometry` |
+| `KML` | `KMLWriter` | `KMLGeometry` |
+
+3. Writes the wrapper object as a JSON object via `JsonGenerator.writeObject()`.
+
+#### How deserialization works
+
+`GeometryDeserializer` extends `JsonDeserializer<Geometry>` and implements `ContextualDeserializer`. On each deserialized field it:
+
+1. Reads the `@GeometryPostgis` annotation via `createContextual()` to obtain the `SpatialType`.
+2. Parses the JSON tree node as the corresponding wrapper class.
+3. Converts the wrapper content to a JTS `Geometry` using the matching JTS reader:
+
+| SpatialType | JTS reader | Input source |
+|---|---|---|
+| `WKT` | `WKTReader` | `WKTGeometry.getGeometry()` (String) |
+| `WKB` | `WKBReader` | `WKBGeometry.getGeometry()` (byte[]) |
+| `GeoJSON` | `GeoJsonReader` | `GeoJsonGeometry.geoJson(ObjectMapper)` (String) |
+| `KML` | `KMLReader` | `KMLGeometry.getGeometry()` (String) |
+
+4. If the wrapper carries a non-null `srid`, calls `geometry.setSRID(srid)` on the resulting JTS object.
+
+#### SRID handling
+
+The SRID (Spatial Reference System Identifier, e.g. `4326` for WGS-84) travels as a field inside the JSON wrapper object. On deserialization it is propagated to the JTS `Geometry`. On serialization it is read from `geometry.getSRID()` and placed in the wrapper.
+
+`WKTGeometry` additionally exposes a read-only JSON property `sridGeometry` that returns the PostGIS extended WKT format:
+
+```
+SRID=4326;POINT(9.19 45.46)
+```
+
+This string can be fed directly to a PostGIS column without further processing.
+
+#### JSON wire format examples
+
+**WKT deserialization input**
+
+```json
+{
+  "geometry": "POINT(9.19 45.46)",
+  "spatialType": "WKT",
+  "srid": 4326
+}
+```
+
+**WKT serialization output** (includes the read-only `sridGeometry` field)
+
+```json
+{
+  "geometry": "POINT (9.19 45.46)",
+  "spatialType": "WKT",
+  "srid": 4326,
+  "sridGeometry": "SRID=4326;POINT (9.19 45.46)"
+}
+```
+
+**GeoJSON deserialization input**
+
+```json
+{
+  "geometry": {
+    "type": "Point",
+    "coordinates": [9.19, 45.46]
+  },
+  "spatialType": "GeoJSON",
+  "srid": 4326
+}
+```
+
+**KML deserialization input**
+
+```json
+{
+  "geometry": "<Point><coordinates>9.19,45.46,0</coordinates></Point>",
+  "spatialType": "KML",
+  "srid": 4326
+}
+```
+
+#### Geometry wrapper class hierarchy
+
+```
+PostgisGeometry<T>          (abstract)
+├── WKTGeometry             extends PostgisGeometry<String>
+│     └── sridGeometry()   → "SRID=4326;POINT(...)"  (read-only JSON)
+├── WKBGeometry             extends PostgisGeometry<byte[]>
+├── GeoJsonGeometry         extends PostgisGeometry<JsonNode>
+│     └── geoJson(ObjectMapper) → JSON String  (@JsonIgnore)
+└── KMLGeometry             extends PostgisGeometry<String>
+```
+
+`PostgisGeometry<T>` fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `geometry` | `T` | The raw spatial data in the chosen format |
+| `spatialType` | `SpatialType` | The format discriminator |
+| `srid` | `Integer` | Spatial Reference System Identifier (nullable) |
+
+#### Integration with JPA / PostGIS columns
+
+When persisting to a PostGIS-enabled PostgreSQL database, map the entity field as `String` and use `WKTGeometry.sridGeometry()` to build the value written to the column:
+
+```java
+@Entity
+public class Place {
+
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private String location;   // stored as "SRID=4326;POINT(...)"
+}
+
+// In the service layer
+WKTGeometry wkt = (WKTGeometry) locationDto.getPosition(); // after deserialization
+place.setLocation(wkt.sridGeometry());
+```
+
+Alternatively, use the Hibernate Spatial dialect with a `Geometry`-typed entity field directly.
+
+#### Choosing a format
+
+| Use case | Recommended `SpatialType` |
+|---|---|
+| Readability / debugging | `WKT` |
+| Compact storage or transfer | `WKB` |
+| REST API or web map (Leaflet, Mapbox) | `GeoJSON` |
+| Google Earth / legacy mapping tool | `KML` |
+| Direct PostGIS column insert | `WKT` (via `sridGeometry()`) |
 
 ### @CleanExcessSpaces
 
@@ -247,13 +434,13 @@ Both annotations work with standard Bean Validation (`@Valid` / `@Validated`). A
 
 ## Geometry data models
 
-| Class | Format | Description |
-|---|---|---|
-| `PostgisGeometry` | PostGIS WKB hex | PostgreSQL/PostGIS native binary format |
-| `WKBGeometry` | Well-Known Binary | OGC standard binary geometry encoding |
-| `WKTGeometry` | Well-Known Text | OGC standard text geometry encoding (e.g. `POINT(9.19 45.46)`) |
-| `KMLGeometry` | KML | Keyhole Markup Language geometry |
-| `GeoJsonGeometry` | GeoJSON | RFC 7946 geometry object |
+| Class | Format | Java generic type | Description |
+|---|---|---|---|
+| `PostgisGeometry<T>` | _(abstract base)_ | — | Base class; holds `geometry`, `spatialType`, and `srid` |
+| `WKTGeometry` | Well-Known Text (OGC) | `String` | Text encoding, e.g. `POINT(9.19 45.46)`; exposes `sridGeometry()` |
+| `WKBGeometry` | Well-Known Binary (OGC) | `byte[]` | Compact binary encoding |
+| `GeoJsonGeometry` | GeoJSON (RFC 7946) | `JsonNode` | JSON geometry object; exposes `geoJson(ObjectMapper)` |
+| `KMLGeometry` | KML | `String` | Keyhole Markup Language geometry |
 
 All geometry classes integrate with JTS (`org.locationtech.jts`) for in-memory operations.
 
@@ -275,7 +462,7 @@ All geometry classes integrate with JTS (`org.locationtech.jts`) for in-memory o
 | Enum | Values | Description |
 |---|---|---|
 | `UpperLowerType` | `UPPER`, `LOWER`, `FIRST_UPPER` | String case transformation type |
-| `SpatialType` | `POSTGIS`, `WKB`, `WKT`, `KML`, `GEOJSON` | Spatial data format |
+| `SpatialType` | `WKT`, `WKB`, `GeoJSON`, `KML` | Spatial data format used by `@GeometryPostgis` |
 | `MimeType` | Common MIME strings | Predefined MIME type constants |
 | `TimeUnitMeasureType` | `MILLISECOND`, `SECOND`, `MINUTE`, `HOUR`, `DAY` | Time unit for date arithmetic |
 
@@ -361,7 +548,7 @@ See the root [`dev-commons`](../README.md) project for license information (MIT)
 Libreria di utilità generali per Spring Boot che fornisce:
 
 - **DateUtils** — oltre 30 metodi statici per conversioni, aritmetica, estrazione di componenti e gestione del fuso orario sulle date.
-- **Annotazioni JSON** — annotazioni a livello di campo che trasformano automaticamente i valori durante la serializzazione/deserializzazione Jackson: `@DateTimeZone` (fuso orario), `@UpperLowerCase` (conversione maiuscolo/minuscolo), `@TextClob` (gestione CLOB), `@Base64File` (codifica binaria), `@GeometryPostgis` (geometrie spaziali), `@CleanExcessSpaces` (normalizzazione spazi bianchi), `@DateChange` (cambio formato data).
+- **Annotazioni JSON** — annotazioni a livello di campo che trasformano automaticamente i valori durante la serializzazione/deserializzazione Jackson: `@DateTimeZone` (fuso orario), `@UpperLowerCase` (conversione maiuscolo/minuscolo), `@TextClob` (gestione CLOB), `@Base64File` (codifica binaria), `@GeometryPostgis` (geometrie spaziali in formato WKT/WKB/GeoJSON/KML), `@CleanExcessSpaces` (normalizzazione spazi bianchi), `@DateChange` (cambio formato data).
 - **Validatori JSR-380** — `@AllowedString` e `@AllowedNumber` per validare che un campo contenga solo i valori consentiti.
 - **Modelli geometrici** — classi dati per PostGIS, WKT, WKB, KML e GeoJSON, integrate con la libreria JTS.
 - **Formatter Spring** — factory registrate automaticamente nel `FormatterRegistry` MVC per applicare le stesse trasformazioni ai parametri di form e di richiesta.
