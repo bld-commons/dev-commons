@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [2.2.1] - 2026-05-04
+
+### common-rest-connection — Resilient message converter initialisation
+
+Made the YAML and XML/SOAP `HttpMessageConverter` registration in `AbstractClientConnection` fault-tolerant.
+
+**Modified class:**
+
+| Class | Change |
+|---|---|
+| `AbstractClientConnection.java` | Wrapped YAML (`application/yaml`, `application/x-yaml`, `text/yaml`) and XML/SOAP (`text/xml`, `application/xml`, `application/soap+xml`) converter setup in individual `try-catch` blocks so that a missing optional dependency (e.g. `jackson-dataformat-yaml`) no longer prevents application startup; a `WARN` log is emitted instead |
+
+---
+
 ## [2.2.0] - 2026-04-14
 
 ### Version bump

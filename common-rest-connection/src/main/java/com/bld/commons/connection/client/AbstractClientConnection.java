@@ -104,18 +104,26 @@ public abstract class AbstractClientConnection {
 	 */
 	private List<HttpMessageConverter<?>> buildMessageConverters() {
 		List<HttpMessageConverter<?>> converters = new ArrayList<>(new RestTemplate().getMessageConverters());
-		MappingJackson2HttpMessageConverter yamlConverter = new MappingJackson2HttpMessageConverter(new YAMLMapper());
-		yamlConverter.setSupportedMediaTypes(List.of(
-				new MediaType("application", "yaml"),
-				new MediaType("application", "x-yaml"),
-				new MediaType("text", "yaml")));
-		converters.add(yamlConverter);
-		StringHttpMessageConverter xmlStringConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
-		xmlStringConverter.setSupportedMediaTypes(List.of(
-				new MediaType("text", "xml"),
-				new MediaType("application", "xml"),
-				new MediaType("application", "soap+xml")));
-		converters.add(xmlStringConverter);
+		try {
+			MappingJackson2HttpMessageConverter yamlConverter = new MappingJackson2HttpMessageConverter(new YAMLMapper());
+			yamlConverter.setSupportedMediaTypes(List.of(
+					new MediaType("application", "yaml"),
+					new MediaType("application", "x-yaml"),
+					new MediaType("text", "yaml")));
+			converters.add(yamlConverter);
+		} catch (Throwable e) {
+			logger.warn("ClientConnection - YAML message converter not configured: the application will start normally but YAML media types (application/yaml, application/x-yaml, text/yaml) will not be supported. Cause: {}", e.getMessage());
+		}
+		try {
+			StringHttpMessageConverter xmlStringConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+			xmlStringConverter.setSupportedMediaTypes(List.of(
+					new MediaType("text", "xml"),
+					new MediaType("application", "xml"),
+					new MediaType("application", "soap+xml")));
+			converters.add(xmlStringConverter);
+		} catch (Throwable e) {
+			logger.warn("ClientConnection - XML/SOAP message converter not configured: the application will start normally but XML media types (text/xml, application/xml, application/soap+xml) will not be supported. Cause: {}", e.getMessage());
+		}
 		return converters;
 	}
 
