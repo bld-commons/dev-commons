@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -55,7 +56,9 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 		HttpEntity<?> request = new HttpEntity<>(mapRequest.getHttpHeaders());
 		String url = mapRequest.getUrl();
 		if (HTTP_METHODS.contains(mapRequest.getMethod())) {
-			Object body = RestConnectionMapper.mapToMultiValueMap(mapRequest.getData());
+			Object body = isFormUrlEncoded(mapRequest)
+					? RestConnectionMapper.mapToMultiValueMap(mapRequest.getData())
+					: mapRequest.getData();
 			request = new HttpEntity<>(body, mapRequest.getHttpHeaders());
 		} else {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(mapRequest.getUrl());
@@ -87,7 +90,9 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 		HttpEntity<?> request = new HttpEntity<>(mapRequest.getHttpHeaders());
 		String url = mapRequest.getUrl();
 		if (HTTP_METHODS.contains(mapRequest.getMethod())) {
-			Object body = RestConnectionMapper.mapToMultiValueMap(mapRequest.getData());
+			Object body = isFormUrlEncoded(mapRequest)
+					? RestConnectionMapper.mapToMultiValueMap(mapRequest.getData())
+					: mapRequest.getData();
 			request = new HttpEntity<>(body, mapRequest.getHttpHeaders());
 		} else {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(mapRequest.getUrl());
@@ -108,6 +113,21 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 		RestBuilder restBuilder = new RestBuilder(objectRequest.getUrl(), request);
 		ResponseEntity<T[]> response = this.getResponseEntity(objectRequest, restBuilder, responseClass);
 		return Arrays.asList(response.getBody());
+	}
+
+	/**
+	 * Returns {@code true} when the request content type is
+	 * {@code application/x-www-form-urlencoded}.
+	 * Multi-value mapping is required only for form bodies; JSON bodies
+	 * must keep the original {@code Map<String,Object>} so values are not
+	 * serialised as single-element arrays.
+	 *
+	 * @param mapRequest the REST request
+	 * @return {@code true} if the content type is form-urlencoded
+	 */
+	private static boolean isFormUrlEncoded(MapRequest mapRequest) {
+		MediaType contentType = mapRequest.getHttpHeaders().getContentType();
+		return contentType != null && MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType);
 	}
 
 	/**

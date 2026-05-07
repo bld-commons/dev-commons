@@ -1,6 +1,22 @@
 # Changelog
 
 
+## [2.2.2] - 2026-05-07
+
+### common-rest-connection — Fix request body serialisation for non-form payloads
+
+Fixed a regression where non-form payloads (e.g. JSON) were being converted to a `MultiValueMap`, causing each scalar value to be serialised as a single-element array.
+
+**Root cause:** `RestClientConnectionImpl` unconditionally wrapped `mapRequest.getData()` with `RestConnectionMapper.mapToMultiValueMap(...)` for every HTTP method in `HTTP_METHODS`, regardless of the declared `Content-Type`. For JSON bodies this produced output like `{"field":["value"]}` instead of `{"field":"value"}`.
+
+**Modified class:**
+
+| Class | Change |
+|---|---|
+| `RestClientConnectionImpl.java` | Added private helper `isFormUrlEncoded(MapRequest)` that inspects the request `Content-Type`. The body is mapped to `MultiValueMap` only when the content type is compatible with `application/x-www-form-urlencoded`; otherwise the original `Map<String,Object>` payload is forwarded unchanged so JSON / other converters serialise it correctly |
+
+---
+
 ## [2.2.1] - 2026-05-04
 
 ### common-rest-connection — Resilient message converter initialisation
