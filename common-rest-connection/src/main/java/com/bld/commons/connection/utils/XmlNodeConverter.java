@@ -34,16 +34,36 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Converts XML to {@link JsonNode}.
  * Accepts either a raw XML string or an already-parsed DOM {@link Element}
  * (used internally by {@link SoapXmlBuilder} to avoid a second parse).
- * Conversion rules:
+ *
+ * <p>Two flavours are exposed:
  * <ul>
- *   <li>The qualified tag name (prefix:localName) becomes the node key.</li>
- *   <li>Attributes are added as direct keys (no nested "attributes" object).</li>
- *   <li>Child elements with the same name are grouped: one → ObjectNode, many → ArrayNode.</li>
- *   <li>Leaf tags with text only produce {@code "value": "text"}.</li>
+ *   <li>{@link #fromXml(String)} / {@link #fromElement(Element)} — <b>legacy</b> shape.
+ *       Attributes share the namespace with child elements (no marker prefix),
+ *       leaves with text only become bare strings inside arrays, single occurrences
+ *       become ObjectNode and multiple become ArrayNode. Kept for SOAP and other
+ *       consumers that rely on the original layout.</li>
+ *   <li>{@link #fromXmlNormalized(String)} / {@link #fromElementNormalized(Element)} —
+ *       <b>normalized</b> shape suitable for path-based mapping (harvesting).
+ *       Attributes are prefixed with {@code @}, text content is always wrapped in
+ *       {@code {"value": "..."}}, repeated children remain ArrayNode but never contain
+ *       bare strings (each element is an Object exposing {@code value} and {@code @attr}).
+ *       Namespace declarations ({@code xmlns:*}) are still discarded.</li>
+ * </ul>
+ *
+ * <p>Common rules to both flavours:
+ * <ul>
+ *   <li>Qualified tag name {@code prefix:localName} is used as key (or just {@code localName} when no prefix).</li>
+ *   <li>Single child tag → ObjectNode; multiple children of the same qualified name → ArrayNode.</li>
  *   <li>Namespace declarations ({@code xmlns:*}) are ignored.</li>
  * </ul>
  */
 public final class XmlNodeConverter {
+
+    /** Prefix used for XML attributes in the normalized JsonNode shape. */
+    private static final String ATTR_PREFIX = "@";
+
+    /** Key used for the textual content of an element in the normalized shape. */
+    private static final String TEXT_KEY = "value";
 
     private static final Logger log = LoggerFactory.getLogger(XmlNodeConverter.class);
 
@@ -235,6 +255,108 @@ public final class XmlNodeConverter {
             }
         }
         return sb.toString().trim();
+    }
+
+    /**
+     * Parses an XML string and converts the root element to a {@link JsonNode} using the
+     * <b>normalized</b> shape (see class-level javadoc).
+     *
+     * <p>This is the variant intended for path-based mapping (harvesting): attribute
+     * keys are prefixed with {@code @}, text content is always wrapped under {@code value},
+     * and arrays of repeated leaves never contain bare strings.
+     *
+     * @param xml the XML string to convert
+     * @return the JsonNode corresponding to the root element
+     * @throws Exception if the XML cannot be parsed
+     */
+    public static JsonNode fromXmlNormalized(String xml) throws Exception {
+        DocumentBuilder builder = FACTORY.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xml)));
+        return fromElementNormalized(doc.getDocumentElement());
+    }
+
+    /**
+     * Converts an already-parsed DOM {@link Element} to a {@link JsonNode} using the
+     * <b>normalized</b> shape.
+     *
+     * @param element the DOM root element to convert
+     * @return the JsonNode corresponding to the element
+     */
+    public static JsonNode fromElementNormalized(Element element) {
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
+        result.set(qualifiedName(element), buildNodeNormalized(element));
+        return result;
+    }
+
+    /**
+     * Recursively builds a Jackson {@link ObjectNode} from a DOM {@link Element} using
+     * the normalized layout:
+     * <ul>
+     *   <li>attributes become string fields prefixed with {@code @} (e.g. {@code "@scheme"});</li>
+     *   <li>text content is always stored under the key {@code value}, including for
+     *       leaf elements that carry only text;</li>
+     *   <li>repeated child elements with the same qualified name become an {@link ArrayNode}
+     *       of {@link ObjectNode}s (never bare strings, even when the original element was
+     *       a plain text leaf);</li>
+     *   <li>single child elements become an {@link ObjectNode}.</li>
+     * </ul>
+     */
+    private static ObjectNode buildNodeNormalized(Element element) {
+        ObjectNode node = JsonNodeFactory.instance.objectNode();
+
+        NamedNodeMap attrMap = element.getAttributes();
+        for (int i = 0; i < attrMap.getLength(); i++) {
+            Node attr = attrMap.item(i);
+            String attrName = attr.getNodeName();
+            if (!attrName.equals("xmlns") && !attrName.startsWith("xmlns:")) {
+                node.put(ATTR_PREFIX + attrName, attr.getNodeValue());
+            }
+        }
+
+        List<Element> childElements = new ArrayList<>();
+        StringBuilder textContent = new StringBuilder();
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                childElements.add((Element) child);
+            } else if (child.getNodeType() == Node.TEXT_NODE || child.getNodeType() == Node.CDATA_SECTION_NODE) {
+                String text = child.getNodeValue().trim();
+                if (!text.isEmpty()) {
+                    textContent.append(text);
+                }
+            }
+        }
+
+        if (!childElements.isEmpty()) {
+            Map<String, List<Element>> grouped = new LinkedHashMap<>();
+            for (Element child : childElements) {
+                grouped.computeIfAbsent(qualifiedName(child), k -> new ArrayList<>()).add(child);
+            }
+            log.debug("buildNodeNormalized <{}>: {} distinct child type(s), {} total children",
+                    qualifiedName(element), grouped.size(), childElements.size());
+            grouped.forEach((childType, elements) -> {
+                if (elements.size() == 1) {
+                    node.set(childType, buildNodeNormalized(elements.get(0)));
+                } else {
+                    log.debug("buildNodeNormalized <{}>: '{}' → ArrayNode[{}]", qualifiedName(element), childType, elements.size());
+                    ArrayNode arr = JsonNodeFactory.instance.arrayNode();
+                    elements.forEach(e -> arr.add(buildNodeNormalized(e)));
+                    node.set(childType, arr);
+                }
+            });
+            String text = textContent.toString().trim();
+            if (!text.isEmpty()) {
+                node.put(TEXT_KEY, text);
+            }
+        } else {
+            String text = textContent.toString().trim();
+            if (!text.isEmpty()) {
+                node.put(TEXT_KEY, text);
+            }
+        }
+
+        return node;
     }
 
 }
