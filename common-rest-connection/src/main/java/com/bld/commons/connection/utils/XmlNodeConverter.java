@@ -103,8 +103,9 @@ public final class XmlNodeConverter {
      * @throws Exception if the XML cannot be parsed
      */
     public static JsonNode fromXml(String xml) throws Exception {
+        String sanitized = xml.replaceFirst("(?s)<!DOCTYPE\\b[^\\[>]*(?:\\[[^\\]]*])?[^>]*>", "");
         DocumentBuilder builder = FACTORY.newDocumentBuilder();
-        Document doc = builder.parse(new InputSource(new StringReader(xml)));
+        Document doc = builder.parse(new InputSource(new StringReader(sanitized)));
         return fromElement(doc.getDocumentElement());
     }
 
