@@ -133,9 +133,7 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	/**
 	 * Executes the actual HTTP exchange via a fresh {@link RestTemplate}.
 	 * If {@code responseClass} is {@link JsonNode} the response is first retrieved as a raw string:
-	 * if the body starts with {@code <} it is converted via {@link XmlNodeConverter#fromXml(String)}
-	 * (or {@link XmlNodeConverter#fromXmlNormalized(String)} when
-	 * {@link com.bld.commons.connection.model.RestBasicRequest#isXmlNormalized()} returns {@code true}),
+	 * if the body starts with {@code <} it is converted via {@link XmlNodeConverter#fromXmlNormalized(String)},
 	 * otherwise it is parsed as JSON.
 	 *
 	 * @param <T>           the response type
@@ -158,9 +156,7 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 			T result = null;
 			if (body != null) {
 				if (body.trim().startsWith("<")) {
-					result = (T) (basicRequest.isXmlNormalized()
-							? XmlNodeConverter.fromXmlNormalized(body)
-							: XmlNodeConverter.fromXml(body));
+					result = (T) XmlNodeConverter.fromXmlNormalized(body);
 				} else {
 					result = (T) OBJECT_MAPPER.readTree(body);
 				}
