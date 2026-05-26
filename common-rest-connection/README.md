@@ -19,9 +19,10 @@ transparent JSON/XML/YAML deserialization, and a fluent request-model hierarchy.
    - [POST with a map body](#post-with-a-map-body)
    - [Returning a list](#returning-a-list)
 6. [SOAP example](#soap-example)
-7. [Proxy configuration](#proxy-configuration)
-8. [Timeout configuration](#timeout-configuration)
-9. [Authentication helpers](#authentication-helpers)
+7. [XML to JsonNode conversion](#xml-to-jsonnode-conversion)
+8. [Proxy configuration](#proxy-configuration)
+9. [Timeout configuration](#timeout-configuration)
+10. [Authentication helpers](#authentication-helpers)
 
 ---
 
@@ -210,6 +211,116 @@ GetDataResponse response = restClient.soapRestTemplate(request, GetDataResponse.
 
 > **SOAP response as `JsonNode`**: pass `JsonNode.class` as `responseClass` to obtain
 > the full SOAP envelope as a tree of Jackson nodes without writing a JAXB class.
+
+---
+
+## XML to JsonNode conversion
+
+When `responseClass` is `JsonNode.class` and the response body is XML (the raw payload
+starts with `<`), the body is converted into a Jackson tree by
+`com.bld.commons.connection.utils.XmlNodeConverter`. The same converter is also used
+internally by `SoapXmlBuilder` to map SOAP envelopes without re-parsing the document.
+
+Two flavours of conversion are exposed:
+
+| Flavour | Method | Activation |
+|---|---|---|
+| **Legacy** | `XmlNodeConverter.fromXml(String)` / `fromElement(Element)` | Default. Used when `RestBasicRequest#isXmlNormalized()` is `false`. SOAP responses always use this flavour. |
+| **Normalized** | `XmlNodeConverter.fromXmlNormalized(String)` / `fromElementNormalized(Element)` | Opt-in. Activated by calling `request.setXmlNormalized(true)` on any `RestBasicRequest` subclass before executing the call. |
+
+```java
+ObjectRequest<Void> request = ObjectRequest.newInstanceGet("https://api.example.com/data.xml");
+request.setXmlNormalized(true);                // opt into the normalized layout
+JsonNode tree = restClient.entityRestTemplate(request, JsonNode.class);
+```
+
+### Rules shared by both flavours
+
+- The qualified tag name (`prefix:localName`, or just `localName` if no prefix) is used as the key.
+- A single child element with a given qualified name becomes an `ObjectNode`.
+- Multiple sibling elements with the same qualified name become an `ArrayNode`.
+- Namespace declarations (`xmlns`, `xmlns:*`) are dropped.
+- DOCTYPE declarations are stripped from the input before parsing (legacy path) and the parser is hardened against XXE (`disallow-doctype-decl`, no external entities, no entity expansion).
+
+### Attribute mapping — how it has evolved
+
+The way XML attributes (and text content) are projected into the Jackson tree has changed
+over time. Both shapes are kept side by side: legacy preserves backward compatibility for
+SOAP consumers and existing callers, normalized is the new shape designed for path-based
+mapping / harvesting (where a stable, predictable layout matters more than terseness).
+
+| Version | Shape | Attributes | Text on a leaf | Repeated text-only leaves |
+|---|---|---|---|---|
+| Initial (commit `soap`, 2026-03-30) | Single shape — now called **legacy** | Added as direct string fields on the element's `ObjectNode`, **no prefix**, sharing the namespace with child element keys. `xmlns:*` skipped. | If the leaf has no attributes and no child elements, the parent stores the bare string under the tag name. Otherwise wrapped as `"value": "text"`. | Collapsed to an `ArrayNode` of bare strings. |
+| `swagger` (2026-04-13) | Same as initial | (unchanged — only SLF4J debug logging was added) | (unchanged) | (unchanged) |
+| `rest` (2026-05-22) | Adds **normalized** flavour alongside legacy | `@` prefix on every attribute name (e.g. `@scheme`, `@xsi:type`). `xmlns:*` still skipped. | Always wrapped under the key `value`, also for plain leaves. | Still `ArrayNode`, but elements are always `ObjectNode`s exposing `value` (and any `@attr`) — never bare strings. |
+
+### Side-by-side example
+
+Source XML:
+
+```xml
+<order id="42" currency="EUR">
+  <customer>Alice</customer>
+  <items>
+    <item sku="A1">Book</item>
+    <item sku="B2">Pen</item>
+  </items>
+  <tag>red</tag>
+  <tag>urgent</tag>
+</order>
+```
+
+Legacy output (`fromXml`):
+
+```json
+{
+  "order": {
+    "id": "42",
+    "currency": "EUR",
+    "customer": "Alice",
+    "items": {
+      "item": [
+        { "sku": "A1", "value": "Book" },
+        { "sku": "B2", "value": "Pen" }
+      ]
+    },
+    "tag": ["red", "urgent"]
+  }
+}
+```
+
+Normalized output (`fromXmlNormalized`):
+
+```json
+{
+  "order": {
+    "@id": "42",
+    "@currency": "EUR",
+    "customer": { "value": "Alice" },
+    "items": {
+      "item": [
+        { "@sku": "A1", "value": "Book" },
+        { "@sku": "B2", "value": "Pen" }
+      ]
+    },
+    "tag": [
+      { "value": "red" },
+      { "value": "urgent" }
+    ]
+  }
+}
+```
+
+Key takeaways:
+
+- In **legacy**, attribute names and child tag names live in the same namespace. A child
+  element called `id` would collide with an `id="..."` attribute on the same parent. In
+  **normalized**, the `@` prefix removes that ambiguity.
+- In **legacy**, a path like `order.tag[0]` may resolve to either a string or an object
+  depending on whether siblings carry attributes; in **normalized**, the same path
+  always resolves to an `ObjectNode`, which is what makes the shape safe for generic
+  path-based mapping.
 
 ---
 
