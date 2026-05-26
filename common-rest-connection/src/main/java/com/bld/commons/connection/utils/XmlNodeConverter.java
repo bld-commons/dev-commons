@@ -77,6 +77,12 @@ public final class XmlNodeConverter {
     /** Generic prefix marking metadata fields that must not be serialized to XML. */
     private static final String META_PREFIX = "#";
 
+    /** Indentation unit used when {@link #toXml(JsonNode, boolean)} is invoked with {@code pretty=true}. */
+    private static final String INDENT_UNIT = "  ";
+
+    /** Line separator used between indented elements. */
+    private static final String NEWLINE = "\n";
+
     private static final Logger log = LoggerFactory.getLogger(XmlNodeConverter.class);
 
     /** The factory. */
@@ -246,29 +252,53 @@ public final class XmlNodeConverter {
      * @return the XML string
      */
     public static String toXml(JsonNode node) {
+        return toXml(node, false);
+    }
+
+    /**
+     * Same as {@link #toXml(JsonNode)} but with optional pretty-printing.
+     *
+     * <p>When {@code pretty} is {@code true} child elements are placed on their own
+     * line and indented by two spaces per nesting level. Elements that contain only
+     * text (no child elements) keep the text inline with the tags, so significant
+     * textual content is never altered.
+     *
+     * @param node    the JsonNode to serialize
+     * @param pretty  whether to indent the output
+     * @return the XML string
+     */
+    public static String toXml(JsonNode node, boolean pretty) {
         if (node == null || !node.isObject() || node.size() != 1) {
             throw new IllegalArgumentException("Root JsonNode must be an ObjectNode with exactly one property (the root element name).");
         }
         Map.Entry<String, JsonNode> root = node.fields().next();
         StringBuilder sb = new StringBuilder();
-        writeElement(sb, root.getKey(), root.getValue());
+        writeElement(sb, root.getKey(), root.getValue(), pretty, 0);
         return sb.toString();
     }
 
     /**
      * Writes a single XML element (or a sequence of repeated elements, when value is
-     * an ArrayNode) to the builder.
+     * an ArrayNode) to the builder. When {@code pretty} is true, the element is
+     * preceded by a newline and {@code depth} indentation units, unless it is the
+     * very first element written (root).
      *
      * @param sb     the output buffer
      * @param name   the qualified element name
      * @param value  the JsonNode carrying attributes, value and children
+     * @param pretty whether to indent the output
+     * @param depth  the current nesting level (root is 0)
      */
-    private static void writeElement(StringBuilder sb, String name, JsonNode value) {
+    private static void writeElement(StringBuilder sb, String name, JsonNode value, boolean pretty, int depth) {
         if (value.isArray()) {
             for (JsonNode item : value) {
-                writeElement(sb, name, item);
+                writeElement(sb, name, item, pretty, depth);
             }
             return;
+        }
+        if (pretty && sb.length() > 0) {
+            sb.append(NEWLINE);
+            for (int i = 0; i < depth; i++) sb.append(INDENT_UNIT);
         }
         if (!value.isObject()) {
             sb.append('<').append(name).append('>').append(escapeXml(value.asText())).append("</").append(name).append('>');
@@ -315,14 +345,132 @@ public final class XmlNodeConverter {
             }
         }
         ordered.sort((x, y) -> Integer.compare(x.index, y.index));
+        boolean hasChildElements = !ordered.isEmpty();
         for (OrderedChild oc : ordered) {
-            writeElement(sb, oc.name, oc.value);
+            writeElement(sb, oc.name, oc.value, pretty, depth + 1);
         }
 
         if (text != null && !text.isEmpty()) {
             sb.append(escapeXml(text));
         }
+        if (pretty && hasChildElements) {
+            sb.append(NEWLINE);
+            for (int i = 0; i < depth; i++) sb.append(INDENT_UNIT);
+        }
         sb.append("</").append(name).append('>');
+    }
+
+    /**
+     * Builds a fresh {@link Document} from a {@link JsonNode} written in the
+     * conventions consumed by {@link #toXml(JsonNode)}: {@code @} for attributes,
+     * {@code value} for text, {@code #index} to drive sibling ordering, {@code #}*
+     * for metadata (skipped).
+     *
+     * <p>Use this overload instead of {@link #toXml(JsonNode)} when the consumer
+     * needs a DOM tree directly &mdash; e.g. XSD validation via
+     * {@code Validator.validate(new DOMSource(doc))}, XPath evaluation, JAXB
+     * unmarshalling, or further DOM mutation &mdash; to avoid re-parsing the
+     * generated string.
+     *
+     * <p>Namespace declarations are not reconstructed (the converter drops
+     * {@code xmlns:*} on the forward path); qualified names are preserved as the
+     * element tag name, so namespace-aware downstream processing must rely on
+     * external {@code xmlns} configuration.
+     *
+     * @param node the JsonNode to materialise as a DOM tree
+     * @return a fresh {@link Document} whose root element corresponds to the
+     *         single property of {@code node}
+     * @throws ParserConfigurationException if no DOM implementation is available
+     */
+    public static Document toDocument(JsonNode node) throws ParserConfigurationException {
+        if (node == null || !node.isObject() || node.size() != 1) {
+            throw new IllegalArgumentException("Root JsonNode must be an ObjectNode with exactly one property (the root element name).");
+        }
+        Document doc = FACTORY.newDocumentBuilder().newDocument();
+        Map.Entry<String, JsonNode> root = node.fields().next();
+        Element rootElement = buildElement(doc, root.getKey(), root.getValue());
+        doc.appendChild(rootElement);
+        return doc;
+    }
+
+    /**
+     * Builds a detached {@link Element} from a {@link JsonNode} using {@code owner}
+     * as the owning document &mdash; the returned element is not yet appended
+     * anywhere, so the caller is free to attach it where needed.
+     *
+     * <p>This is the building-block used by {@link #toDocument(JsonNode)} and is
+     * also exposed for callers that need to splice the converted fragment into an
+     * existing DOM (for example, to replace a SOAP body child).
+     *
+     * @param owner the document that will own the new element
+     * @param node  the JsonNode to convert (must wrap a single named element)
+     * @return the new detached {@link Element}
+     */
+    public static Element toElement(Document owner, JsonNode node) {
+        if (node == null || !node.isObject() || node.size() != 1) {
+            throw new IllegalArgumentException("Root JsonNode must be an ObjectNode with exactly one property (the root element name).");
+        }
+        Map.Entry<String, JsonNode> root = node.fields().next();
+        return buildElement(owner, root.getKey(), root.getValue());
+    }
+
+    /**
+     * Recursively constructs a DOM {@link Element} mirroring {@code value}.
+     * Attributes, child elements (ordered by {@code #index}) and textual content
+     * are emitted with the same rules used by {@link #writeElement}.
+     *
+     * @param doc   the owning document used to create nodes
+     * @param name  the qualified element name
+     * @param value the JsonNode carrying attributes, value and children
+     * @return the populated {@link Element}
+     */
+    private static Element buildElement(Document doc, String name, JsonNode value) {
+        Element element = doc.createElement(name);
+        if (!value.isObject()) {
+            element.setTextContent(value.asText());
+            return element;
+        }
+        ObjectNode obj = (ObjectNode) value;
+
+        obj.fields().forEachRemaining(f -> {
+            if (f.getKey().startsWith(ATTR_PREFIX)) {
+                element.setAttribute(f.getKey().substring(1), f.getValue().asText());
+            }
+        });
+
+        List<Map.Entry<String, JsonNode>> childEntries = new ArrayList<>();
+        obj.fields().forEachRemaining(f -> {
+            String k = f.getKey();
+            if (k.startsWith(ATTR_PREFIX) || k.startsWith(META_PREFIX)) return;
+            if (TEXT_KEY.equals(k) && f.getValue().isValueNode()) return;
+            childEntries.add(f);
+        });
+
+        List<OrderedChild> ordered = new ArrayList<>();
+        int fallbackIdx = Integer.MAX_VALUE / 2;
+        for (Map.Entry<String, JsonNode> e : childEntries) {
+            JsonNode v = e.getValue();
+            if (v.isArray()) {
+                for (JsonNode item : v) {
+                    ordered.add(new OrderedChild(e.getKey(), item, indexOf(item, fallbackIdx++)));
+                }
+            } else {
+                ordered.add(new OrderedChild(e.getKey(), v, indexOf(v, fallbackIdx++)));
+            }
+        }
+        ordered.sort((x, y) -> Integer.compare(x.index, y.index));
+        for (OrderedChild oc : ordered) {
+            element.appendChild(buildElement(doc, oc.name, oc.value));
+        }
+
+        JsonNode textNode = obj.get(TEXT_KEY);
+        if (textNode != null && textNode.isValueNode()) {
+            String text = textNode.asText();
+            if (!text.isEmpty()) {
+                element.appendChild(doc.createTextNode(text));
+            }
+        }
+        return element;
     }
 
     /**
