@@ -220,7 +220,7 @@ public final class SoapXmlBuilder {
         }
         Element bodyFirstElement = (Element) firstChild;
         if (responseClass == JsonNode.class) {
-            return (T) XmlNodeConverter.fromXml(soapXml);
+            return (T) XmlNodeConverter.fromXmlNormalized(soapXml);
         }
         JAXBContext context = JAXBContext.newInstance(responseClass);
         Unmarshaller unmarshaller = context.createUnmarshaller();

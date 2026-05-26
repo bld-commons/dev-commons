@@ -27,16 +27,6 @@ public abstract class RestBasicRequest<T> extends BasicRequest<T> {
 	private List<Object> uriParams;
 
 	/**
-	 * When {@code true} and the response body is XML and the response type is
-	 * {@link com.fasterxml.jackson.databind.JsonNode}, the body is converted using
-	 * {@link com.bld.commons.connection.utils.XmlNodeConverter#fromXmlNormalized(String)}
-	 * (attributes prefixed with {@code @}, text content always wrapped in {@code value},
-	 * repeated leaves promoted to objects). Defaults to {@code false} to preserve the
-	 * legacy shape for existing callers.
-	 */
-	private boolean xmlNormalized;
-
-	/**
 	 * Instantiates a new rest basic request.
 	 *
 	 * @param url    the url
@@ -113,22 +103,6 @@ public abstract class RestBasicRequest<T> extends BasicRequest<T> {
 	public void setAccept(String... mediaTypes) {
 		if (ArrayUtils.isNotEmpty(mediaTypes))
 			this.getHttpHeaders().setAccept(MediaType.parseMediaTypes(Arrays.asList(mediaTypes)));
-	}
-
-	/**
-	 * @return whether XML responses must be converted with the normalized shape
-	 */
-	public boolean isXmlNormalized() {
-		return xmlNormalized;
-	}
-
-	/**
-	 * Enables (or disables) the normalized XML→JsonNode conversion for this request.
-	 * Has no effect when the response type is not {@link com.fasterxml.jackson.databind.JsonNode}
-	 * or when the response body is not XML.
-	 */
-	public void setXmlNormalized(boolean xmlNormalized) {
-		this.xmlNormalized = xmlNormalized;
 	}
 
 }
