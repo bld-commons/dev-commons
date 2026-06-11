@@ -7,6 +7,8 @@ package com.bld.commons.connection.client;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+
 import com.bld.commons.connection.model.SoapRequest;
 
 /**
@@ -32,6 +34,20 @@ public interface SoapClientConnection {
 	public <T> T entitySoapTemplate(SoapRequest<?, ?> soapRequest, Class<T> responseClass) throws Exception;
 
 	/**
+	 * Executes a SOAP 1.1 call via POST with Content-Type {@code text/xml} and returns the full
+	 * {@link ResponseEntity}. The body is unmarshalled into type {@code T} as in
+	 * {@link #entitySoapTemplate(SoapRequest, Class)}, while status code and headers of the
+	 * underlying HTTP response are preserved.
+	 *
+	 * @param <T>           the response type
+	 * @param soapRequest   the SOAP request with url, operationName, namespace and body
+	 * @param responseClass the target class for unmarshalling the response
+	 * @return the response entity including status code and headers
+	 * @throws Exception if a network, marshalling or unmarshalling error occurs
+	 */
+	public <T> ResponseEntity<T> responseEntity(SoapRequest<?, ?> soapRequest, Class<T> responseClass) throws Exception;
+
+	/**
 	 * Executes a SOAP 1.1 call via POST with Content-Type {@code text/xml} and returns a list of entities.
 	 * The response body is unmarshalled as an array of type {@code T} and converted to a {@link List}.
 	 *
@@ -42,5 +58,19 @@ public interface SoapClientConnection {
 	 * @throws Exception if a network, marshalling or unmarshalling error occurs
 	 */
 	public <T> List<T> listSoapTemplate(SoapRequest<?, ?> soapRequest, Class<T[]> responseClass) throws Exception;
+
+	/**
+	 * Executes a SOAP 1.1 call via POST with Content-Type {@code text/xml} and returns the full
+	 * {@link ResponseEntity} wrapping a list of entities. The body is unmarshalled as an array of
+	 * type {@code T} and converted to a {@link List}, while status code and headers of the
+	 * underlying HTTP response are preserved.
+	 *
+	 * @param <T>           the element type
+	 * @param soapRequest   the SOAP request with url, operationName, namespace and body
+	 * @param responseClass the array response class (e.g. {@code MyType[].class})
+	 * @return the response entity including status code and headers wrapping the list
+	 * @throws Exception if a network, marshalling or unmarshalling error occurs
+	 */
+	public <T> ResponseEntity<List<T>> responseListEntity(SoapRequest<?, ?> soapRequest, Class<T[]> responseClass) throws Exception;
 
 }

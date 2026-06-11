@@ -1,6 +1,34 @@
 # Changelog
 
 
+## [2.2.6] - 2026-06-11
+
+### common-rest-connection — `ResponseEntity` accessors and Content-Type sniffing
+
+Added new methods that return the full `org.springframework.http.ResponseEntity` (status code + headers + body) for both REST and SOAP calls, alongside the existing body-only methods. The existing methods now delegate to the new ones, so behaviour is unchanged for current callers.
+
+**New interface methods:**
+
+| Interface | Method | Returns |
+|---|---|---|
+| `RestClientConnection` | `responseEntity(MapRequest, Class<T>)` | `ResponseEntity<T>` |
+| `RestClientConnection` | `entityResponseRestTemplate(ObjectRequest<?>, Class<T>)` | `ResponseEntity<T>` |
+| `RestClientConnection` | `responseListEntity(MapRequest, Class<T[]>)` | `ResponseEntity<List<T>>` |
+| `RestClientConnection` | `listResponseRestTemplate(ObjectRequest<?>, Class<T[]>)` | `ResponseEntity<List<T>>` |
+| `SoapClientConnection` | `responseEntity(SoapRequest<?,?>, Class<T>)` | `ResponseEntity<T>` |
+| `SoapClientConnection` | `responseListEntity(SoapRequest<?,?>, Class<T[]>)` | `ResponseEntity<List<T>>` |
+
+**Modified classes:**
+
+| Class | Change |
+|---|---|
+| `RestClientConnection.java`, `SoapClientConnection.java` | Declared the new `ResponseEntity`-returning methods |
+| `RestClientConnectionImpl.java`, `SoapClientConnectionImpl.java` | Implemented the new methods; the body-only methods now delegate to them. List variants rebuild the `ResponseEntity` preserving the original status code and headers |
+| `RestClientConnectionImpl.java` | Added `Content-Type` sniffing: when `JsonNode` responses are parsed, the body format (XML vs JSON) is detected and a coherent `Content-Type` is set via the new `resolveContentType(HttpHeaders, boolean)` helper. Replaces a missing or incoherent server `Content-Type` with `application/xml` / `application/json`; preserves the original (including charset) when it already matches. Matching uses `JSON_CONTENT_TYPE` / `XML_CONTENT_TYPE` patterns that accept vendor suffixes (e.g. `application/hal+json`, `application/soap+xml`) |
+| `AbstractClientConnection.java` | Added protected helper `arrayClass(Class<T>)` that builds the `Class<T[]>` array type for a given element class via reflection |
+
+---
+
 ## [2.2.2] - 2026-05-07
 
 ### common-rest-connection — Fix request body serialisation for non-form payloads

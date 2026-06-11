@@ -37,6 +37,14 @@ public class SoapClientConnectionImpl extends AbstractClientConnection implement
 	 */
 	@Override
 	public <T> T entitySoapTemplate(SoapRequest<?, ?> soapRequest, Class<T> responseClass) throws Exception {
+		return this.responseEntity(soapRequest, responseClass).getBody();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> ResponseEntity<T> responseEntity(SoapRequest<?, ?> soapRequest, Class<T> responseClass) throws Exception {
 		String envelope = buildAndLogRequest(soapRequest);
 		HttpEntity<String> request = new HttpEntity<>(envelope, soapRequest.getHttpHeaders());
 		ResponseEntity<String> response = this.buildRestTemplate(soapRequest.getTimeout()).exchange(
@@ -47,7 +55,8 @@ public class SoapClientConnectionImpl extends AbstractClientConnection implement
 		logger.info("[SOAP] POST {} -> {}", soapRequest.getUrl(), response.getStatusCode());
 		logger.debug("[SOAP] Response headers: {}", response.getHeaders());
 		logger.debug("[SOAP] Response body:\n{}", response.getBody());
-		return SoapXmlBuilder.unmarshalBody(response.getBody(), responseClass);
+		T body = SoapXmlBuilder.unmarshalBody(response.getBody(), responseClass);
+		return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(body);
 	}
 
 	/**
@@ -55,6 +64,14 @@ public class SoapClientConnectionImpl extends AbstractClientConnection implement
 	 */
 	@Override
 	public <T> List<T> listSoapTemplate(SoapRequest<?, ?> soapRequest, Class<T[]> responseClass) throws Exception {
+		return this.responseListEntity(soapRequest, responseClass).getBody();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> ResponseEntity<List<T>> responseListEntity(SoapRequest<?, ?> soapRequest, Class<T[]> responseClass) throws Exception {
 		String envelope = buildAndLogRequest(soapRequest);
 		HttpEntity<String> request = new HttpEntity<>(envelope, soapRequest.getHttpHeaders());
 		ResponseEntity<String> response = this.buildRestTemplate(soapRequest.getTimeout()).exchange(
@@ -66,7 +83,7 @@ public class SoapClientConnectionImpl extends AbstractClientConnection implement
 		logger.debug("[SOAP] Response headers: {}", response.getHeaders());
 		logger.debug("[SOAP] Response body:\n{}", response.getBody());
 		T[] result = SoapXmlBuilder.unmarshalBody(response.getBody(), responseClass);
-		return Arrays.asList(result);
+		return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(Arrays.asList(result));
 	}
 
 	/**

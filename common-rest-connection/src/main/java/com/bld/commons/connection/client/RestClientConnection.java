@@ -7,6 +7,8 @@ package com.bld.commons.connection.client;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+
 import com.bld.commons.connection.model.MapRequest;
 import com.bld.commons.connection.model.ObjectRequest;
 
@@ -27,6 +29,17 @@ public interface RestClientConnection {
 	public <T> T entityRestTemplate(MapRequest mapRequest, Class<T> responseClass) throws Exception;
 
 	/**
+	 * Executes a REST call using a {@link MapRequest} and returns the full {@link ResponseEntity}.
+	 *
+	 * @param <T>           the response type
+	 * @param mapRequest    the map request
+	 * @param responseClass the response class
+	 * @return the response entity including status code and headers
+	 * @throws Exception if the call fails
+	 */
+	public <T> ResponseEntity<T> responseEntity(MapRequest mapRequest, Class<T> responseClass) throws Exception;
+
+	/**
 	 * Executes a REST call using an {@link ObjectRequest} and returns a single entity.
 	 *
 	 * @param <T>            the response type
@@ -36,6 +49,17 @@ public interface RestClientConnection {
 	 * @throws Exception if the call fails
 	 */
 	public <T> T entityRestTemplate(ObjectRequest<?> objectRequest, Class<T> responseClass) throws Exception;
+
+	/**
+	 * Executes a REST call using an {@link ObjectRequest} and returns the full {@link ResponseEntity}.
+	 *
+	 * @param <T>            the response type
+	 * @param objectRequest  the object request
+	 * @param responseClass  the response class
+	 * @return the response entity including status code and headers
+	 * @throws Exception if the call fails
+	 */
+	public <T> ResponseEntity<T> entityResponseRestTemplate(ObjectRequest<?> objectRequest, Class<T> responseClass) throws Exception;
 
 	/**
 	 * Executes a REST call using a {@link MapRequest} and returns a list of entities.
@@ -49,6 +73,18 @@ public interface RestClientConnection {
 	public <T> List<T> listRestTemplate(MapRequest mapRequest, Class<T[]> responseClass) throws Exception;
 
 	/**
+	 * Executes a REST call using a {@link MapRequest} and returns the full {@link ResponseEntity}
+	 * wrapping a list of entities.
+	 *
+	 * @param <T>           the element type
+	 * @param mapRequest    the map request
+	 * @param responseClass the array response class (e.g. {@code MyType[].class})
+	 * @return the response entity including status code and headers wrapping the list
+	 * @throws Exception if the call fails
+	 */
+	public <T> ResponseEntity<List<T>> responseListEntity(MapRequest mapRequest, Class<T[]> responseClass) throws Exception;
+
+	/**
 	 * Executes a REST call using an {@link ObjectRequest} and returns a list of entities.
 	 *
 	 * @param <T>            the element type
@@ -58,5 +94,17 @@ public interface RestClientConnection {
 	 * @throws Exception if the call fails
 	 */
 	public <T> List<T> listRestTemplate(ObjectRequest<?> objectRequest, Class<T[]> responseClass) throws Exception;
+
+	/**
+	 * Executes a REST call using an {@link ObjectRequest} and returns the full {@link ResponseEntity}
+	 * wrapping a list of entities.
+	 *
+	 * @param <T>            the element type
+	 * @param objectRequest  the object request
+	 * @param responseClass  the array response class (e.g. {@code MyType[].class})
+	 * @return the response entity including status code and headers wrapping the list
+	 * @throws Exception if the call fails
+	 */
+	public <T> ResponseEntity<List<T>> listResponseRestTemplate(ObjectRequest<?> objectRequest, Class<T[]> responseClass) throws Exception;
 
 }

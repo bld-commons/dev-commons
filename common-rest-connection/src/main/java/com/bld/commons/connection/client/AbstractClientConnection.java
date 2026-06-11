@@ -5,6 +5,7 @@
  */
 package com.bld.commons.connection.client;
 
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
@@ -125,6 +126,12 @@ public abstract class AbstractClientConnection {
 			logger.warn("ClientConnection - XML/SOAP message converter not configured: the application will start normally but XML media types (text/xml, application/xml, application/soap+xml) will not be supported. Cause: {}", e.getMessage());
 		}
 		return converters;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected <T> Class<T[]> arrayClass(Class<T> responseClass) {
+		Class<T[]> arrayClass = (Class<T[]>)Array.newInstance(responseClass, 0).getClass();
+		return arrayClass;
 	}
 
 }

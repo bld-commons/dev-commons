@@ -7,11 +7,13 @@ package com.bld.commons.connection.client.impl;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,11 +49,25 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	/** The Constant OBJECT_MAPPER. */
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+	/** Matches a JSON content type, including vendor suffixes (e.g. {@code application/hal+json}). */
+	private static final Pattern JSON_CONTENT_TYPE = Pattern.compile(".*/(.*\\+)?json", Pattern.CASE_INSENSITIVE);
+
+	/** Matches an XML content type, including vendor suffixes (e.g. {@code application/soap+xml}). */
+	private static final Pattern XML_CONTENT_TYPE = Pattern.compile(".*/(.*\\+)?xml", Pattern.CASE_INSENSITIVE);
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public <T> T entityRestTemplate(MapRequest mapRequest, Class<T> responseClass) throws Exception {
+		return this.responseEntity(mapRequest, responseClass).getBody();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> ResponseEntity<T> responseEntity(MapRequest mapRequest, Class<T> responseClass) throws Exception {
 		MapUtils.unmodifiableMap(mapRequest.getHttpHeaders());
 		HttpEntity<?> request = new HttpEntity<>(mapRequest.getHttpHeaders());
 		String url = mapRequest.getUrl();
@@ -66,8 +82,7 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 			url = builder.toUriString();
 		}
 		RestBuilder restBuilder = new RestBuilder(url, request);
-		ResponseEntity<T> response = this.getResponseEntity(mapRequest, restBuilder, responseClass);
-		return response.getBody();
+		return this.getResponseEntity(mapRequest, restBuilder, responseClass);
 	}
 
 	/**
@@ -75,10 +90,17 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	 */
 	@Override
 	public <T> T entityRestTemplate(ObjectRequest<?> objectRequest, Class<T> responseClass) throws Exception {
+		return this.entityResponseRestTemplate(objectRequest, responseClass).getBody();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> ResponseEntity<T> entityResponseRestTemplate(ObjectRequest<?> objectRequest, Class<T> responseClass) throws Exception {
 		HttpEntity<?> request = new HttpEntity<>(objectRequest.getData(), objectRequest.getHttpHeaders());
 		RestBuilder restBuilder = new RestBuilder(objectRequest.getUrl(), request);
-		ResponseEntity<T> response = this.getResponseEntity(objectRequest, restBuilder, responseClass);
-		return response.getBody();
+		return this.getResponseEntity(objectRequest, restBuilder, responseClass);
 	}
 
 	/**
@@ -86,6 +108,14 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	 */
 	@Override
 	public <T> List<T> listRestTemplate(MapRequest mapRequest, Class<T[]> responseClass) throws Exception {
+		return this.responseListEntity(mapRequest, responseClass).getBody();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> ResponseEntity<List<T>> responseListEntity(MapRequest mapRequest, Class<T[]> responseClass) throws Exception {
 		MapUtils.unmodifiableMap(mapRequest.getHttpHeaders());
 		HttpEntity<?> request = new HttpEntity<>(mapRequest.getHttpHeaders());
 		String url = mapRequest.getUrl();
@@ -101,7 +131,7 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 		}
 		RestBuilder restBuilder = new RestBuilder(url, request);
 		ResponseEntity<T[]> response = this.getResponseEntity(mapRequest, restBuilder, responseClass);
-		return Arrays.asList(response.getBody());
+		return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(Arrays.asList(response.getBody()));
 	}
 
 	/**
@@ -109,10 +139,18 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	 */
 	@Override
 	public <T> List<T> listRestTemplate(ObjectRequest<?> objectRequest, Class<T[]> responseClass) throws Exception {
+		return this.listResponseRestTemplate(objectRequest, responseClass).getBody();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> ResponseEntity<List<T>> listResponseRestTemplate(ObjectRequest<?> objectRequest, Class<T[]> responseClass) throws Exception {
 		HttpEntity<?> request = new HttpEntity<>(objectRequest.getData(), objectRequest.getHttpHeaders());
 		RestBuilder restBuilder = new RestBuilder(objectRequest.getUrl(), request);
 		ResponseEntity<T[]> response = this.getResponseEntity(objectRequest, restBuilder, responseClass);
-		return Arrays.asList(response.getBody());
+		return ResponseEntity.status(response.getStatusCode()).headers(response.getHeaders()).body(Arrays.asList(response.getBody()));
 	}
 
 	/**
@@ -154,19 +192,44 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 			logger.debug("[REST] Response headers: {}", raw.getHeaders());
 			String body = raw.getBody();
 			T result = null;
+			boolean xml = body != null && body.trim().startsWith("<");
 			if (body != null) {
-				if (body.trim().startsWith("<")) {
+				if (xml) {
 					result = (T) XmlNodeConverter.fromXmlNormalized(body);
 				} else {
 					result = (T) OBJECT_MAPPER.readTree(body);
 				}
 			}
-			return ResponseEntity.status(raw.getStatusCode()).body(result);
+			HttpHeaders headers = resolveContentType(raw.getHeaders(), xml);
+			return ResponseEntity.status(raw.getStatusCode()).headers(headers).body(result);
 		}
 		ResponseEntity<T> response = rt.exchange(restBuilder.getUrl(), basicRequest.getMethod(), restBuilder.getRequest(), responseClass, basicRequest.getUriParams());
 		logger.info("[REST] {} {} -> {}", basicRequest.getMethod(), restBuilder.getUrl(), response.getStatusCode());
 		logger.debug("[REST] Response headers: {}", response.getHeaders());
 		return response;
+	}
+
+	/**
+	 * Returns a copy of {@code source} whose {@code Content-Type} is guaranteed to match the
+	 * actual body format detected by sniffing. When the original {@code Content-Type} is missing
+	 * or does not match the detected format (server bug), it is replaced with the standard media
+	 * type ({@link MediaType#APPLICATION_XML} or {@link MediaType#APPLICATION_JSON}); otherwise the
+	 * original value (including any charset) is preserved.
+	 *
+	 * @param source the original response headers
+	 * @param xml    {@code true} when the body was detected as XML, {@code false} for JSON
+	 * @return a new {@link HttpHeaders} with a coherent {@code Content-Type}
+	 */
+	private HttpHeaders resolveContentType(HttpHeaders source, boolean xml) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.putAll(source);
+		MediaType actual = source.getContentType();
+		Pattern expected = xml ? XML_CONTENT_TYPE : JSON_CONTENT_TYPE;
+		boolean coherent = actual != null && expected.matcher(actual.toString()).matches();
+		if (!coherent) {
+			headers.setContentType(xml ? MediaType.APPLICATION_XML : MediaType.APPLICATION_JSON);
+		}
+		return headers;
 	}
 
 	/**

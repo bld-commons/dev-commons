@@ -44,7 +44,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.bld-commons</groupId>
     <artifactId>common-rest-connection</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.6</version>
 </dependency>
 ```
 
@@ -152,6 +152,37 @@ request.addData("category", "books");
 List<ProductDto> products = restClient.listRestTemplate(request, ProductDto[].class);
 ```
 
+### Accessing status code and headers (`ResponseEntity`)
+
+Every body-returning method has a `ResponseEntity` counterpart that exposes the HTTP
+status code and response headers in addition to the body. The body-only methods simply
+delegate to these.
+
+| Body-only method | `ResponseEntity` counterpart |
+|---|---|
+| `entityRestTemplate(MapRequest, Class<T>)` | `responseEntity(MapRequest, Class<T>)` |
+| `entityRestTemplate(ObjectRequest, Class<T>)` | `entityResponseRestTemplate(ObjectRequest, Class<T>)` |
+| `listRestTemplate(MapRequest, Class<T[]>)` | `responseListEntity(MapRequest, Class<T[]>)` |
+| `listRestTemplate(ObjectRequest, Class<T[]>)` | `listResponseRestTemplate(ObjectRequest, Class<T[]>)` |
+
+```java
+MapRequest request = MapRequest.newInstanceGet("https://api.example.com/users/{id}");
+request.addUriParams(42);
+
+ResponseEntity<UserDto> response = restClient.responseEntity(request, UserDto.class);
+
+HttpStatusCode status = response.getStatusCode();   // e.g. 200 OK
+HttpHeaders headers   = response.getHeaders();       // full response headers
+UserDto user          = response.getBody();
+```
+
+> **Content-Type sniffing (`JsonNode` responses):** when the body is parsed as a
+> `JsonNode`, the actual format is detected (XML if the payload starts with `<`, JSON
+> otherwise) and the returned `Content-Type` is corrected to `application/xml` or
+> `application/json` when the server sent a missing or incoherent value. A coherent
+> header (including any charset, and vendor suffixes such as `application/hal+json`) is
+> preserved as-is.
+
 ---
 
 ## SOAP example
@@ -211,6 +242,25 @@ GetDataResponse response = restClient.soapRestTemplate(request, GetDataResponse.
 
 > **SOAP response as `JsonNode`**: pass `JsonNode.class` as `responseClass` to obtain
 > the full SOAP envelope as a tree of Jackson nodes without writing a JAXB class.
+
+### Accessing status code and headers (`ResponseEntity`)
+
+As for REST, SOAP calls expose `ResponseEntity` counterparts that preserve the HTTP
+status code and headers of the underlying response while the body is unmarshalled as
+usual.
+
+| Body-only method | `ResponseEntity` counterpart |
+|---|---|
+| `entitySoapTemplate(SoapRequest, Class<T>)` | `responseEntity(SoapRequest, Class<T>)` |
+| `listSoapTemplate(SoapRequest, Class<T[]>)` | `responseListEntity(SoapRequest, Class<T[]>)` |
+
+```java
+ResponseEntity<GetDataResponse> response =
+        restClient.responseEntity(request, GetDataResponse.class);
+
+HttpStatusCode status = response.getStatusCode();
+GetDataResponse body  = response.getBody();
+```
 
 ---
 
