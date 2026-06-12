@@ -55,7 +55,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *       {@link #toXml(JsonNode)} restore the original ordering;</li>
  *   <li>any field whose name starts with {@code #} is metadata and is
  *       <em>skipped</em> by {@link #toXml(JsonNode)} when emitting XML;</li>
- *   <li>namespace declarations ({@code xmlns:*}) are discarded.</li>
+ *   <li>namespace declarations ({@code xmlns} / {@code xmlns:*}) are preserved as
+ *       {@code @}-attributes (e.g. {@code "@xmlns:xlink"}), so the prefix-to-URI
+ *       bindings survive the round-trip.</li>
  * </ul>
  */
 public final class XmlNodeConverter {
@@ -158,9 +160,10 @@ public final class XmlNodeConverter {
         for (int i = 0; i < attrMap.getLength(); i++) {
             Node attr = attrMap.item(i);
             String attrName = attr.getNodeName();
-            if (!attrName.equals("xmlns") && !attrName.startsWith("xmlns:")) {
-                node.put(ATTR_PREFIX + attrName, attr.getNodeValue());
-            }
+            // Namespace declarations (xmlns / xmlns:*) are kept as @-attributes too,
+            // so a round-trip restores the prefix->URI bindings required by prefixed
+            // attribute and element names (e.g. xsi:schemaLocation, xlink:href).
+            node.put(ATTR_PREFIX + attrName, attr.getNodeValue());
         }
 
         List<Element> childElements = new ArrayList<>();
@@ -271,7 +274,7 @@ public final class XmlNodeConverter {
         if (node == null || !node.isObject() || node.size() != 1) {
             throw new IllegalArgumentException("Root JsonNode must be an ObjectNode with exactly one property (the root element name).");
         }
-        Map.Entry<String, JsonNode> root = node.fields().next();
+        Map.Entry<String, JsonNode> root = node.properties().iterator().next();
         StringBuilder sb = new StringBuilder();
         writeElement(sb, root.getKey(), root.getValue(), pretty, 0);
         return sb.toString();
@@ -307,14 +310,14 @@ public final class XmlNodeConverter {
         ObjectNode obj = (ObjectNode) value;
 
         sb.append('<').append(name);
-        obj.fields().forEachRemaining(f -> {
+        obj.properties().forEach(f -> {
             if (f.getKey().startsWith(ATTR_PREFIX)) {
                 sb.append(' ').append(f.getKey().substring(1)).append("=\"").append(escapeXmlAttr(f.getValue().asText())).append('"');
             }
         });
 
         List<Map.Entry<String, JsonNode>> childEntries = new ArrayList<>();
-        obj.fields().forEachRemaining(f -> {
+        obj.properties().forEach(f -> {
             String k = f.getKey();
             if (k.startsWith(ATTR_PREFIX) || k.startsWith(META_PREFIX)) return;
             if (TEXT_KEY.equals(k) && f.getValue().isValueNode()) return;
@@ -372,10 +375,12 @@ public final class XmlNodeConverter {
      * unmarshalling, or further DOM mutation &mdash; to avoid re-parsing the
      * generated string.
      *
-     * <p>Namespace declarations are not reconstructed (the converter drops
-     * {@code xmlns:*} on the forward path); qualified names are preserved as the
-     * element tag name, so namespace-aware downstream processing must rely on
-     * external {@code xmlns} configuration.
+     * <p>Namespace declarations carried as {@code @xmlns} / {@code @xmlns:*}
+     * attributes are re-emitted verbatim on the matching element; qualified names
+     * are preserved as the element tag name. Note that {@link #buildElement} uses
+     * {@code setAttribute} (not {@code setAttributeNS}), so the {@code xmlns}
+     * declarations are written as plain attributes &mdash; correct for string
+     * serialization, but the resulting DOM is not namespace-aware.
      *
      * @param node the JsonNode to materialise as a DOM tree
      * @return a fresh {@link Document} whose root element corresponds to the
@@ -387,7 +392,7 @@ public final class XmlNodeConverter {
             throw new IllegalArgumentException("Root JsonNode must be an ObjectNode with exactly one property (the root element name).");
         }
         Document doc = FACTORY.newDocumentBuilder().newDocument();
-        Map.Entry<String, JsonNode> root = node.fields().next();
+        Map.Entry<String, JsonNode> root = node.properties().iterator().next();
         Element rootElement = buildElement(doc, root.getKey(), root.getValue());
         doc.appendChild(rootElement);
         return doc;
@@ -410,7 +415,7 @@ public final class XmlNodeConverter {
         if (node == null || !node.isObject() || node.size() != 1) {
             throw new IllegalArgumentException("Root JsonNode must be an ObjectNode with exactly one property (the root element name).");
         }
-        Map.Entry<String, JsonNode> root = node.fields().next();
+        Map.Entry<String, JsonNode> root = node.properties().iterator().next();
         return buildElement(owner, root.getKey(), root.getValue());
     }
 
@@ -432,14 +437,14 @@ public final class XmlNodeConverter {
         }
         ObjectNode obj = (ObjectNode) value;
 
-        obj.fields().forEachRemaining(f -> {
+        obj.properties().forEach(f -> {
             if (f.getKey().startsWith(ATTR_PREFIX)) {
                 element.setAttribute(f.getKey().substring(1), f.getValue().asText());
             }
         });
 
         List<Map.Entry<String, JsonNode>> childEntries = new ArrayList<>();
-        obj.fields().forEachRemaining(f -> {
+        obj.properties().forEach(f -> {
             String k = f.getKey();
             if (k.startsWith(ATTR_PREFIX) || k.startsWith(META_PREFIX)) return;
             if (TEXT_KEY.equals(k) && f.getValue().isValueNode()) return;
