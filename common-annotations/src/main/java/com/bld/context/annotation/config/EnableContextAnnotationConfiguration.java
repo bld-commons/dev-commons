@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +15,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.json.SpringHandlerInstantiator;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * Spring {@link Configuration} that registers the beans required to enable dependency
@@ -71,6 +72,7 @@ public class EnableContextAnnotationConfiguration {
 	 * @return a {@link SpringHandlerInstantiator} wired to the application context
 	 */
 	@Bean(CONTEXT_HANDLER_INSTANTIATOR)
+	@ConditionalOnMissingBean(HandlerInstantiator.class)
 	HandlerInstantiator contextHandlerInstantiator(ApplicationContext context) {
 		return new SpringHandlerInstantiator(context.getAutowireCapableBeanFactory());
 	}
@@ -90,6 +92,7 @@ public class EnableContextAnnotationConfiguration {
 	 * @return a customizer that sets the handler instantiator on the primary builder
 	 */
 	@Bean
+	@ConditionalOnMissingBean(Jackson2ObjectMapperBuilderCustomizer.class)
 	Jackson2ObjectMapperBuilderCustomizer handlerInstantiatorCustomizer(@Qualifier(CONTEXT_HANDLER_INSTANTIATOR) HandlerInstantiator handlerInstantiator) {
 		return builder -> builder.handlerInstantiator(handlerInstantiator);
 	}
@@ -105,6 +108,7 @@ public class EnableContextAnnotationConfiguration {
 	 * @return a fully configured {@link Jackson2ObjectMapperBuilder}
 	 */
 	@Bean(CONTEXT_JACKSON2_OBJECT_MAPPER_BUILDER)
+	@ConditionalOnMissingBean(name=CONTEXT_JACKSON2_OBJECT_MAPPER_BUILDER)
 	Jackson2ObjectMapperBuilder contextJackson2ObjectMapperBuilder(@Qualifier(CONTEXT_HANDLER_INSTANTIATOR) HandlerInstantiator handlerInstantiator, ApplicationContext applicationContext,
 			List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
 		Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
@@ -124,6 +128,7 @@ public class EnableContextAnnotationConfiguration {
 	 * @return a {@link MappingJackson2HttpMessageConverter} built from the provided builder
 	 */
 	@Bean(CONTEXT_MAPPING_JACKSON2_HTTP_MESSAGE_CONVERTER)
+	@ConditionalOnMissingBean(name=CONTEXT_MAPPING_JACKSON2_HTTP_MESSAGE_CONVERTER)
 	MappingJackson2HttpMessageConverter contextMappingJackson2HttpMessageConverter(@Qualifier(CONTEXT_JACKSON2_OBJECT_MAPPER_BUILDER) Jackson2ObjectMapperBuilder objectMapperBuilder) {
 		return new MappingJackson2HttpMessageConverter(objectMapperBuilder.build());
 	}
@@ -154,6 +159,7 @@ public class EnableContextAnnotationConfiguration {
 		 * @return a YAML {@link MappingJackson2HttpMessageConverter}
 		 */
 		@Bean(CONTEXT_YAML_MAPPING_JACKSON2_HTTP_MESSAGE_CONVERTER)
+		@ConditionalOnMissingBean(name=CONTEXT_YAML_MAPPING_JACKSON2_HTTP_MESSAGE_CONVERTER)
 		MappingJackson2HttpMessageConverter contextYamlMappingJackson2HttpMessageConverter(
 				@Qualifier(CONTEXT_HANDLER_INSTANTIATOR) HandlerInstantiator handlerInstantiator,
 				ApplicationContext applicationContext,

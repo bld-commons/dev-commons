@@ -12,6 +12,7 @@ import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.bld.commons.utils.formatter.CleanExcessSpacesAnnotationFormatterFactory;
 import com.bld.commons.utils.formatter.ClobAnnotationFormatterFactory;
 import com.bld.commons.utils.formatter.DateFilterAnnotationFormatterFactory;
 import com.bld.commons.utils.formatter.DateTimeZoneAnnotationFormatterFactory;
@@ -72,6 +73,7 @@ public class EnableCommonUtilsConfiguration implements WebMvcConfigurer
         registry.addFormatterForFieldAnnotation(new DateTimeZoneAnnotationFormatterFactory(env));
         registry.addFormatterForFieldAnnotation(new DateFilterAnnotationFormatterFactory(env));
         registry.addFormatterForFieldAnnotation(new UpperLowerAnnotationFormatterFactory());
+        registry.addFormatterForFieldAnnotation(new CleanExcessSpacesAnnotationFormatterFactory());
         registry.addFormatterForFieldAnnotation(new ClobAnnotationFormatterFactory());
         WebMvcConfigurer.super.addFormatters(registry);
     }

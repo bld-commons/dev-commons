@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -28,8 +30,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * and multi-value maps from a {@code Map<String,Object>}.
  */
 @SuppressWarnings({"unchecked"})
+@Component
 public class RestConnectionMapper {
 
+	@Autowired
+	private ObjectMapper mapper; 
+	
 	/**
 	 * Serialises an object to a pretty-printed JSON string.
 	 *
@@ -37,8 +43,7 @@ public class RestConnectionMapper {
 	 * @return the JSON string
 	 * @throws JsonProcessingException if serialisation fails
 	 */
-	public static String fromObjectToJson(Object obj) throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
+	public String fromObjectToJson(Object obj) throws JsonProcessingException {
 		String jsonObj = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
 		return jsonObj;
 	}
@@ -54,9 +59,8 @@ public class RestConnectionMapper {
 	 * @throws JsonMappingException if the JSON cannot be mapped to the target type
 	 * @throws IOException          if an I/O error occurs
 	 */
-	public static <T> T fromJsonToEntity(String json, Class<T> classObj)
+	public <T> T fromJsonToEntity(String json, Class<T> classObj)
 			throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
 		T obj = mapper.readValue(json, classObj);
 		return obj;
 	}
@@ -70,8 +74,7 @@ public class RestConnectionMapper {
 	 * @return the resulting map
 	 * @throws JsonProcessingException if serialisation fails
 	 */
-	public static Map<String, Object> fromObjectToMap(Object obj) throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
+	public Map<String, Object> fromObjectToMap(Object obj) throws JsonProcessingException {
 		Map<String, Object> map = new HashMap<>();
 		if (obj != null) {
 			if (obj instanceof Map)
