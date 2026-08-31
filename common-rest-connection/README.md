@@ -140,6 +140,30 @@ request.addData("password", "secret");
 TokenDto token = restClient.entityRestTemplate(request, TokenDto.class);
 ```
 
+#### POST with a query string
+
+When using a method that carries a body (POST / PUT / PATCH), parameters added
+with `addData` go into the **body** (form-encoded or JSON). To send parameters
+in the **query string** on top of the body, use `addQueryParam`:
+
+```java
+MapRequest request = MapRequest.newInstancePost("https://api.example.com/login");
+request.addData("username", "alice");
+request.addData("password", "secret");
+request.addQueryParam("tenant", "acme");   // ?tenant=acme in query string
+
+TokenDto token = restClient.entityRestTemplate(request, TokenDto.class);
+```
+
+Routing rules of `addQueryParam(String key, Object value)`:
+
+- If the `Content-Type` is not configured an `IllegalStateException` is thrown
+  (without the content-type the parameter cannot be routed safely).
+- For body-carrying methods (POST / PUT / PATCH) the parameter is appended to
+  the URL **query string**.
+- For body-less methods (GET / DELETE) the parameter is added directly to
+  `addData`, since for these the main map already becomes the query string.
+
 ### Returning a list
 
 Both `MapRequest` and `ObjectRequest` support list results; pass the **array** class

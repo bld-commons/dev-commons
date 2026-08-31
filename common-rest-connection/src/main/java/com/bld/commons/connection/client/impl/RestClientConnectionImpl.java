@@ -72,7 +72,14 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 		HttpEntity<?> request = new HttpEntity<>(mapRequest.getHttpHeaders());
 		String url = mapRequest.getUrl();
 		if (HTTP_METHODS.contains(mapRequest.getMethod())) {
-			Object body = isFormUrlEncoded(mapRequest)
+			String callUrl = mapRequest.getUrl();
+			if (MapUtils.isNotEmpty(mapRequest.getQueryParams())) {
+				UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(mapRequest.getUrl());
+				RestConnectionMapper.builderQuery(builder, mapRequest.getQueryParams());
+				callUrl = builder.toUriString();
+			}
+			url = callUrl;
+			Object body = isFormLike(mapRequest)
 					? RestConnectionMapper.mapToMultiValueMap(mapRequest.getData())
 					: mapRequest.getData();
 			request = new HttpEntity<>(body, mapRequest.getHttpHeaders());
@@ -120,7 +127,14 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 		HttpEntity<?> request = new HttpEntity<>(mapRequest.getHttpHeaders());
 		String url = mapRequest.getUrl();
 		if (HTTP_METHODS.contains(mapRequest.getMethod())) {
-			Object body = isFormUrlEncoded(mapRequest)
+			String callUrl = mapRequest.getUrl();
+			if (MapUtils.isNotEmpty(mapRequest.getQueryParams())) {
+				UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(mapRequest.getUrl());
+				RestConnectionMapper.builderQuery(builder, mapRequest.getQueryParams());
+				callUrl = builder.toUriString();
+			}
+			url = callUrl;
+			Object body = isFormLike(mapRequest)
 					? RestConnectionMapper.mapToMultiValueMap(mapRequest.getData())
 					: mapRequest.getData();
 			request = new HttpEntity<>(body, mapRequest.getHttpHeaders());
@@ -154,18 +168,26 @@ public class RestClientConnectionImpl extends AbstractClientConnection implement
 	}
 
 	/**
-	 * Returns {@code true} when the request content type is
-	 * {@code application/x-www-form-urlencoded}.
+	 * Returns {@code true} when the request content type is a form-like
+	 * media type: {@code application/x-www-form-urlencoded} or
+	 * {@code multipart/form-data}.
 	 * Multi-value mapping is required only for form bodies; JSON bodies
 	 * must keep the original {@code Map<String,Object>} so values are not
 	 * serialised as single-element arrays.
+	 * <p>
+	 * Senza questo, un body {@code Map} con content-type
+	 * {@code multipart/form-data} fallisce con
+	 * {@code No HttpMessageConverter for java.util.HashMap and content type "multipart/form-data"}
+	 * (RestTemplate serializza i form-data solo da una
+	 * {@code org.springframework.util.MultiValueMap} via {@code FormHttpMessageConverter}).
 	 *
 	 * @param mapRequest the REST request
-	 * @return {@code true} if the content type is form-urlencoded
+	 * @return {@code true} if the content type is form-like
 	 */
-	private static boolean isFormUrlEncoded(MapRequest mapRequest) {
+	private static boolean isFormLike(MapRequest mapRequest) {
 		MediaType contentType = mapRequest.getHttpHeaders().getContentType();
-		return contentType != null && MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType);
+		return contentType != null && (MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType)
+				|| MediaType.MULTIPART_FORM_DATA.isCompatibleWith(contentType));
 	}
 
 	/**
