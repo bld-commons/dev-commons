@@ -44,7 +44,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.bld-commons</groupId>
     <artifactId>common-rest-connection</artifactId>
-    <version>2.2.6</version>
+    <version>2.2.11</version>
 </dependency>
 ```
 

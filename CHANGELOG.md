@@ -1,6 +1,32 @@
 # Changelog
 
 
+## [2.2.11] - 2026-09-10
+
+### bld-common-utils — `GeometryUtils` bean and serializer/deserializer refactoring
+
+Extracted the JTS conversion logic shared by `@GeometryPostgis` into a dedicated Spring `@Component` bean, reusable also outside Jackson (e.g. from Jackson-loaded POJOs via a static `ApplicationContext` holder).
+
+**New classes:**
+
+| Class | Description |
+|---|---|
+| `GeometryUtils.java` | Spring bean (autowired `ObjectMapper`) centralizing geometry conversion. Deserialization: `parseWkt`, `parseWkb`, `parseGeoJson`, `parseKml`, plus dispatcher `parse(String, SpatialType)`. Serialization: `toWkt`, `toWkb`, `toGeoJson`, `toKml`, plus dispatcher `serialize(Geometry, SpatialType)` |
+
+**Modified classes:**
+
+| Class | Change |
+|---|---|
+| `GeometryDeserializer.java` | Now delegates the wrapper → JTS `Geometry` conversion to `GeometryUtils.parse(...)`; `GeometryUtils` is `@Autowired` and propagated through `createContextual()` like `ObjectMapper`. Removed the duplicated `switch` on `SpatialType` and the private `setSRID` |
+| `GeometrySerializer.java` | Now delegates `Geometry` → wrapper conversion to `GeometryUtils.serialize(...)`; `GeometryUtils` is `@Autowired` and propagated through `createContextual()` like `ObjectMapper`. Removed the duplicated `switch` on `SpatialType` |
+
+**Notes:**
+- The old `GeometryDeserializer` KML case fell through into `default` (missing `break`); fixed in the shared logic.
+- All `SpatialType` parse/serialize paths preserve the previous behaviour, including SRID propagation.
+
+---
+
+
 ## [2.2.6] - 2026-06-11
 
 ### common-rest-connection — `ResponseEntity` accessors and Content-Type sniffing

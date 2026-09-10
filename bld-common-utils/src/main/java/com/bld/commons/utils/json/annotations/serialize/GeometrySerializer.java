@@ -8,17 +8,10 @@ package com.bld.commons.utils.json.annotations.serialize;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.io.WKBWriter;
-import org.locationtech.jts.io.WKTWriter;
-import org.locationtech.jts.io.geojson.GeoJsonWriter;
-import org.locationtech.jts.io.kml.KMLWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bld.commons.utils.data.GeoJsonGeometry;
-import com.bld.commons.utils.data.KMLGeometry;
+import com.bld.commons.utils.GeometryUtils;
 import com.bld.commons.utils.data.PostgisGeometry;
-import com.bld.commons.utils.data.WKBGeometry;
-import com.bld.commons.utils.data.WKTGeometry;
 import com.bld.commons.utils.json.annotations.GeometryPostgis;
 import com.bld.commons.utils.types.SpatialType;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -37,7 +30,11 @@ public class GeometrySerializer extends StdScalarSerializer<Geometry>  implement
 
 	@Autowired
 	private ObjectMapper objMapper;
-	
+
+	/** The geometry utils. */
+	@Autowired
+	private GeometryUtils geometryUtils;
+
 	private SpatialType spatialType;
 	
 	protected GeometrySerializer() {
@@ -45,40 +42,21 @@ public class GeometrySerializer extends StdScalarSerializer<Geometry>  implement
 	}
 
 
-	protected GeometrySerializer(Class<Geometry> t, SpatialType spatialType,ObjectMapper objMapper) {
+	protected GeometrySerializer(Class<Geometry> t, SpatialType spatialType,ObjectMapper objMapper, GeometryUtils geometryUtils) {
 		super(t);
 		this.spatialType = spatialType;
 		this.objMapper=objMapper;
+		this.geometryUtils=geometryUtils;
 	}
 
 
 	@Override
 	public void serialize(Geometry value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		PostgisGeometry<?> spatialModel=null;
-		if(value!=null) {
-			switch(this.spatialType) {
-			case GeoJSON:
-				GeoJsonWriter geoJsonWriter = new GeoJsonWriter();
-				spatialModel=new GeoJsonGeometry(SpatialType.GeoJSON, this.objMapper.readTree(geoJsonWriter.write(value)),value.getSRID());
-				break;
-			case WKB:
-				WKBWriter wkbWriter = new WKBWriter();
-				spatialModel=new WKBGeometry(SpatialType.WKB,wkbWriter.write(value),value.getSRID());
-				break;
-			case WKT:
-				WKTWriter wktWriter = new WKTWriter();
-				spatialModel=new WKTGeometry(SpatialType.WKT,wktWriter.write(value),value.getSRID());
-				break;
-			case KML:
-				KMLWriter kmlWriter= new KMLWriter();
-				spatialModel=new KMLGeometry(SpatialType.KML, kmlWriter.write(value), value.getSRID());
-				break;
-			default:
-				break;
-			
-			}
-			
+		if (value == null) {
+			gen.writeObject(null);
+			return;
 		}
+		PostgisGeometry<?> spatialModel = this.geometryUtils.serialize(value, this.spatialType);
 		gen.writeObject(spatialModel);
 	}
 
@@ -86,7 +64,7 @@ public class GeometrySerializer extends StdScalarSerializer<Geometry>  implement
 	@Override
 	public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
 		GeometryPostgis geometryPostgis=property.getAnnotation(GeometryPostgis.class);
-		return new GeometrySerializer(Geometry.class,geometryPostgis.value(),this.objMapper);
+		return new GeometrySerializer(Geometry.class,geometryPostgis.value(),this.objMapper,this.geometryUtils);
 	}
 
 

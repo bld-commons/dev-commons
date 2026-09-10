@@ -1,6 +1,6 @@
 # dev-commons
 
-> **Group:** `com.github.bld-commons` | **Version:** 2.2.6 | **License:** [MIT](http://www.opensource.org/licenses/mit-license.php)
+> **Group:** `com.github.bld-commons` | **Version:** 2.2.11 | **License:** [MIT](http://www.opensource.org/licenses/mit-license.php)
 
 A collection of Spring Boot 3.x library modules that provide reusable infrastructure for enterprise Java applications: REST/SOAP clients, Jackson DI bridging, encryption, and general-purpose utilities.
 
@@ -52,7 +52,7 @@ The root POM acts as a Bill of Materials. Add it to your project's `dependencyMa
         <dependency>
             <groupId>com.github.bld-commons</groupId>
             <artifactId>dev-commons</artifactId>
-            <version>2.2.6</version>
+            <version>2.2.11</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -102,7 +102,7 @@ General-purpose toolkit for Spring Boot applications:
 - **DateUtils** — 30+ methods for conversion, arithmetic, timezone, and component extraction.
 - **JSON annotations** — `@DateTimeZone`, `@UpperLowerCase`, `@TextClob`, `@Base64File`, `@GeometryPostgis`, `@CleanExcessSpaces` applied directly on entity fields.
 - **Validators** — `@AllowedString` and `@AllowedNumber` for JSR-380 whitelisting.
-- **Geometry** — PostGIS, WKT, WKB, KML, GeoJSON data models backed by JTS.
+- **Geometry** — PostGIS, WKT, WKB, KML, GeoJSON data models backed by JTS, plus the `GeometryUtils` bean for programmatic geometry conversion outside Jackson.
 - **Spring formatters** — annotation-driven formatters registered automatically with `@EnableCommonUtils`.
 
 ### [common-encryption](common-encryption/README.md)
@@ -158,6 +158,6 @@ mvn clean install -Dmaven.javadoc.skip=true
 
 **common-rest-connection** — Espone `RestClientConnection` per chiamate REST (GET, POST, PUT, DELETE) e `SoapClientConnection` per chiamate SOAP 1.1, entrambe basate su `AbstractClientConnection`. Supporta timeout per richiesta, proxy HTTP opzionale, helper di autenticazione Bearer/Basic e modelli di richiesta fluenti.
 
-**bld-common-utils** — Libreria di utilità generali: gestione date con fuso orario, annotazioni Jackson per trasformazione automatica dei campi (`@UpperLowerCase`, `@DateTimeZone`, `@GeometryPostgis`, ecc.), validatori JSR-380 personalizzati e modelli di dati geometrici (PostGIS, WKT, WKB, KML, GeoJSON).
+**bld-common-utils** — Libreria di utilità generali: gestione date con fuso orario, annotazioni Jackson per trasformazione automatica dei campi (`@UpperLowerCase`, `@DateTimeZone`, `@GeometryPostgis`, ecc.), validatori JSR-380 personalizzati e modelli di dati geometrici (PostGIS, WKT, WKB, KML, GeoJSON), più il bean `GeometryUtils` per la conversione programmatica delle geometrie.
 
 **common-encryption** — Cifratura, decifratura e firma trasparente dei campi JSON tramite annotazioni Jackson (`@CryptoAes`, `@CryptoPubKey`, `@CryptoJks`, `@CryptoPkcs12`, `@CryptoHmac`). Supporta AES simmetrico, RSA con chiavi PEM, RSA con keystore JKS, RSA con keystore PKCS12 e firma HMAC. Supporto firma digitale incluso.

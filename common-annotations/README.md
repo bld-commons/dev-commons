@@ -1,7 +1,7 @@
 # common-annotations
 
 > **Module:** `com.github.bld-commons:common-annotations`
-> **Version:** 2.2.6
+> **Version:** 2.2.11
 > **Parent:** `dev-commons`
 
 ## 🇮🇹 [Leggi in italiano](README.it.md)

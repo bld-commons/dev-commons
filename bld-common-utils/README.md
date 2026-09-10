@@ -1,7 +1,7 @@
 # bld-common-utils
 
 > **Module:** `com.github.bld-commons:bld-common-utils`
-> **Version:** 2.2.6
+> **Version:** 2.2.11
 > **Parent:** `dev-commons`
 
 A general-purpose Spring Boot utility library providing date/time handling, string transformations, custom Jackson annotations, JSR-380 validators, geometry data models (PostGIS, WKT, WKB, KML, GeoJSON), and Spring formatter factories — all activated with a single `@EnableCommonUtils` annotation.
@@ -24,11 +24,12 @@ A general-purpose Spring Boot utility library providing date/time handling, stri
    - [@CleanExcessSpaces](#cleanexcessspaces)
 6. [Validators](#validators)
 7. [Geometry data models](#geometry-data-models)
-8. [Data models](#data-models)
-9. [Enumerations](#enumerations)
-10. [Spring formatters](#spring-formatters)
-11. [Package structure](#package-structure)
-12. [Italiano](#italiano)
+8. [GeometryUtils](#geometryutils)
+9. [Data models](#data-models)
+10. [Enumerations](#enumerations)
+11. [Spring formatters](#spring-formatters)
+12. [Package structure](#package-structure)
+13. [Italiano](#italiano)
 
 ---
 
@@ -57,7 +58,7 @@ Key transitive dependencies included automatically:
 <dependency>
     <groupId>com.github.bld-commons</groupId>
     <artifactId>bld-common-utils</artifactId>
-    <version>2.2.6</version>
+    <version>2.2.11</version>
 </dependency>
 ```
 
@@ -258,7 +259,7 @@ public class LocationDto {
 `GeometrySerializer` extends `StdScalarSerializer<Geometry>` and implements `ContextualSerializer`. On each serialized field it:
 
 1. Reads the `@GeometryPostgis` annotation via `createContextual()` to obtain the `SpatialType`.
-2. Converts the JTS `Geometry` to the target format using the corresponding JTS writer:
+2. Delegates the conversion to the Spring bean `GeometryUtils.serialize(geometry, spatialType)`, which uses the corresponding JTS writer:
 
 | SpatialType | JTS writer | Result wrapper |
 |---|---|---|
@@ -275,7 +276,7 @@ public class LocationDto {
 
 1. Reads the `@GeometryPostgis` annotation via `createContextual()` to obtain the `SpatialType`.
 2. Parses the JSON tree node as the corresponding wrapper class.
-3. Converts the wrapper content to a JTS `Geometry` using the matching JTS reader:
+3. Delegates the wrapper → JTS `Geometry` conversion to the Spring bean `GeometryUtils.parse(text, spatialType)`, which uses the matching JTS reader:
 
 | SpatialType | JTS reader | Input source |
 |---|---|---|
@@ -285,6 +286,8 @@ public class LocationDto {
 | `KML` | `KMLReader` | `KMLGeometry.getGeometry()` (String) |
 
 4. If the wrapper carries a non-null `srid`, calls `geometry.setSRID(srid)` on the resulting JTS object.
+
+Both `GeometrySerializer` and `GeometryDeserializer` keep `@Autowired` fields for `ObjectMapper` and `GeometryUtils`, propagated through `createContextual()` / `createContextual()` so the Spring-managed instances remain active in Jackson's handler lifecycle (requires `common-annotations`).
 
 #### SRID handling
 
@@ -446,6 +449,66 @@ All geometry classes integrate with JTS (`org.locationtech.jts`) for in-memory o
 
 ---
 
+## GeometryUtils
+
+`GeometryUtils` is a Spring `@Component` bean (autowired with the `ObjectMapper`) that centralizes the JTS **conversion logic** shared by `@GeometryPostgis` serialization/deserialization and any other consumer that needs to convert geometry strings to/from JTS `Geometry` objects without going through Jackson.
+
+> Requires `@EnableCommonUtils` (or any component scan that picks up `com.bld.commons.utils`), so the bean is available for autowiring and static context lookup.
+
+### Deserialization (input → `Geometry`)
+
+| Method | Signature | Notes |
+|---|---|---|
+| `parseWkt` | `Geometry parseWkt(String)` | `WKTReader`, throws `IllegalArgumentException` on invalid input |
+| `parseWkb` | `Geometry parseWkb(byte[])` | `WKBReader` |
+| `parseGeoJson` | `Geometry parseGeoJson(String)` | `GeoJsonReader`, parses via `ObjectMapper` |
+| `parseKml` | `Geometry parseKml(String)` | `KMLReader`, parses via `ObjectMapper` |
+| `parse` | `Geometry parse(String, SpatialType)` | Dispatcher: switch on `SpatialType` → calls the specific method above |
+
+```java
+@Autowired
+private GeometryUtils geometryUtils;
+
+Geometry g = geometryUtils.parseWkt("POINT(14.491666 37.02)");
+Geometry p = geometryUtils.parse("{\"type\":\"Point\",\"coordinates\":[9.19,45.46]}", SpatialType.GeoJSON);
+```
+
+For `SpatialType.WKB` the `parse(String, SpatialType)` entry point expects the text as Base64.
+
+### Serialization (`Geometry` → wrapper)
+
+| Method | Signature | Notes |
+|---|---|---|
+| `toWkt` | `PostgisGeometry<?> toWkt(Geometry)` | Returns `WKTGeometry` |
+| `toWkb` | `PostgisGeometry<?> toWkb(Geometry)` | Returns `WKBGeometry` |
+| `toGeoJson` | `PostgisGeometry<?> toGeoJson(Geometry)` | Returns `GeoJsonGeometry` |
+| `toKml` | `PostgisGeometry<?> toKml(Geometry)` | Returns `KMLGeometry` |
+| `serialize` | `PostgisGeometry<?> serialize(Geometry, SpatialType)` | Dispatcher: switch on `SpatialType` → calls the specific method above |
+
+```java
+PostgisGeometry<?> wkt = geometryUtils.toWkt(geometry);
+String postgisExtended = ((WKTGeometry) wkt).sridGeometry();   // "SRID=4326;POINT(...)"
+```
+
+Each wrapper carries the SRID from `geometry.getSRID()` when set.
+
+### Usage from non-Spring-managed classes
+
+Because `GeometryUtils` is a plain bean, any Jackson-loaded entity or POJO can reach it through a static `ApplicationContext` holder:
+
+```java
+@Component
+public class ApplicationContextProvider implements ApplicationContextAware {
+    private static ApplicationContext context;
+    @Override public void setApplicationContext(ApplicationContext ctx) { context = ctx; }
+    public static <T> T getBean(Class<T> clazz) { return context.getBean(clazz); }
+}
+
+Geometry geometry = ApplicationContextProvider.getBean(GeometryUtils.class).parseWkt("POINT(14.491666 37.02)");
+```
+
+---
+
 ## Data models
 
 | Class | Description |
@@ -488,6 +551,7 @@ com.bld.commons.utils
 ├── CommonUtility.java                            — type-checking helpers
 ├── DateUtils.java                                — date/time operations
 ├── CamelCaseUtils.java                           — camel-case transformations
+├── GeometryUtils.java                            — Spring bean, JTS geometry conversion (parse/serialize dispatch)
 ├── config/
 │   ├── EnableCommonUtilsConfiguration.java       — Spring MVC configuration
 │   └── annotation/EnableCommonUtils.java         — activation annotation
@@ -550,7 +614,7 @@ Libreria di utilità generali per Spring Boot che fornisce:
 - **DateUtils** — oltre 30 metodi statici per conversioni, aritmetica, estrazione di componenti e gestione del fuso orario sulle date.
 - **Annotazioni JSON** — annotazioni a livello di campo che trasformano automaticamente i valori durante la serializzazione/deserializzazione Jackson: `@DateTimeZone` (fuso orario), `@UpperLowerCase` (conversione maiuscolo/minuscolo), `@TextClob` (gestione CLOB), `@Base64File` (codifica binaria), `@GeometryPostgis` (geometrie spaziali in formato WKT/WKB/GeoJSON/KML), `@CleanExcessSpaces` (normalizzazione spazi bianchi), `@DateChange` (cambio formato data).
 - **Validatori JSR-380** — `@AllowedString` e `@AllowedNumber` per validare che un campo contenga solo i valori consentiti.
-- **Modelli geometrici** — classi dati per PostGIS, WKT, WKB, KML e GeoJSON, integrate con la libreria JTS.
+- **Modelli geometrici** — classi dati per PostGIS, WKT, WKB, KML e GeoJSON, integrate con la libreria JTS, più il bean `GeometryUtils` per la conversione programmatica da/verso `Geometry` JTS al di fuori di Jackson.
 - **Formatter Spring** — factory registrate automaticamente nel `FormatterRegistry` MVC per applicare le stesse trasformazioni ai parametri di form e di richiesta.
 
 ### Abilitazione
