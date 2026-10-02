@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bld.crypto.commons.KeyUtility;
 import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.key.JksKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -281,6 +282,62 @@ public final class CryptoPkcs12Utils {
 	 */
 	public <T> T decryptObjectUri(String value, Class<T> response) throws JsonMappingException, JsonProcessingException {
 		return objMapper.readValue(decryptUri(value), response);
+	}
+
+
+	/**
+	 * Wraps {@code value} in a {@code {key, value}} envelope and encrypts it, binding the value
+	 * to its logical type (same format used by {@code @CryptoPkcs12(value = key)}).
+	 *
+	 * @param key   the logical key identifier
+	 * @param value the plain-text value
+	 * @return the encrypted token
+	 */
+	public String encryptKeyValue(String key, String value) {
+		return encryptValue(KeyUtility.buildEnvelope(objMapper, key, value));
+	}
+
+
+	/**
+	 * URL-safe variant of {@link #encryptKeyValue(String, String)}.
+	 *
+	 * @param key   the logical key identifier
+	 * @param value the plain-text value
+	 * @return the URL-safe encrypted token
+	 */
+	public String encryptKeyUri(String key, String value) {
+		return encryptUri(KeyUtility.buildEnvelope(objMapper, key, value));
+	}
+
+
+	/**
+	 * Decrypts a token produced by {@link #encryptKeyValue(String, String)} and verifies
+	 * that it belongs to {@code key}.
+	 *
+	 * @param key   the expected logical key identifier
+	 * @param token the encrypted token
+	 * @return the plain-text value, or {@code null} if {@code token} is blank
+	 * @throws CryptoException if decryption fails or the key does not match
+	 */
+	public String decryptKeyValue(String key, String token) {
+		if (StringUtils.isBlank(token))
+			return null;
+		return KeyUtility.openEnvelope(objMapper, decryptValue(token), key);
+	}
+
+
+	/**
+	 * URL-safe variant of {@link #decryptKeyValue(String, String)}.
+	 *
+	 * @param key   the expected logical key identifier
+	 * @param token the URL-safe encrypted token
+	 * @return the plain-text value, or {@code null} if {@code token} is blank
+	 * @throws CryptoException if decryption fails or the key does not match
+	 */
+	public String decryptKeyUri(String key, String token) {
+		if (StringUtils.isBlank(token))
+			return null;
+		return KeyUtility.openEnvelope(objMapper, decryptUri(token), key);
 	}
 
 

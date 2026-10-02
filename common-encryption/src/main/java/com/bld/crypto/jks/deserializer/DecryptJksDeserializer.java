@@ -5,9 +5,7 @@
 package com.bld.crypto.jks.deserializer;
 
 import java.util.Collection;
-import java.util.Map;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
 import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.jks.CryptoJksUtils;
 import com.bld.crypto.jks.annotation.CryptoJks;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -120,26 +117,16 @@ public class DecryptJksDeserializer<T> extends DecryptCertificateDeserializer<T>
 	 * @param word the word
 	 * @return the string
 	 */
-	@SuppressWarnings("unchecked")
 	protected String decrypt(String word) {
-		if (this.crypto.url())
-			word = this.cryptoJksUtils.decryptUri(word,this.crypto.decrypt());
-		else
-			word = this.cryptoJksUtils.decryptValue(word,this.crypto.decrypt());
 		try {
-			Map<String,String>map=this.objMapper.readValue(word, Map.class);
-			String key=map.get("key");
-			if(!this.crypto.value().equals(key)) {
-				String errorMessage="In the \""+this.fieldName+"\" field, the \""+this.crypto.value()+"\" value does not match the original \""+key+"\" value";
-				logger.error(errorMessage);
-				throw new CryptoException(errorMessage);
-			}
-			word=map.get("value");
-		} catch (JsonProcessingException e) {
-			logger.error(ExceptionUtils.getStackTrace(e));
-			throw new CryptoException(e);
+			return this.crypto.url()
+					? this.cryptoJksUtils.decryptKeyUri(this.crypto.value(), word, this.crypto.decrypt())
+					: this.cryptoJksUtils.decryptKeyValue(this.crypto.value(), word, this.crypto.decrypt());
+		} catch (CryptoException e) {
+			String errorMessage = "In the \"" + this.fieldName + "\" field: " + e.getMessage();
+			logger.error(errorMessage);
+			throw new CryptoException(errorMessage, e);
 		}
-		return word;
 	}
 
 

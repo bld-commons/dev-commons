@@ -4,19 +4,12 @@
  */
 package com.bld.crypto.jks.serializer;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.jks.CryptoJksUtils;
 import com.bld.crypto.jks.annotation.CryptoJks;
 import com.bld.crypto.serializer.EncryptCertificateSerializer;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -43,7 +36,6 @@ public class EncryptJksSerializer<T> extends EncryptCertificateSerializer<T> imp
 	@Autowired
 	private CryptoJksUtils cryptoJksUtils;
 	
-	private static final Logger logger=LoggerFactory.getLogger(EncryptJksSerializer.class);
 
 
 	/**
@@ -103,17 +95,9 @@ public class EncryptJksSerializer<T> extends EncryptCertificateSerializer<T> imp
 	 */
 	@Override
 	protected String encryptValue(String word) {
-		Map<String,String> map= new HashMap<>();
-		map.put("key", crypto.value());
-		map.put("value", word);
-		try {
-			word=this.objMapper.writeValueAsString(map);
-		} catch (JsonProcessingException e) {
-			logger.error(ExceptionUtils.getStackTrace(e));
-			throw new CryptoException(e);
-		}
-		word = this.crypto.url() ? this.cryptoJksUtils.encryptUri(word, this.crypto.encrypt()) : this.cryptoJksUtils.encryptValue(word, this.crypto.encrypt());
-		return word;
+		return this.crypto.url()
+				? this.cryptoJksUtils.encryptKeyUri(this.crypto.value(), word, this.crypto.encrypt())
+				: this.cryptoJksUtils.encryptKeyValue(this.crypto.value(), word, this.crypto.encrypt());
 	}
 	
 }

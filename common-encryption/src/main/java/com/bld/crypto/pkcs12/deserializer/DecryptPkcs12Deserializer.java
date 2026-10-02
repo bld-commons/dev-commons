@@ -5,9 +5,7 @@
 package com.bld.crypto.pkcs12.deserializer;
 
 import java.util.Collection;
-import java.util.Map;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import com.bld.crypto.deserializer.DecryptCertificateDeserializer;
 import com.bld.crypto.exception.CryptoException;
 import com.bld.crypto.pkcs12.CryptoPkcs12Utils;
 import com.bld.crypto.pkcs12.annotation.CryptoPkcs12;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -125,28 +122,17 @@ public class DecryptPkcs12Deserializer<T> extends DecryptCertificateDeserializer
 	 * @return the plain-text value extracted from the decrypted envelope
 	 * @throws CryptoException if decryption fails or the key identifier does not match
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected String decrypt(String word) {
-		word = this.crypto.url()
-				? this.cryptoPkcs12Utils.decryptUri(word)
-				: this.cryptoPkcs12Utils.decryptValue(word);
 		try {
-			Map<String, String> map = this.objMapper.readValue(word, Map.class);
-			String key = map.get("key");
-			if (!this.crypto.value().equals(key)) {
-				String errorMessage = "In the \"" + this.fieldName + "\" field, the \""
-						+ this.crypto.value() + "\" value does not match the original \""
-						+ key + "\" value";
-				logger.error(errorMessage);
-				throw new CryptoException(errorMessage);
-			}
-			word = map.get("value");
-		} catch (JsonProcessingException e) {
-			logger.error(ExceptionUtils.getStackTrace(e));
-			throw new CryptoException(e);
+			return this.crypto.url()
+					? this.cryptoPkcs12Utils.decryptKeyUri(this.crypto.value(), word)
+					: this.cryptoPkcs12Utils.decryptKeyValue(this.crypto.value(), word);
+		} catch (CryptoException e) {
+			String errorMessage = "In the \"" + this.fieldName + "\" field: " + e.getMessage();
+			logger.error(errorMessage);
+			throw new CryptoException(errorMessage, e);
 		}
-		return word;
 	}
 
 }

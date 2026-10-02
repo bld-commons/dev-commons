@@ -11,6 +11,7 @@ import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 import com.bld.crypto.bean.CryptoKeyUtils;
+import com.bld.crypto.commons.KeyUtility;
 import com.bld.crypto.key.JksKey;
 import com.bld.crypto.type.CryptoType;
 import com.bld.crypto.type.InstanceType;
@@ -274,6 +275,107 @@ public final class CryptoJksUtils extends CryptoKeyUtils {
 		return this.decryptValue(value);
 	}
 
+
+	/**
+	 * Wraps {@code value} in a {@code {key, value}} envelope and encrypts it with the public key,
+	 * binding the value to its logical type (same format used by {@code @CryptoJks(value = key)}).
+	 *
+	 * @param key   the logical key identifier
+	 * @param value the plain-text value
+	 * @return the encrypted token
+	 */
+	public String encryptKeyValue(String key, String value) {
+		return this.encryptKeyValue(key, value, CryptoType.publicKey);
+	}
+
+	/**
+	 * Wraps {@code value} in a {@code {key, value}} envelope and encrypts it.
+	 *
+	 * @param key        the logical key identifier
+	 * @param value      the plain-text value
+	 * @param cryptoType the key used to encrypt
+	 * @return the encrypted token
+	 */
+	public String encryptKeyValue(String key, String value, CryptoType cryptoType) {
+		return this.encryptValue(KeyUtility.buildEnvelope(this.objMapper, key, value), cryptoType);
+	}
+
+	/**
+	 * URL-safe variant of {@link #encryptKeyValue(String, String)}.
+	 *
+	 * @param key   the logical key identifier
+	 * @param value the plain-text value
+	 * @return the URL-safe encrypted token
+	 */
+	public String encryptKeyUri(String key, String value) {
+		return this.encryptKeyUri(key, value, CryptoType.publicKey);
+	}
+
+	/**
+	 * URL-safe variant of {@link #encryptKeyValue(String, String, CryptoType)}.
+	 *
+	 * @param key        the logical key identifier
+	 * @param value      the plain-text value
+	 * @param cryptoType the key used to encrypt
+	 * @return the URL-safe encrypted token
+	 */
+	public String encryptKeyUri(String key, String value, CryptoType cryptoType) {
+		return this.encryptUri(KeyUtility.buildEnvelope(this.objMapper, key, value), cryptoType);
+	}
+
+	/**
+	 * Decrypts a token produced by {@link #encryptKeyValue(String, String)} with the private key
+	 * and verifies that it belongs to {@code key}.
+	 *
+	 * @param key   the expected logical key identifier
+	 * @param token the encrypted token
+	 * @return the plain-text value, or {@code null} if {@code token} is blank
+	 * @throws com.bld.crypto.exception.CryptoException if the key does not match
+	 */
+	public String decryptKeyValue(String key, String token) {
+		return this.decryptKeyValue(key, token, CryptoType.privateKey);
+	}
+
+	/**
+	 * Decrypts a token produced by {@link #encryptKeyValue(String, String, CryptoType)} and
+	 * verifies that it belongs to {@code key}.
+	 *
+	 * @param key        the expected logical key identifier
+	 * @param token      the encrypted token
+	 * @param cryptoType the key used to decrypt
+	 * @return the plain-text value, or {@code null} if {@code token} is blank
+	 * @throws com.bld.crypto.exception.CryptoException if the key does not match
+	 */
+	public String decryptKeyValue(String key, String token, CryptoType cryptoType) {
+		if (StringUtils.isBlank(token))
+			return null;
+		return KeyUtility.openEnvelope(this.objMapper, this.decryptValue(token, cryptoType), key);
+	}
+
+	/**
+	 * URL-safe variant of {@link #decryptKeyValue(String, String)}.
+	 *
+	 * @param key   the expected logical key identifier
+	 * @param token the URL-safe encrypted token
+	 * @return the plain-text value, or {@code null} if {@code token} is blank
+	 */
+	public String decryptKeyUri(String key, String token) {
+		return this.decryptKeyUri(key, token, CryptoType.privateKey);
+	}
+
+	/**
+	 * URL-safe variant of {@link #decryptKeyValue(String, String, CryptoType)}.
+	 *
+	 * @param key        the expected logical key identifier
+	 * @param token      the URL-safe encrypted token
+	 * @param cryptoType the key used to decrypt
+	 * @return the plain-text value, or {@code null} if {@code token} is blank
+	 */
+	public String decryptKeyUri(String key, String token, CryptoType cryptoType) {
+		if (StringUtils.isBlank(token))
+			return null;
+		return KeyUtility.openEnvelope(this.objMapper, this.decryptUri(token, cryptoType), key);
+	}
 
 	public final PublicKey getPublicKey() {
 		return this.jksKey.getPublicKey();

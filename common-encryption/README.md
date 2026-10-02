@@ -331,8 +331,15 @@ String urlEncrypted = pubKeyUtils.encryptUri(plaintext, "myPublicKey");
 @Autowired
 private CryptoJksUtils jksUtils;
 
-String encrypted    = jksUtils.encryptValue(plaintext, "myJksKey");
-String decrypted    = jksUtils.decryptValue(encrypted, "myJksKey");
+String encrypted    = jksUtils.encryptValue(plaintext);
+String decrypted    = jksUtils.decryptValue(encrypted);
+
+// Key-bound token: same envelope as @CryptoJks(value = "user"), decrypt fails if the key differs
+String token        = jksUtils.encryptKeyValue("user", "1");
+String id           = jksUtils.decryptKeyValue("user", token);   // "1"
+String urlToken     = jksUtils.encryptKeyUri("user", "1");       // URL-safe
+String urlId        = jksUtils.decryptKeyUri("user", urlToken);
+// overloads with CryptoType select the encrypt/decrypt key, like encrypt()/decrypt() on the annotation
 ```
 
 ### PKCS12 (X25519 + AES-256-GCM)
@@ -356,6 +363,12 @@ MyDto decObj        = pkcs12Utils.decryptObject(encObj, MyDto.class);
 // Object + URL-safe
 String encObjUri    = pkcs12Utils.encryptObjectUri(myDto);
 MyDto decObjUri     = pkcs12Utils.decryptObjectUri(encObjUri, MyDto.class);
+
+// Key-bound token: same envelope as @CryptoPkcs12(value = "user"), decrypt fails if the key differs
+String token        = pkcs12Utils.encryptKeyValue("user", "1");
+String id           = pkcs12Utils.decryptKeyValue("user", token);   // "1"
+String urlToken     = pkcs12Utils.encryptKeyUri("user", "1");       // URL-safe
+String urlId        = pkcs12Utils.decryptKeyUri("user", urlToken);
 
 // Expose the public key (e.g. to share with an external encryptor)
 String pubKeyBase64 = pkcs12Utils.publicKey();

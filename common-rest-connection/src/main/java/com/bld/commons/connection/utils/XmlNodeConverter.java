@@ -50,9 +50,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *   <li>repeated child elements with the same qualified name become an
  *       {@link ArrayNode} of {@link ObjectNode}s;</li>
  *   <li>every child {@link ObjectNode} (single or array item) carries a
- *       {@code #index} integer field with its 0-based position among the
- *       siblings of the parent element &mdash; this is what lets
- *       {@link #toXml(JsonNode)} restore the original ordering;</li>
+ *       {@code #index} field encoding its nesting position &mdash; either a flat
+ *       integer (legacy: {@code 2}) or a hierarchical dot-separated string (new:
+ *       {@code "1.2.3"}). The {@link #toXml(JsonNode)} method uses the final segment
+ *       to determine sibling order, which lets it restore the original document sequence;</li>
  *   <li>any field whose name starts with {@code #} is metadata and is
  *       <em>skipped</em> by {@link #toXml(JsonNode)} when emitting XML;</li>
  *   <li>namespace declarations ({@code xmlns} / {@code xmlns:*}) are preserved as
@@ -147,8 +148,8 @@ public final class XmlNodeConverter {
     /**
      * Recursively builds a Jackson {@link ObjectNode} from a DOM {@link Element}.
      * See the class-level Javadoc for the shape rules. Each child ObjectNode
-     * receives a {@code #index} carrying its 0-based document-order position
-     * among the siblings of {@code element}.
+     * receives a {@code #index} carrying its nesting position: either a flat integer
+     * (legacy) or a hierarchical dot-separated string (new: {@code "1.2.3"}).
      *
      * @param element the DOM element to convert
      * @return the ObjectNode representation, with #index on every child
@@ -479,17 +480,40 @@ public final class XmlNodeConverter {
     }
 
     /**
-     * Extracts the {@code #index} value from a node, or returns the supplied fallback
-     * when the node is not an object or has no {@code #index} field.
+     * Extracts the {@code #index} value from a node for sorting siblings.
+     * Supports both flat integer indices (legacy: "2") and hierarchical string indices ("1.2.3").
+     * For hierarchical indices, returns the final segment's value (the sibling position at this level).
      *
      * @param n         the node
      * @param fallback  the value to return when no index is present
-     * @return the index to use for sorting
+     * @return the sibling position to use for sorting
      */
     private static int indexOf(JsonNode n, int fallback) {
         if (n != null && n.isObject()) {
             JsonNode idx = n.get(INDEX_KEY);
-            if (idx != null && idx.isInt()) return idx.asInt();
+            if (idx != null) {
+                if (idx.isInt()) {
+                    return idx.asInt();
+                } else if (idx.isTextual()) {
+                    // Hierarchical index like "1.2.3" — extract final segment
+                    String hierarchical = idx.asText();
+                    int lastDot = hierarchical.lastIndexOf('.');
+                    if (lastDot >= 0) {
+                        try {
+                            return Integer.parseInt(hierarchical.substring(lastDot + 1));
+                        } catch (NumberFormatException e) {
+                            return fallback;
+                        }
+                    } else {
+                        // No dots, treat as single integer
+                        try {
+                            return Integer.parseInt(hierarchical);
+                        } catch (NumberFormatException e) {
+                            return fallback;
+                        }
+                    }
+                }
+            }
         }
         return fallback;
     }
