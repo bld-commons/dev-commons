@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crypto-example-py"
+version = "0.1.0"
+description = "Python counterpart of crypto-example: two services exchanging @CryptoPkcs12 messages"
+requires-python = ">=3.10"
+dependencies = ["common-encryption", "fastapi>=0.115", "uvicorn>=0.30"]
+
+[project.scripts]
+crypto-example-py = "crypto_example.app:main"
+
+[tool.setuptools.packages.find]
+include = ["crypto_example*"]

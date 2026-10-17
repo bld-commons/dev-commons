@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "common-encryption"
+version = "1.0.1"
+description = "Python port of the common-encryption Java module: transparent field-level encryption and decryption"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["cryptography", "encryption", "jks", "pkcs12", "rsa", "x25519"]
+authors = [
+    { name = "Francesco Baldi", email = "francesco.baldi1987@gmail.com" }
+]
+dependencies = ["cryptography>=43"]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/bld-commons/dev-commons"
+Repository = "https://github.com/bld-commons/dev-commons"
+Issues = "https://github.com/bld-commons/dev-commons/issues"
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["common_encryption*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

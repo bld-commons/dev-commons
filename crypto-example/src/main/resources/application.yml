@@ -10,6 +10,11 @@ com:
       public-key:
         keys:
           test: classpath:keystore.pub
+      pkcs12:
+        file: classpath:shared.p12
+        alias: mase-x25519
+        password: pkcs12pass
+        instance-jks: PKCS12
       aes:
         keys:
           test: 
@@ -28,3 +33,6 @@ com:
 #    org:
 #      springframework: debug
         
+
+crypto-example:
+  peer-url: http://localhost:8090

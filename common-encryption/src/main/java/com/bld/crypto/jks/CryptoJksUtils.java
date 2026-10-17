@@ -5,7 +5,6 @@
 package com.bld.crypto.jks;
 
 import java.security.Key;
-import java.security.PublicKey;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
@@ -377,13 +376,7 @@ public final class CryptoJksUtils extends CryptoKeyUtils {
 		return KeyUtility.openEnvelope(this.objMapper, this.decryptUri(token, cryptoType), key);
 	}
 
-	public final PublicKey getPublicKey() {
-		return this.jksKey.getPublicKey();
-	}
-	
-	public final String publicKey() {
-		return this.jksKey.publicKey();
-	}
+
 
 
 }

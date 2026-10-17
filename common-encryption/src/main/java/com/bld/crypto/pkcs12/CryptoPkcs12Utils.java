@@ -341,25 +341,6 @@ public final class CryptoPkcs12Utils {
 	}
 
 
-	/**
-	 * Returns the X25519 public key from the loaded key pair.
-	 *
-	 * @return the recipient's {@link PublicKey}
-	 */
-	public PublicKey getPublicKey() {
-		return jksKey.getPublicKey();
-	}
-
-
-	/**
-	 * Returns the Base64-encoded X.509 DER representation of the X25519 public key.
-	 *
-	 * @return the Base64-encoded public key string
-	 */
-	public String publicKey() {
-		return jksKey.publicKey();
-	}
-
 
 	/**
 	 * Derives a key of the requested length using HKDF-SHA256.
