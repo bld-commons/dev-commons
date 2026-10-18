@@ -77,6 +77,91 @@ The `value` argument is a logical key identifier that gets sealed into the token
 checked on decryption, so a token cannot be moved from one field to another. AES and
 public-key tokens carry no envelope, exactly as in Java.
 
+## Cross-service ID validation (shared keystore)
+
+A common use case: multiple backend services must validate that an incoming encrypted ID/token actually came from the same trust boundary, without calling another REST endpoint to ask "is this valid?".
+
+How it works:
+1. All services must share **the same keystore** (same JKS or same PKCS12 file) containing the key pair used by the chosen scheme.
+2. The sender service encrypts a field using the annotation (e.g. `@CryptoPkcs12` in Java, `Annotated[T, CryptoPkcs12(...)]` in Python) with a fixed logical key name (the `value`).
+3. The receiving service receives the encrypted token in that field and decrypts it using the **same annotation + same logical key** against the **shared keystore**. If the token was produced by any service holding the same key, decryption succeeds and the `value` bound inside matches. If not, decryption fails.
+4. Because the `value` (e.g. `"idUser"`, `"profile_table"`) is sealed into the token, you cannot move a token from one field to another — this acts as an implicit integrity check across services.
+
+In practice: configure all services with identical crypto properties pointing to the same keystore file. Annotate the DTO/model fields that carry cross-service identifiers with the same scheme and same `value`. Then let Jackson (Java) or `to_json`/`from_json` (Python) handle transparent encrypt/decrypt.
+
+### Concrete example (PKCS12, shared)
+
+Java (sender/receiver both load the same `shared.p12`):
+```java
+public class EmployeeEncryptPkcs12 {
+    @CryptoPkcs12(value = "registry_table")
+    private Registry registry;
+
+    @CryptoPkcs12(value = "profile_table")
+    private List<Integer> idProfiles;
+
+    @CryptoPkcs12(value = "role_table")
+    private Integer[] idAuthorities;
+}
+```
+
+Python equivalent (dataclass with Annotated + common_encryption):
+```python
+from dataclasses import dataclass
+from typing import Annotated
+from common_encryption import CryptoPkcs12
+
+@dataclass
+class Registry:
+    firstName: str | None = None
+    lastName: str | None = None
+    dtBirth: str | None = None
+
+@dataclass
+class EmployeePkcs12:
+    registry: Annotated[Registry | None, CryptoPkcs12("registry_table")] = None
+    idProfiles: Annotated[list[int] | None, CryptoPkcs12("profile_table")] = None
+    idAuthorities: Annotated[list[int] | None, CryptoPkcs12("role_table")] = None
+```
+
+With both services configured to load the same keystore, tokens produced by Java decrypt in Python and vice versa.
+
+### Receiving encrypted input in Python (like Java @RequestBody)
+
+In Java you do: `@PostMapping("/decrypt") public ... decrypt(@RequestBody EmployeeDecryptPkcs12 employee) { ... }` and Jackson decrypts annotated fields on deserialization, so the method already receives the plaintext object.
+
+FastAPI/pydantic gets the same result with a pydantic type built from `from_dict` / `to_dict` — no custom deserializer and no dependency helper. `BeforeValidator` decrypts the body while pydantic validates the parameter, `PlainSerializer` encrypts on the way out:
+
+```python
+from dataclasses import asdict
+from typing import Annotated, Any
+from fastapi import FastAPI
+from pydantic import BeforeValidator, PlainSerializer
+from common_encryption import from_dict, to_dict
+from .models import EmployeePkcs12
+
+Encrypted = Annotated[
+    EmployeePkcs12,
+    BeforeValidator(lambda v: v if isinstance(v, EmployeePkcs12) else from_dict(EmployeePkcs12, v)),
+    PlainSerializer(to_dict),
+]
+
+app = FastAPI()
+
+@app.post("/pkcs12/decrypt")
+def decrypt(employee: Encrypted) -> dict[str, Any]:
+    # `employee` is already decrypted here
+    return asdict(employee)
+
+@app.get("/pkcs12/encrypt")
+def encrypt() -> Encrypted:
+    # Jackson-serializer equivalent: annotated fields come out encrypted
+    return EmployeePkcs12.sample()
+```
+
+Define one `Encrypted` alias per model — `BeforeValidator` decrypts on a parameter, `PlainSerializer` encrypts on a return value. `from_dict(cls, data)` and `to_dict(obj)` are the same functions `from_json` / `to_json` are built on.
+
+
 ### Configuration
 
 `CryptoConfig.from_properties()` accepts every shape Spring produces, so the parsed

@@ -11,7 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Annotated
 
-from common_encryption import CryptoPkcs12
+from pydantic import BeforeValidator, PlainSerializer
+
+from common_encryption import CryptoPkcs12, from_dict, to_dict
 
 
 @dataclass
@@ -48,3 +50,10 @@ class EmployeePkcs12:
             idProfiles=[1, 2, 3],
             idAuthorities=[1, 2, 3],
         )
+
+
+EncryptedEmployee = Annotated[
+    EmployeePkcs12,
+    BeforeValidator(lambda value: value if isinstance(value, EmployeePkcs12) else from_dict(EmployeePkcs12, value)),
+    PlainSerializer(to_dict),
+]

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "common-encryption"
-version = "1.0.1"
+version = "1.0.0"
 description = "Python port of the common-encryption Java module: transparent field-level encryption and decryption"
 readme = "README.md"
 license = "MIT"

@@ -10,9 +10,14 @@ PKCS12 scheme encrypts to the public key of that pair and decrypts with its priv
 so with one keystore each side can both write and read.
 
 A FastAPI app (uvicorn underneath), so `GET /docs` serves the interactive OpenAPI page.
-The request body of `/pkcs12/decrypt` is read as raw bytes rather than typed as
-`EmployeePkcs12`: it carries one ciphertext token per annotated field, which pydantic
-would reject — `from_json` decrypts it instead.
+`/pkcs12/decrypt` takes an `EncryptedEmployee` parameter: an `Annotated[EmployeePkcs12,
+BeforeValidator(from_dict), PlainSerializer(to_dict)]` pydantic type, so the body is
+decrypted while pydantic validates it and the endpoint receives the already-decrypted
+object **before** the method is entered — the same contract as Java's
+`@RequestBody EmployeeDecryptPkcs12`. The same type on a return value encrypts on the way
+out. See the
+[common-encryption-py README](../common-encryption-py/README.md#receiving-encrypted-input-in-python-like-java-requestbody)
+for the reusable pattern.
 
 ## Run
 

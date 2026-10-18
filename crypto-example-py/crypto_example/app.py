@@ -7,9 +7,11 @@ Endpoints mirror the Java ones so either side can be the caller:
     POST /pkcs12/send           encrypt a fresh employee and push it to the peer
     GET  /pkcs12/peer-encrypt   read the peer's ciphertext back and decrypt it
 
-The request body of ``/pkcs12/decrypt`` cannot be typed as ``EmployeePkcs12``: it carries
-one ciphertext token per annotated field, so pydantic would reject it. The raw bytes go
-through ``from_json`` instead, which knows the annotated shape and decrypts on the way in.
+The request body of ``/pkcs12/decrypt`` is typed as ``EncryptedEmployee``: an
+``Annotated[EmployeePkcs12, BeforeValidator(from_dict), PlainSerializer(to_dict)]`` pydantic
+type, so the body is decrypted while validated and the endpoint receives the already
+decrypted object — the same contract as Java's ``@RequestBody``. No dependency and no
+custom deserializer.
 """
 
 from __future__ import annotations
@@ -24,12 +26,12 @@ from urllib.request import Request as UrlRequest
 from urllib.request import urlopen
 
 import uvicorn
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from common_encryption import CryptoConfig, CryptoException, from_json, to_json
 
-from .models import EmployeePkcs12
+from .models import EmployeePkcs12, EncryptedEmployee
 
 DEFAULT_KEYSTORE = Path(__file__).resolve().parents[1] / "shared.p12"
 KEYSTORE_ALIAS = "mase-x25519"
@@ -81,15 +83,19 @@ def _crypto_error(request: Request, exc: CryptoException) -> JSONResponse:
 
 
 @app.get("/pkcs12/encrypt")
-def encrypt() -> Response:
+def encrypt() -> EncryptedEmployee:
     """My ciphertext for the peer."""
-    return Response(content=to_json(EmployeePkcs12.sample()), media_type="application/json")
+    return EmployeePkcs12.sample()
 
 
 @app.post("/pkcs12/decrypt")
-async def decrypt(request: Request) -> dict[str, Any]:
-    """The plaintext behind someone else's ciphertext, echoed back so curl can show it."""
-    return asdict(from_json(EmployeePkcs12, await request.body()))
+def decrypt(employee: EncryptedEmployee) -> dict[str, Any]:
+    """The plaintext behind someone else's ciphertext, echoed back so curl can show it.
+
+    pydantic decrypted the body while validating the parameter, so ``employee`` is a
+    plain object — the same contract as Java's ``@RequestBody EmployeeDecryptPkcs12``.
+    """
+    return asdict(employee)
 
 
 @app.post("/pkcs12/send")
