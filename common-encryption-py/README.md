@@ -1,5 +1,9 @@
 # common-encryption
 
+[![PyPI — common-encryption](https://img.shields.io/pypi/v/common-encryption?label=common-encryption)](https://pypi.org/project/common-encryption/)
+[![Python 3.10+](https://img.shields.io/pypi/pyversions/common-encryption)](https://pypi.org/project/common-encryption/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Python port of the Java module [`common-encryption`](../common-encryption): field-level
 encryption and decryption that is transparent to the caller, plus the underlying
 utility classes.

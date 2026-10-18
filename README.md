@@ -8,6 +8,7 @@
 [![Javadoc — common-rest-connection](https://javadoc.io/badge2/com.github.bld-commons/common-rest-connection/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/common-rest-connection)
 [![Javadoc — bld-common-utils](https://javadoc.io/badge2/com.github.bld-commons/bld-common-utils/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/bld-common-utils)
 [![Javadoc — common-encryption](https://javadoc.io/badge2/com.github.bld-commons/common-encryption/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/common-encryption)
+[![PyPI — common-encryption (Python)](https://img.shields.io/pypi/v/common-encryption?label=common-encryption%20%28Python%29)](https://pypi.org/project/common-encryption/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](http://www.opensource.org/licenses/mit-license.php)
 [![Java 17+](https://img.shields.io/badge/Java-17%2B-blue.svg)](https://adoptium.net/)
 
@@ -25,6 +26,7 @@ A collection of Spring Boot 3.x library modules that provide reusable infrastruc
 | [common-rest-connection](common-rest-connection/README.md) | `common-rest-connection` | Unified REST and SOAP 1.1 client based on `RestTemplate` |
 | [bld-common-utils](bld-common-utils/README.md) | `bld-common-utils` | Date/time, string, geometry utilities, JSON annotations, validators |
 | [common-encryption](common-encryption/README.md) | `common-encryption` | AES, RSA and JKS field-level encryption via Jackson annotations |
+| [common-encryption-py](common-encryption-py/README.md) | `common-encryption` (PyPI) | Python port of `common-encryption`, interoperable wire format |
 
 ---
 
