@@ -1,6 +1,17 @@
 # dev-commons
 
-> **Group:** `com.github.bld-commons` | **Version:** 2.2.11 | **License:** [MIT](http://www.opensource.org/licenses/mit-license.php)
+[![Maven Central — common-annotations](https://img.shields.io/maven-central/v/com.github.bld-commons/common-annotations?label=common-annotations)](https://central.sonatype.com/artifact/com.github.bld-commons/common-annotations)
+[![Maven Central — common-rest-connection](https://img.shields.io/maven-central/v/com.github.bld-commons/common-rest-connection?label=common-rest-connection)](https://central.sonatype.com/artifact/com.github.bld-commons/common-rest-connection)
+[![Maven Central — bld-common-utils](https://img.shields.io/maven-central/v/com.github.bld-commons/bld-common-utils?label=bld-common-utils)](https://central.sonatype.com/artifact/com.github.bld-commons/bld-common-utils)
+[![Maven Central — common-encryption](https://img.shields.io/maven-central/v/com.github.bld-commons/common-encryption?label=common-encryption)](https://central.sonatype.com/artifact/com.github.bld-commons/common-encryption)
+[![Javadoc — common-annotations](https://javadoc.io/badge2/com.github.bld-commons/common-annotations/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/common-annotations)
+[![Javadoc — common-rest-connection](https://javadoc.io/badge2/com.github.bld-commons/common-rest-connection/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/common-rest-connection)
+[![Javadoc — bld-common-utils](https://javadoc.io/badge2/com.github.bld-commons/bld-common-utils/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/bld-common-utils)
+[![Javadoc — common-encryption](https://javadoc.io/badge2/com.github.bld-commons/common-encryption/javadoc.svg)](https://javadoc.io/doc/com.github.bld-commons/common-encryption)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](http://www.opensource.org/licenses/mit-license.php)
+[![Java 17+](https://img.shields.io/badge/Java-17%2B-blue.svg)](https://adoptium.net/)
+
+> **Group:** `com.github.bld-commons` | **Version:** 2.2.12 | **License:** [MIT](http://www.opensource.org/licenses/mit-license.php)
 
 A collection of Spring Boot 3.x library modules that provide reusable infrastructure for enterprise Java applications: REST/SOAP clients, Jackson DI bridging, encryption, and general-purpose utilities.
 
