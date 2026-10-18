@@ -325,19 +325,3 @@ java -Dvec.pkcs12File=tests/fixtures/x25519.p12 -Dvec.pkcs12Password=pkcs12pass 
 
 `gen` writes payloads for Python to decrypt; `chk` takes a JSON object of tokens and
 verifies them in Java, which covers the reverse direction.
-
-## Known limitations
-
-- `cryptography` returns a single key pair from a PKCS12 file and exposes no alias
-  lookup. The alias is therefore validated against the store's `friendlyName`
-  attributes when present, but a PKCS12 holding several keys is limited to its first
-  entry. Use one keystore per key, or a JKS, when you need multiple aliases.
-- `CryptoKeyUtils` stays abstract, as in Java: the concrete key selection lives in
-  `CryptoJksUtils` and `CryptoPkcs12Utils`.
-- There is no signature field annotation, in Python or in Java. The token replaces the
-  value, so the text needed to verify it is gone by the time the field is read back;
-  `SignatureKeyUtils.sign` / `.verify` stay explicit calls.
-- A `@CryptoPubKey` field cannot be read back by the service that wrote it: the map
-  utilities hold public keys only, and a token made with a public key needs the private
-  one. Use `@CryptoPubKeyEncrypt` for outbound fields and `@CryptoPubKeyDecrypt` for
-  tokens that arrive signed by the key owner.
